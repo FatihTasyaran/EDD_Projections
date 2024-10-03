@@ -1,0 +1,1128 @@
+1: nodes: {'CPU_1': {'_type': 'CPU'}, 'CPU_2': {'_type': 'CPU'}, 'CPU_3': {'_type': 'CPU'}, 'CPU_4': {'_type': 'CPU'}, 'CPU_5': {'_type': 'CPU'}, 'CPU_6': {'_type': 'CPU'}, 'CPU_7': {'_type': 'CPU'}, 'CPU_8': {'_type': 'CPU'}, 'CPU_9': {'_type': 'CPU'}, 'CPU_10': {'_type': 'CPU'}, 'CPU_11': {'_type': 'CPU'}, 'CE_1': {'_type': 'CE'}, 'CE_2': {'_type': 'CE'}, 'CE_3': {'_type': 'CE'}, 'CE_4': {'_type': 'CE'}, 'SM_1': {'_type': 'SM'}, 'SM_2': {'_type': 'SM'}, 'SM_3': {'_type': 'SM'}, 'SM_4': {'_type': 'SM'}, 'SM_5': {'_type': 'SM'}}
+2: node: CPU_1
+3: node: CPU_1 out_edges: [('CPU_1', 'CE_1')]
+##################################
+4: node_start: CPU_1
+5: node_source: CPU_1
+6: node_destination: CE_1
+6.5 path: [('CPU_1', 'CE_1')]
+different:  True
+7: new_out_edges: [('CE_1', 'CPU_2')]
+##################################
+##################################
+4: node_start: CPU_1
+5: node_source: CE_1
+6: node_destination: CPU_2
+6.5 path: [('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+2: node: CPU_2
+3: node: CPU_2 out_edges: [('CPU_2', 'SM_1'), ('CPU_2', 'CPU_3')]
+##################################
+4: node_start: CPU_2
+5: node_source: CPU_2
+6: node_destination: SM_1
+6.5 path: [('CPU_2', 'SM_1')]
+different:  True
+7: new_out_edges: [('SM_1', 'SM_2')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_2', 'SM_3')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_3', 'CPU_7')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+##################################
+4: node_start: CPU_2
+5: node_source: CPU_2
+6: node_destination: CPU_3
+6.5 path: [('CPU_2', 'CPU_3')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: CPU_3
+3: node: CPU_3 out_edges: [('CPU_3', 'CPU_4'), ('CPU_3', 'CPU_5'), ('CPU_3', 'SM_4')]
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: CPU_4
+6.5 path: [('CPU_3', 'CPU_4')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: CPU_5
+6.5 path: [('CPU_3', 'CPU_5')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: SM_4
+6.5 path: [('CPU_3', 'SM_4')]
+different:  True
+7: new_out_edges: [('SM_4', 'CPU_6')]
+##################################
+##################################
+4: node_start: CPU_3
+5: node_source: SM_4
+6: node_destination: CPU_6
+6.5 path: [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+2: node: CPU_4
+3: node: CPU_4 out_edges: [('CPU_4', 'CPU_6')]
+##################################
+4: node_start: CPU_4
+5: node_source: CPU_4
+6: node_destination: CPU_6
+6.5 path: [('CPU_4', 'CPU_6')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: CPU_5
+3: node: CPU_5 out_edges: [('CPU_5', 'CPU_6')]
+##################################
+4: node_start: CPU_5
+5: node_source: CPU_5
+6: node_destination: CPU_6
+6.5 path: [('CPU_5', 'CPU_6')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: CPU_6
+3: node: CPU_6 out_edges: [('CPU_6', 'CPU_7')]
+##################################
+4: node_start: CPU_6
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('CPU_6', 'CPU_7')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: CPU_7
+3: node: CPU_7 out_edges: [('CPU_7', 'CE_2')]
+##################################
+4: node_start: CPU_7
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: CPU_7
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+2: node: CPU_8
+3: node: CPU_8 out_edges: [('CPU_8', 'CE_3')]
+##################################
+4: node_start: CPU_8
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: CPU_8
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+2: node: CPU_9
+3: node: CPU_9 out_edges: [('CPU_9', 'SM_5')]
+##################################
+4: node_start: CPU_9
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('CPU_9', 'SM_5')]
+different:  True
+7: new_out_edges: [('SM_5', 'CPU_10')]
+##################################
+##################################
+4: node_start: CPU_9
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+2: node: CPU_10
+3: node: CPU_10 out_edges: [('CPU_10', 'CE_4')]
+##################################
+4: node_start: CPU_10
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('CPU_10', 'CE_4')]
+different:  True
+7: new_out_edges: [('CE_4', 'CPU_11')]
+##################################
+##################################
+4: node_start: CPU_10
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+2: node: CPU_11
+3: node: CPU_11 out_edges: []
+2: node: CE_1
+3: node: CE_1 out_edges: [('CE_1', 'CPU_2')]
+##################################
+4: node_start: CE_1
+5: node_source: CE_1
+6: node_destination: CPU_2
+6.5 path: [('CE_1', 'CPU_2')]
+different:  True
+7: new_out_edges: [('CPU_2', 'SM_1'), ('CPU_2', 'CPU_3')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_2
+6: node_destination: SM_1
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1')]
+different:  True
+7: new_out_edges: [('SM_1', 'SM_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_2', 'SM_3')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_3', 'CPU_7')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+2: node: CE_2
+3: node: CE_2 out_edges: [('CE_2', 'CPU_8')]
+##################################
+4: node_start: CE_2
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: CE_2
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+2: node: CE_3
+3: node: CE_3 out_edges: [('CE_3', 'CPU_9')]
+##################################
+4: node_start: CE_3
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+7: new_out_edges: [('SM_5', 'CPU_10')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+different:  True
+7: new_out_edges: [('CPU_10', 'CE_4')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+2: node: CE_4
+3: node: CE_4 out_edges: [('CE_4', 'CPU_11')]
+##################################
+4: node_start: CE_4
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('CE_4', 'CPU_11')]
+different:  True
+7: new_out_edges: []
+##################################
+##IF EVER RETURNS: path:  None
+2: node: SM_1
+3: node: SM_1 out_edges: [('SM_1', 'SM_2')]
+##################################
+4: node_start: SM_1
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('SM_1', 'SM_2')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: SM_2
+3: node: SM_2 out_edges: [('SM_2', 'SM_3')]
+##################################
+4: node_start: SM_2
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('SM_2', 'SM_3')]
+different:  False
+different:  False
+different:  False
+##IF EVER RETURNS: path:  None
+2: node: SM_3
+3: node: SM_3 out_edges: [('SM_3', 'CPU_7')]
+##################################
+4: node_start: SM_3
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('SM_3', 'CPU_7')]
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+2: node: SM_4
+3: node: SM_4 out_edges: [('SM_4', 'CPU_6')]
+##################################
+4: node_start: SM_4
+5: node_source: SM_4
+6: node_destination: CPU_6
+6.5 path: [('SM_4', 'CPU_6')]
+different:  True
+7: new_out_edges: [('CPU_6', 'CPU_7')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+FOUND!
+##IF EVER RETURNS: path:  [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+2: node: SM_5
+3: node: SM_5 out_edges: [('SM_5', 'CPU_10')]
+##################################
+4: node_start: SM_5
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('SM_5', 'CPU_10')]
+different:  True
+7: new_out_edges: [('CPU_10', 'CE_4')]
+##################################
+##################################
+4: node_start: SM_5
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+different:  True
+7: new_out_edges: [('CE_4', 'CPU_11')]
+##################################
+##################################
+4: node_start: SM_5
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('SM_5', 'CPU_10'), ('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+different:  True
+7: new_out_edges: []
+##################################
+##IF EVER RETURNS: path:  None
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+None
+None
+None
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+None
+None
+None
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+None
+None
+None
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+None
+1: nodes: {'CPU_1': {'_type': 'CPU'}, 'CPU_2': {'_type': 'CPU'}, 'CPU_3': {'_type': 'CPU'}, 'CPU_4': {'_type': 'CPU'}, 'CPU_5': {'_type': 'CPU'}, 'CPU_6': {'_type': 'CPU'}, 'CPU_7': {'_type': 'CPU'}, 'CPU_8': {'_type': 'CPU'}, 'CPU_9': {'_type': 'CPU'}, 'CPU_10': {'_type': 'CPU'}, 'CPU_11': {'_type': 'CPU'}, 'CE_1': {'_type': 'CE'}, 'CE_2': {'_type': 'CE'}, 'CE_3': {'_type': 'CE'}, 'CE_4': {'_type': 'CE'}, 'SM_1': {'_type': 'SM'}, 'SM_2': {'_type': 'SM'}, 'SM_3': {'_type': 'SM'}, 'SM_4': {'_type': 'SM'}, 'SM_5': {'_type': 'SM'}}
+2: node: CPU_1
+3: node: CPU_1 out_edges: [('CPU_1', 'CE_1')]
+##################################
+4: node_start: CPU_1
+5: node_source: CPU_1
+6: node_destination: CE_1
+6.5 path: [('CPU_1', 'CE_1')]
+different:  True
+7: new_out_edges: [('CE_1', 'CPU_2')]
+##################################
+Traceback (most recent call last):
+  File "/home/fatih/Documents/make_projections/project.py", line 297, in <module>
+    recursive_paths(DIG)
+  File "/home/fatih/Documents/make_projections/project.py", line 286, in recursive_paths
+    path = recursive_search(G, node, node, edge[1], path, all_paths)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fatih/Documents/make_projections/project.py", line 270, in recursive_search
+    recursive_search(G, node_start, node_source, node_destination, path)
+TypeError: recursive_search() missing 1 required positional argument: 'all_paths'
+1: nodes: {'CPU_1': {'_type': 'CPU'}, 'CPU_2': {'_type': 'CPU'}, 'CPU_3': {'_type': 'CPU'}, 'CPU_4': {'_type': 'CPU'}, 'CPU_5': {'_type': 'CPU'}, 'CPU_6': {'_type': 'CPU'}, 'CPU_7': {'_type': 'CPU'}, 'CPU_8': {'_type': 'CPU'}, 'CPU_9': {'_type': 'CPU'}, 'CPU_10': {'_type': 'CPU'}, 'CPU_11': {'_type': 'CPU'}, 'CE_1': {'_type': 'CE'}, 'CE_2': {'_type': 'CE'}, 'CE_3': {'_type': 'CE'}, 'CE_4': {'_type': 'CE'}, 'SM_1': {'_type': 'SM'}, 'SM_2': {'_type': 'SM'}, 'SM_3': {'_type': 'SM'}, 'SM_4': {'_type': 'SM'}, 'SM_5': {'_type': 'SM'}}
+2: node: CPU_1
+3: node: CPU_1 out_edges: [('CPU_1', 'CE_1')]
+##################################
+4: node_start: CPU_1
+5: node_source: CPU_1
+6: node_destination: CE_1
+6.5 path: [('CPU_1', 'CE_1')]
+different:  True
+7: new_out_edges: [('CE_1', 'CPU_2')]
+##################################
+##################################
+4: node_start: CPU_1
+5: node_source: CE_1
+6: node_destination: CPU_2
+6.5 path: [('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_2
+3: node: CPU_2 out_edges: [('CPU_2', 'SM_1'), ('CPU_2', 'CPU_3')]
+##################################
+4: node_start: CPU_2
+5: node_source: CPU_2
+6: node_destination: SM_1
+6.5 path: [('CPU_2', 'SM_1')]
+different:  True
+7: new_out_edges: [('SM_1', 'SM_2')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_2', 'SM_3')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_3', 'CPU_7')]
+##################################
+##################################
+4: node_start: CPU_2
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+different:  True
+FOUND!
+##Found path:  []
+##################################
+4: node_start: CPU_2
+5: node_source: CPU_2
+6: node_destination: CPU_3
+6.5 path: [('CPU_2', 'CPU_3')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: CPU_3
+3: node: CPU_3 out_edges: [('CPU_3', 'CPU_4'), ('CPU_3', 'CPU_5'), ('CPU_3', 'SM_4')]
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: CPU_4
+6.5 path: [('CPU_3', 'CPU_4')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: CPU_5
+6.5 path: [('CPU_3', 'CPU_5')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+##################################
+4: node_start: CPU_3
+5: node_source: CPU_3
+6: node_destination: SM_4
+6.5 path: [('CPU_3', 'SM_4')]
+different:  True
+7: new_out_edges: [('SM_4', 'CPU_6')]
+##################################
+##################################
+4: node_start: CPU_3
+5: node_source: SM_4
+6: node_destination: CPU_6
+6.5 path: [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_4
+3: node: CPU_4 out_edges: [('CPU_4', 'CPU_6')]
+##################################
+4: node_start: CPU_4
+5: node_source: CPU_4
+6: node_destination: CPU_6
+6.5 path: [('CPU_4', 'CPU_6')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: CPU_5
+3: node: CPU_5 out_edges: [('CPU_5', 'CPU_6')]
+##################################
+4: node_start: CPU_5
+5: node_source: CPU_5
+6: node_destination: CPU_6
+6.5 path: [('CPU_5', 'CPU_6')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: CPU_6
+3: node: CPU_6 out_edges: [('CPU_6', 'CPU_7')]
+##################################
+4: node_start: CPU_6
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('CPU_6', 'CPU_7')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: CPU_7
+3: node: CPU_7 out_edges: [('CPU_7', 'CE_2')]
+##################################
+4: node_start: CPU_7
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: CPU_7
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_8
+3: node: CPU_8 out_edges: [('CPU_8', 'CE_3')]
+##################################
+4: node_start: CPU_8
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: CPU_8
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_9
+3: node: CPU_9 out_edges: [('CPU_9', 'SM_5')]
+##################################
+4: node_start: CPU_9
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('CPU_9', 'SM_5')]
+different:  True
+7: new_out_edges: [('SM_5', 'CPU_10')]
+##################################
+##################################
+4: node_start: CPU_9
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_10
+3: node: CPU_10 out_edges: [('CPU_10', 'CE_4')]
+##################################
+4: node_start: CPU_10
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('CPU_10', 'CE_4')]
+different:  True
+7: new_out_edges: [('CE_4', 'CPU_11')]
+##################################
+##################################
+4: node_start: CPU_10
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CPU_11
+3: node: CPU_11 out_edges: []
+2: node: CE_1
+3: node: CE_1 out_edges: [('CE_1', 'CPU_2')]
+##################################
+4: node_start: CE_1
+5: node_source: CE_1
+6: node_destination: CPU_2
+6.5 path: [('CE_1', 'CPU_2')]
+different:  True
+7: new_out_edges: [('CPU_2', 'SM_1'), ('CPU_2', 'CPU_3')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_2
+6: node_destination: SM_1
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1')]
+different:  True
+7: new_out_edges: [('SM_1', 'SM_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_2', 'SM_3')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3')]
+different:  True
+different:  True
+7: new_out_edges: [('SM_3', 'CPU_7')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+FOUND!
+##################################
+4: node_start: CE_1
+5: node_source: CPU_2
+6: node_destination: CPU_3
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_3', 'CPU_4'), ('CPU_3', 'CPU_5'), ('CPU_3', 'SM_4')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_3
+6: node_destination: CPU_4
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_4', 'CPU_6')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_4
+6: node_destination: CPU_6
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_6', 'CPU_7')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+FOUND!
+##################################
+4: node_start: CE_1
+5: node_source: CPU_3
+6: node_destination: CPU_5
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_5', 'CPU_6')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_5
+6: node_destination: CPU_6
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_6', 'CPU_7')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+FOUND!
+##################################
+4: node_start: CE_1
+5: node_source: CPU_3
+6: node_destination: SM_4
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4')]
+different:  True
+7: new_out_edges: [('SM_4', 'CPU_6')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: SM_4
+6: node_destination: CPU_6
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+different:  True
+7: new_out_edges: [('CPU_6', 'CPU_7')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: CE_1
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CE_2
+3: node: CE_2 out_edges: [('CE_2', 'CPU_8')]
+##################################
+4: node_start: CE_2
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: CE_2
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CE_3
+3: node: CE_3 out_edges: [('CE_3', 'CPU_9')]
+##################################
+4: node_start: CE_3
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+7: new_out_edges: [('SM_5', 'CPU_10')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+different:  True
+7: new_out_edges: [('CPU_10', 'CE_4')]
+##################################
+##################################
+4: node_start: CE_3
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: CE_4
+3: node: CE_4 out_edges: [('CE_4', 'CPU_11')]
+##################################
+4: node_start: CE_4
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('CE_4', 'CPU_11')]
+different:  True
+7: new_out_edges: []
+##################################
+##Found path:  []
+2: node: SM_1
+3: node: SM_1 out_edges: [('SM_1', 'SM_2')]
+##################################
+4: node_start: SM_1
+5: node_source: SM_1
+6: node_destination: SM_2
+6.5 path: [('SM_1', 'SM_2')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: SM_2
+3: node: SM_2 out_edges: [('SM_2', 'SM_3')]
+##################################
+4: node_start: SM_2
+5: node_source: SM_2
+6: node_destination: SM_3
+6.5 path: [('SM_2', 'SM_3')]
+different:  False
+different:  False
+different:  False
+##Found path:  []
+2: node: SM_3
+3: node: SM_3 out_edges: [('SM_3', 'CPU_7')]
+##################################
+4: node_start: SM_3
+5: node_source: SM_3
+6: node_destination: CPU_7
+6.5 path: [('SM_3', 'CPU_7')]
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: SM_3
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: SM_4
+3: node: SM_4 out_edges: [('SM_4', 'CPU_6')]
+##################################
+4: node_start: SM_4
+5: node_source: SM_4
+6: node_destination: CPU_6
+6.5 path: [('SM_4', 'CPU_6')]
+different:  True
+7: new_out_edges: [('CPU_6', 'CPU_7')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_6
+6: node_destination: CPU_7
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7')]
+different:  True
+different:  True
+7: new_out_edges: [('CPU_7', 'CE_2')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_7
+6: node_destination: CE_2
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+different:  True
+7: new_out_edges: [('CE_2', 'CPU_8')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CE_2
+6: node_destination: CPU_8
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+different:  True
+7: new_out_edges: [('CPU_8', 'CE_3')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_8
+6: node_destination: CE_3
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+different:  True
+7: new_out_edges: [('CE_3', 'CPU_9')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CE_3
+6: node_destination: CPU_9
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+different:  True
+7: new_out_edges: [('CPU_9', 'SM_5')]
+##################################
+##################################
+4: node_start: SM_4
+5: node_source: CPU_9
+6: node_destination: SM_5
+6.5 path: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+different:  True
+FOUND!
+##Found path:  []
+2: node: SM_5
+3: node: SM_5 out_edges: [('SM_5', 'CPU_10')]
+##################################
+4: node_start: SM_5
+5: node_source: SM_5
+6: node_destination: CPU_10
+6.5 path: [('SM_5', 'CPU_10')]
+different:  True
+7: new_out_edges: [('CPU_10', 'CE_4')]
+##################################
+##################################
+4: node_start: SM_5
+5: node_source: CPU_10
+6: node_destination: CE_4
+6.5 path: [('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+different:  True
+7: new_out_edges: [('CE_4', 'CPU_11')]
+##################################
+##################################
+4: node_start: SM_5
+5: node_source: CE_4
+6: node_destination: CPU_11
+6.5 path: [('SM_5', 'CPU_10'), ('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+different:  True
+7: new_out_edges: []
+##################################
+##Found path:  []
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
