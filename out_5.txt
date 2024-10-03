@@ -1,0 +1,879 @@
+##############################
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+##############################
+##############################
+all nodes:
+CPU_1 {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+CPU_2 {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+CPU_3 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_4 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_5 {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+CPU_6 {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+CPU_7 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+CPU_8 {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+CPU_9 {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+CPU_10 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+CPU_11 {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+CE_1 {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3}
+CE_2 {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1}
+CE_3 {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3}
+CE_4 {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2}
+SM_1 {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2}
+SM_2 {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3}
+SM_3 {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1}
+SM_4 {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2}
+SM_5 {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3}
+##############################
+##############################
+all edges:
+('CPU_1', 'CE_1', {'relation': '1', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'SM_1', {'relation': '3', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'CPU_3', {'relation': '15', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_4', {'relation': '16', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_5', {'relation': '17', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'SM_4', {'relation': '18', 'susp_min': 0, 'susp_max': 0})
+('CPU_4', 'CPU_6', {'relation': '20', 'susp_min': 0, 'susp_max': 0})
+('CPU_5', 'CPU_6', {'relation': '21', 'susp_min': 0, 'susp_max': 0})
+('CPU_6', 'CPU_7', {'relation': '22', 'susp_min': 0, 'susp_max': 0})
+('CPU_7', 'CE_2', {'relation': '7', 'susp_min': 0, 'susp_max': 0})
+('CPU_8', 'CE_3', {'relation': '9', 'susp_min': 0, 'susp_max': 0})
+('CPU_9', 'SM_5', {'relation': '11', 'susp_min': 0, 'susp_max': 0})
+('CPU_10', 'CE_4', {'relation': '13', 'susp_min': 0, 'susp_max': 0})
+('CE_1', 'CPU_2', {'relation': '2', 'susp_min': 0, 'susp_max': 0})
+('CE_2', 'CPU_8', {'relation': '8', 'susp_min': 0, 'susp_max': 0})
+('CE_3', 'CPU_9', {'relation': '10', 'susp_min': 0, 'susp_max': 0})
+('CE_4', 'CPU_11', {'relation': '14', 'susp_min': 0, 'susp_max': 0})
+('SM_1', 'SM_2', {'relation': '4', 'susp_min': 0, 'susp_max': 0})
+('SM_2', 'SM_3', {'relation': '5', 'susp_min': 0, 'susp_max': 0})
+('SM_3', 'CPU_7', {'relation': '6', 'susp_min': 0, 'susp_max': 0})
+('SM_4', 'CPU_6', {'relation': '19', 'susp_min': 0, 'susp_max': 0})
+('SM_5', 'CPU_10', {'relation': '12', 'susp_min': 0, 'susp_max': 0})
+##############################
+Here, node: CPU_1
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_2
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_3
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_4
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_5
+node_data: {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_6
+node_data: {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_7
+node_data: {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_8
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_9
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_10
+node_data: {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+Here, node: CPU_11
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+('CE_1', {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3})
+('CE_2', {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1})
+('CE_3', {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3})
+('CE_4', {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2})
+('SM_1', {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2})
+('SM_2', {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3})
+('SM_3', {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1})
+('SM_4', {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2})
+('SM_5', {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3})
+##############################
+##############################
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+##############################
+##############################
+all nodes:
+CPU_1 {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+CPU_2 {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+CPU_3 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_4 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_5 {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+CPU_6 {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+CPU_7 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+CPU_8 {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+CPU_9 {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+CPU_10 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+CPU_11 {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+CE_1 {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3}
+CE_2 {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1}
+CE_3 {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3}
+CE_4 {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2}
+SM_1 {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2}
+SM_2 {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3}
+SM_3 {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1}
+SM_4 {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2}
+SM_5 {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3}
+##############################
+##############################
+all edges:
+('CPU_1', 'CE_1', {'relation': '1', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'SM_1', {'relation': '3', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'CPU_3', {'relation': '15', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_4', {'relation': '16', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_5', {'relation': '17', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'SM_4', {'relation': '18', 'susp_min': 0, 'susp_max': 0})
+('CPU_4', 'CPU_6', {'relation': '20', 'susp_min': 0, 'susp_max': 0})
+('CPU_5', 'CPU_6', {'relation': '21', 'susp_min': 0, 'susp_max': 0})
+('CPU_6', 'CPU_7', {'relation': '22', 'susp_min': 0, 'susp_max': 0})
+('CPU_7', 'CE_2', {'relation': '7', 'susp_min': 0, 'susp_max': 0})
+('CPU_8', 'CE_3', {'relation': '9', 'susp_min': 0, 'susp_max': 0})
+('CPU_9', 'SM_5', {'relation': '11', 'susp_min': 0, 'susp_max': 0})
+('CPU_10', 'CE_4', {'relation': '13', 'susp_min': 0, 'susp_max': 0})
+('CE_1', 'CPU_2', {'relation': '2', 'susp_min': 0, 'susp_max': 0})
+('CE_2', 'CPU_8', {'relation': '8', 'susp_min': 0, 'susp_max': 0})
+('CE_3', 'CPU_9', {'relation': '10', 'susp_min': 0, 'susp_max': 0})
+('CE_4', 'CPU_11', {'relation': '14', 'susp_min': 0, 'susp_max': 0})
+('SM_1', 'SM_2', {'relation': '4', 'susp_min': 0, 'susp_max': 0})
+('SM_2', 'SM_3', {'relation': '5', 'susp_min': 0, 'susp_max': 0})
+('SM_3', 'CPU_7', {'relation': '6', 'susp_min': 0, 'susp_max': 0})
+('SM_4', 'CPU_6', {'relation': '19', 'susp_min': 0, 'susp_max': 0})
+('SM_5', 'CPU_10', {'relation': '12', 'susp_min': 0, 'susp_max': 0})
+##############################
+Here, node: CPU_1
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+Here, node: CPU_2
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+Here, node: CPU_3
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+Here, node: CPU_4
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+Here, node: CPU_5
+node_data: {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+Here, node: CPU_6
+node_data: {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+Here, node: CPU_7
+node_data: {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+Here, node: CPU_8
+node_data: {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+Here, node: CPU_9
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+Here, node: CPU_10
+node_data: {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+Here, node: CPU_11
+node_data: {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+##############################
+CPU Projection
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+##############################
+##############################
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+##############################
+##############################
+suspensions dict:
+Suspension: [('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+Suspension: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+Suspension: [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+Suspension: [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+Suspension: [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+Suspension: [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+Suspension: [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+Suspension: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+Suspension: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+Suspension: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+1 {'source_node': 'CPU_1', 'target_node': 'CPU_2', 'type': 'CPU', 'paths': [[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]]}
+2 {'source_node': 'CPU_2', 'target_node': 'CPU_7', 'type': 'CPU', 'paths': [[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]]}
+3 {'source_node': 'CPU_3', 'target_node': 'CPU_6', 'type': 'CPU', 'paths': [[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]]}
+4 {'source_node': 'CPU_7', 'target_node': 'CPU_8', 'type': 'CPU', 'paths': [[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]]}
+5 {'source_node': 'CPU_8', 'target_node': 'CPU_9', 'type': 'CPU', 'paths': [[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]]}
+6 {'source_node': 'CPU_9', 'target_node': 'CPU_10', 'type': 'CPU', 'paths': [[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]]}
+7 {'source_node': 'CPU_10', 'target_node': 'CPU_11', 'type': 'CPU', 'paths': [[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]]}
+8 {'source_node': 'CE_1', 'target_node': 'CE_2', 'type': 'CE', 'paths': [[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]]}
+9 {'source_node': 'CE_2', 'target_node': 'CE_3', 'type': 'CE', 'paths': [[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]]}
+10 {'source_node': 'CE_3', 'target_node': 'CE_4', 'type': 'CE', 'paths': [[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]]}
+11 {'source_node': 'SM_3', 'target_node': 'SM_5', 'type': 'SM', 'paths': [[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]}
+12 {'source_node': 'SM_4', 'target_node': 'SM_5', 'type': 'SM', 'paths': [[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]}
+##############################
+##############################
+all nodes:
+CPU_1 {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+CPU_2 {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+CPU_3 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_4 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_5 {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+CPU_6 {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+CPU_7 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+CPU_8 {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+CPU_9 {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+CPU_10 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+CPU_11 {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+CE_1 {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3}
+CE_2 {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1}
+CE_3 {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3}
+CE_4 {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2}
+SM_1 {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2}
+SM_2 {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3}
+SM_3 {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1}
+SM_4 {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2}
+SM_5 {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3}
+##############################
+##############################
+all edges:
+('CPU_1', 'CE_1', {'relation': '1', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'SM_1', {'relation': '3', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'CPU_3', {'relation': '15', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_4', {'relation': '16', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_5', {'relation': '17', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'SM_4', {'relation': '18', 'susp_min': 0, 'susp_max': 0})
+('CPU_4', 'CPU_6', {'relation': '20', 'susp_min': 0, 'susp_max': 0})
+('CPU_5', 'CPU_6', {'relation': '21', 'susp_min': 0, 'susp_max': 0})
+('CPU_6', 'CPU_7', {'relation': '22', 'susp_min': 0, 'susp_max': 0})
+('CPU_7', 'CE_2', {'relation': '7', 'susp_min': 0, 'susp_max': 0})
+('CPU_8', 'CE_3', {'relation': '9', 'susp_min': 0, 'susp_max': 0})
+('CPU_9', 'SM_5', {'relation': '11', 'susp_min': 0, 'susp_max': 0})
+('CPU_10', 'CE_4', {'relation': '13', 'susp_min': 0, 'susp_max': 0})
+('CE_1', 'CPU_2', {'relation': '2', 'susp_min': 0, 'susp_max': 0})
+('CE_2', 'CPU_8', {'relation': '8', 'susp_min': 0, 'susp_max': 0})
+('CE_3', 'CPU_9', {'relation': '10', 'susp_min': 0, 'susp_max': 0})
+('CE_4', 'CPU_11', {'relation': '14', 'susp_min': 0, 'susp_max': 0})
+('SM_1', 'SM_2', {'relation': '4', 'susp_min': 0, 'susp_max': 0})
+('SM_2', 'SM_3', {'relation': '5', 'susp_min': 0, 'susp_max': 0})
+('SM_3', 'CPU_7', {'relation': '6', 'susp_min': 0, 'susp_max': 0})
+('SM_4', 'CPU_6', {'relation': '19', 'susp_min': 0, 'susp_max': 0})
+('SM_5', 'CPU_10', {'relation': '12', 'susp_min': 0, 'susp_max': 0})
+##############################
+##############################
+CPU Projection All Nodes
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+##############################
+suspensions_dict: [[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')], [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')], [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')], [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')], [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')], [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')], [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')], [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')], [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')], [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')], [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]
+Traceback (most recent call last):
+  File "/home/fatih/Documents/make_projections/project.py", line 413, in <module>
+    generate_cpu_projection(DIG, all_suspensions)
+  File "/home/fatih/Documents/make_projections/project.py", line 338, in generate_cpu_projection
+    suspension = suspensions_dict[key]
+                 ~~~~~~~~~~~~~~~~^^^^^
+TypeError: list indices must be integers or slices, not list
+##############################
+all suspensions:
+[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+##############################
+##############################
+suspensions dict:
+Suspension: [('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]
+Suspension: [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]
+Suspension: [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]
+Suspension: [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]
+Suspension: [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]
+Suspension: [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]
+Suspension: [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]
+Suspension: [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]
+Suspension: [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]
+Suspension: [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+Suspension: [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]
+1 {'source_node': 'CPU_1', 'target_node': 'CPU_2', 'type': 'CPU', 'paths': [[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')]]}
+2 {'source_node': 'CPU_2', 'target_node': 'CPU_7', 'type': 'CPU', 'paths': [[('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')]]}
+3 {'source_node': 'CPU_3', 'target_node': 'CPU_6', 'type': 'CPU', 'paths': [[('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')]]}
+4 {'source_node': 'CPU_7', 'target_node': 'CPU_8', 'type': 'CPU', 'paths': [[('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')]]}
+5 {'source_node': 'CPU_8', 'target_node': 'CPU_9', 'type': 'CPU', 'paths': [[('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')]]}
+6 {'source_node': 'CPU_9', 'target_node': 'CPU_10', 'type': 'CPU', 'paths': [[('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')]]}
+7 {'source_node': 'CPU_10', 'target_node': 'CPU_11', 'type': 'CPU', 'paths': [[('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')]]}
+8 {'source_node': 'CE_1', 'target_node': 'CE_2', 'type': 'CE', 'paths': [[('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')]]}
+9 {'source_node': 'CE_2', 'target_node': 'CE_3', 'type': 'CE', 'paths': [[('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')]]}
+10 {'source_node': 'CE_3', 'target_node': 'CE_4', 'type': 'CE', 'paths': [[('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')]]}
+11 {'source_node': 'SM_3', 'target_node': 'SM_5', 'type': 'SM', 'paths': [[('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]}
+12 {'source_node': 'SM_4', 'target_node': 'SM_5', 'type': 'SM', 'paths': [[('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]}
+##############################
+##############################
+all nodes:
+CPU_1 {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1}
+CPU_2 {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3}
+CPU_3 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_4 {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1}
+CPU_5 {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1}
+CPU_6 {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1}
+CPU_7 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3}
+CPU_8 {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2}
+CPU_9 {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1}
+CPU_10 {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2}
+CPU_11 {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1}
+CE_1 {'_type': 'CE', '_cmin': 3, '_cmax': 4, '_amin': 2, '_amax': 6, '_d': 12, '_p': 1, '_q': 3}
+CE_2 {'_type': 'CE', '_cmin': 1, '_cmax': 3, '_amin': 9, '_amax': 13, '_d': 19, '_p': 1, '_q': 1}
+CE_3 {'_type': 'CE', '_cmin': 3, '_cmax': 5, '_amin': 16, '_amax': 19, '_d': 30, '_p': 1, '_q': 3}
+CE_4 {'_type': 'CE', '_cmin': 2, '_cmax': 3, '_amin': 23, '_amax': 26, '_d': 35, '_p': 1, '_q': 2}
+SM_1 {'_type': 'SM', '_cmin': 1, '_cmax': 4, '_amin': 1, '_amax': 4, '_d': 14, '_p': 1, '_q': 2}
+SM_2 {'_type': 'SM', '_cmin': 2, '_cmax': 5, '_amin': 6, '_amax': 7, '_d': 19, '_p': 1, '_q': 3}
+SM_3 {'_type': 'SM', '_cmin': 4, '_cmax': 6, '_amin': 10, '_amax': 13, '_d': 25, '_p': 2, '_q': 1}
+SM_4 {'_type': 'SM', '_cmin': 1, '_cmax': 8, '_amin': 16, '_amax': 19, '_d': 32, '_p': 3, '_q': 2}
+SM_5 {'_type': 'SM', '_cmin': 3, '_cmax': 7, '_amin': 22, '_amax': 24, '_d': 38, '_p': 2, '_q': 3}
+##############################
+##############################
+all edges:
+('CPU_1', 'CE_1', {'relation': '1', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'SM_1', {'relation': '3', 'susp_min': 0, 'susp_max': 0})
+('CPU_2', 'CPU_3', {'relation': '15', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_4', {'relation': '16', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'CPU_5', {'relation': '17', 'susp_min': 0, 'susp_max': 0})
+('CPU_3', 'SM_4', {'relation': '18', 'susp_min': 0, 'susp_max': 0})
+('CPU_4', 'CPU_6', {'relation': '20', 'susp_min': 0, 'susp_max': 0})
+('CPU_5', 'CPU_6', {'relation': '21', 'susp_min': 0, 'susp_max': 0})
+('CPU_6', 'CPU_7', {'relation': '22', 'susp_min': 0, 'susp_max': 0})
+('CPU_7', 'CE_2', {'relation': '7', 'susp_min': 0, 'susp_max': 0})
+('CPU_8', 'CE_3', {'relation': '9', 'susp_min': 0, 'susp_max': 0})
+('CPU_9', 'SM_5', {'relation': '11', 'susp_min': 0, 'susp_max': 0})
+('CPU_10', 'CE_4', {'relation': '13', 'susp_min': 0, 'susp_max': 0})
+('CE_1', 'CPU_2', {'relation': '2', 'susp_min': 0, 'susp_max': 0})
+('CE_2', 'CPU_8', {'relation': '8', 'susp_min': 0, 'susp_max': 0})
+('CE_3', 'CPU_9', {'relation': '10', 'susp_min': 0, 'susp_max': 0})
+('CE_4', 'CPU_11', {'relation': '14', 'susp_min': 0, 'susp_max': 0})
+('SM_1', 'SM_2', {'relation': '4', 'susp_min': 0, 'susp_max': 0})
+('SM_2', 'SM_3', {'relation': '5', 'susp_min': 0, 'susp_max': 0})
+('SM_3', 'CPU_7', {'relation': '6', 'susp_min': 0, 'susp_max': 0})
+('SM_4', 'CPU_6', {'relation': '19', 'susp_min': 0, 'susp_max': 0})
+('SM_5', 'CPU_10', {'relation': '12', 'susp_min': 0, 'susp_max': 0})
+##############################
+##############################
+CPU Projection All Nodes
+('CPU_1', {'_type': 'CPU', '_cmin': 3, '_cmax': 5, '_amin': 0, '_amax': 5, '_d': 15, '_p': 1, '_q': 1})
+('CPU_2', {'_type': 'CPU', '_cmin': 3, '_cmax': 8, '_amin': 10, '_amax': 11, '_d': 24, '_p': 1, '_q': 3})
+('CPU_3', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_4', {'_type': 'CPU', '_cmin': 4, '_cmax': 5, '_amin': 13, '_amax': 16, '_d': 25, '_p': 1, '_q': 1})
+('CPU_5', {'_type': 'CPU', '_cmin': 2, '_cmax': 6, '_amin': 19, '_amax': 20, '_d': 31, '_p': 1, '_q': 1})
+('CPU_6', {'_type': 'CPU', '_cmin': 2, '_cmax': 10, '_amin': 23, '_amax': 25, '_d': 37, '_p': 1, '_q': 1})
+('CPU_7', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 28, '_amax': 33, '_d': 44, '_p': 1, '_q': 3})
+('CPU_8', {'_type': 'CPU', '_cmin': 4, '_cmax': 7, '_amin': 36, '_amax': 39, '_d': 51, '_p': 1, '_q': 2})
+('CPU_9', {'_type': 'CPU', '_cmin': 3, '_cmax': 7, '_amin': 42, '_amax': 44, '_d': 56, '_p': 1, '_q': 1})
+('CPU_10', {'_type': 'CPU', '_cmin': 1, '_cmax': 10, '_amin': 47, '_amax': 51, '_d': 66, '_p': 1, '_q': 2})
+('CPU_11', {'_type': 'CPU', '_cmin': 3, '_cmax': 6, '_amin': 54, '_amax': 59, '_d': 70, '_p': 1, '_q': 1})
+##############################
+!!suspensions_dict: [[('CPU_1', 'CE_1'), ('CE_1', 'CPU_2')], [('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7')], [('CPU_3', 'SM_4'), ('SM_4', 'CPU_6')], [('CPU_7', 'CE_2'), ('CE_2', 'CPU_8')], [('CPU_8', 'CE_3'), ('CE_3', 'CPU_9')], [('CPU_9', 'SM_5'), ('SM_5', 'CPU_10')], [('CPU_10', 'CE_4'), ('CE_4', 'CPU_11')], [('CE_1', 'CPU_2'), ('CPU_2', 'SM_1'), ('SM_1', 'SM_2'), ('SM_2', 'SM_3'), ('SM_3', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_4'), ('CPU_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'CPU_5'), ('CPU_5', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_1', 'CPU_2'), ('CPU_2', 'CPU_3'), ('CPU_3', 'SM_4'), ('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2')], [('CE_2', 'CPU_8'), ('CPU_8', 'CE_3')], [('CE_3', 'CPU_9'), ('CPU_9', 'SM_5'), ('SM_5', 'CPU_10'), ('CPU_10', 'CE_4')], [('SM_3', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')], [('SM_4', 'CPU_6'), ('CPU_6', 'CPU_7'), ('CPU_7', 'CE_2'), ('CE_2', 'CPU_8'), ('CPU_8', 'CE_3'), ('CE_3', 'CPU_9'), ('CPU_9', 'SM_5')]]
