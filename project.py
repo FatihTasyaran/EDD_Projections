@@ -2,6 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math
 from collections import defaultdict
+import get_four_basic_tasks
 
 def create_digraph():
 
@@ -382,7 +383,8 @@ def generate_cpu_projection(G, suspensions_dict):
     for edge in edges:
         print(edge)
     print("##############################")
-            
+    return cpu_projection
+
 def create_suspensions_dict(all_suspensions):
 
     suspensions_dict = {}
@@ -447,5 +449,5 @@ if __name__ == "__main__":
         print(edge)
     print("##############################")
     
-    generate_cpu_projection(DIG, suspensions_dict)
+    cpu_projection = generate_cpu_projection(DIG, suspensions_dict)
     
