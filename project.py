@@ -1,8 +1,80 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import functools
 from collections import defaultdict
 import get_four_basic_tasks
+
+def lcm(a, b):
+    return abs(a * b) // math.gcd(a, b)
+
+def lcm_of_list(numbers):
+    return functools.reduce(lcm, numbers)
+
+class TASK:
+
+    def __init__(self, first_instance, period, deadline, suspensions_dict, cpu_projection):
+        self.dag = first_instance
+        self.period = period
+        self.deadline = deadline
+        self.suspensions_dict = suspensions_dict
+        self.cpu_projection = cpu_projection ##Make this called and computed here 
+
+
+class TASKSET:
+
+    ##dags is a list of DAG class instances
+    def __init__(self, task_list):
+        self.task_list = task_list
+        
+        self.cpu_jobs_input_path = "cpu_jobs.csv"
+        self.cpu_prec_input_path = "cpu_prec.csv"
+        
+        self.ce_jobs_input_path = "ce_jobs.csv"
+        self.ce_prec_input_path = "ce_prec.csv"
+
+        self.sm_jobs_input_path = "sm_jobs.csv"
+        self.sm_prec_input_path = "sm_prec.csv"
+        
+
+    def generate_cpu_projection_input(self):
+
+        periods = []
+        for task in self.task_list:
+            periods.append(task.period)
+
+        hyperperiod = lcm_of_list(periods)
+        print("Hyper period: ", hyperperiod)
+
+        all_lines = []
+
+        for task_id, task in enumerate(self.task_list):
+            repeat = int(hyperperiod / task.period)
+            print("repeat:", repeat)
+            lines = []
+
+            for i in range(0, 1):#repeat):
+                nodes = task.dag.nodes(data=True)
+                for job_id, node in enumerate(nodes):
+                    print("node:", node)
+                    node = node[1] ##Bypass key, get dictionary
+                    print("task_id:", task_id, "job_id: ", job_id, "arrival min: ", node['_amin'], "arrival max: ", node['_amax'], "cost min: ", node['_cmin'], "cost max", node['_cmax'], "deadline:", node['_d'], "priority:", node['_p'])
+
+    def generate_ce_projection_input():
+        x = 1
+
+    def generate_sm_projection_input():
+        x = 1
+
+    def run_cpu_parse_and_update():
+        x = 1
+
+    def run_ce_parse_and_update():
+        x = 1
+
+    def run_sm_parse_and_update():
+        x = 1
+        
 
 def create_digraph():
 
@@ -413,9 +485,8 @@ def create_suspensions_dict(all_suspensions):
 
     return suspensions_dict
 
-        
-##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
-if __name__ == "__main__":
+
+def test():
 
     DIG = create_digraph()
     #reverse_DIG = DIG.reverse()
@@ -450,4 +521,29 @@ if __name__ == "__main__":
     print("##############################")
     
     cpu_projection = generate_cpu_projection(DIG, suspensions_dict)
+
+
+
+        
+##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
+if __name__ == "__main__":
+
+    DAG1, DAG2 = get_four_basic_tasks.return_tasks()
     
+    all_suspensions_DAG1 = recursive_paths(DAG1)
+    suspensions_dict_DAG1 = create_suspensions_dict(all_suspensions_DAG1)
+    cpu_projection_DAG1 = generate_cpu_projection(DAG1, suspensions_dict_DAG1)
+
+    TASK1 = TASK(DAG1, 100, 150, suspensions_dict_DAG1, cpu_projection_DAG1)
+    
+    
+    all_suspensions_DAG2 = recursive_paths(DAG2)
+    suspensions_dict_DAG2 = create_suspensions_dict(all_suspensions_DAG2)
+    cpu_projection_DAG2 = generate_cpu_projection(DAG2, suspensions_dict_DAG2)
+    
+
+    TASK2 = TASK(DAG1, 180, 200, suspensions_dict_DAG1, cpu_projection_DAG2)
+    
+    
+    TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    TASKSET_ZERO.generate_cpu_projection_input()
