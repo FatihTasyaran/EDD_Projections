@@ -36,8 +36,50 @@ class TASKSET:
 
         self.sm_jobs_input_path = "sm_jobs.csv"
         self.sm_prec_input_path = "sm_prec.csv"
-        
 
+    def find_suspension_time_from_cpu_projection(self, task, source, target):
+
+        #We assume there is maximum of one edge between two nodes 
+        edges = task.cpu_projection.edges(data = True)
+        susp_min = -1
+        susp_max = -1
+        for edge in edges:
+            if(edge[0] == source and edge[1] == target):
+                susp_min = edge[2]['susp_min']
+                susp_max = edge[2]['susp_max']
+
+        return susp_min, susp_max
+
+    def generate_job_precs(self, nodes_to_job_ids):
+        ##We use the same enumeration with generate_cpu_projection_input, so it generates
+        ##same ids for tasks
+        prec_lines = []
+        
+        for task_id, task in enumerate(self.task_list):
+            task_edges = task.cpu_projection.edges(data=True)
+            task_precs = nodes_to_job_ids[task_id]
+            
+
+            for edge in task_edges:
+                source = edge[0]
+                target = edge[1]
+
+                ##We assume that edge will exist in all instances with same order of the list
+                if(len(nodes_to_job_ids[task_id][source]) != len(nodes_to_job_ids[task_id][source])):
+                    print("Error Code 2: Number of job instances between two segments of a task is not equal, therefore I can't write precedence file, exiting..")
+                    exit(1)
+                for i in range(0, len(nodes_to_job_ids[task_id][source])):
+                    susp_min, susp_max = self.find_suspension_time_from_cpu_projection(task, source, target)
+                    prec_lines.append([task_id,
+                                       nodes_to_job_ids[task_id][source][i],
+                                       task_id,
+                                       nodes_to_job_ids[task_id][target][i],
+                                       susp_min,
+                                       susp_max
+                                       ])
+
+        return prec_lines
+        
     def generate_cpu_projection_input(self):
 
         ###############################################################################
@@ -48,15 +90,24 @@ class TASKSET:
 
         hyperperiod = lcm_of_list(periods)
         all_lines = []
-
+        prec_lines = []
+        nodes_to_job_ids = {}
         for task_id, task in enumerate(self.task_list):
             repeat = int(hyperperiod / task.period)
-                        
+            if(task_id not in nodes_to_job_ids):
+                nodes_to_job_ids[task_id] = {}
             for i in range(0, repeat):
                 nodes = task.cpu_projection.nodes(data=True)
+                edges = task.cpu_projection.edges(data=True)
                 no_jobs = len(nodes)
                 for job_id, node in enumerate(nodes):
+                    node_name = node[0]
                     node = node[1] ##Bypass key, get dictionary
+                    if(node_name in nodes_to_job_ids[task_id]):
+                        nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    else:
+                        nodes_to_job_ids[task_id][node_name] = []
+                        nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
                     '''
                     print("task_id:", task_id,
                           "job_id: ", (i * no_jobs) + job_id,
@@ -76,18 +127,31 @@ class TASKSET:
                                       (i * task.period) + node['_d'],
                                       node['_p']])
 
-        writer = open(self.cpu_jobs_input_path, "w+")
-        print("Writer", "all lines: ", all_lines)
-        writer.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+                    
+
+        #print("nodes_to_job_ids:", nodes_to_job_ids)
+        prec_lines = self.generate_job_precs(nodes_to_job_ids)
+        writer_jobs = open(self.cpu_jobs_input_path, "w+")
+        writer_prec = open(self.cpu_prec_input_path, "w+")
+        writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
         for line in all_lines:
             to_write = ""
             for field in line:
-                print("to_write:", to_write, "field:", field, "type(field):", type(field))
                 to_write = to_write + str(field) + ","
         
             to_write = to_write[:-1]
             to_write = to_write + "\n"
-            writer.write(to_write)
+            writer_jobs.write(to_write)
+
+        for line in prec_lines:
+            to_write = ""
+            for field in line:
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer_prec.write(to_write)
             
 
     def generate_ce_projection_input():
