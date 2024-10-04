@@ -18,7 +18,8 @@ class TASK:
         self.period = period
         self.deadline = deadline
         self.suspensions_dict = suspensions_dict
-        self.cpu_projection = cpu_projection ##Make this called and computed here 
+        self.cpu_projection = cpu_projection ##Make this called and computed here
+        
 
 
 class TASKSET:
@@ -39,30 +40,59 @@ class TASKSET:
 
     def generate_cpu_projection_input(self):
 
+        ###############################################################################
+        ##Jobs and Precedences Together##
         periods = []
         for task in self.task_list:
             periods.append(task.period)
 
         hyperperiod = lcm_of_list(periods)
-        print("Hyper period: ", hyperperiod)
-
         all_lines = []
 
         for task_id, task in enumerate(self.task_list):
             repeat = int(hyperperiod / task.period)
-            print("repeat:", repeat)
-            lines = []
-
-            for i in range(0, 1):#repeat):
-                nodes = task.dag.nodes(data=True)
+                        
+            for i in range(0, repeat):
+                nodes = task.cpu_projection.nodes(data=True)
+                no_jobs = len(nodes)
                 for job_id, node in enumerate(nodes):
-                    print("node:", node)
                     node = node[1] ##Bypass key, get dictionary
-                    print("task_id:", task_id, "job_id: ", job_id, "arrival min: ", node['_amin'], "arrival max: ", node['_amax'], "cost min: ", node['_cmin'], "cost max", node['_cmax'], "deadline:", node['_d'], "priority:", node['_p'])
+                    '''
+                    print("task_id:", task_id,
+                          "job_id: ", (i * no_jobs) + job_id,
+                          "arrival min: ", (i * task.period) + node['_amin'],
+                          "arrival max: ", (i * task.period) + node['_amax'],
+                          "cost min: ", node['_cmin'],
+                          "cost max", node['_cmax'],
+                          "deadline:", (i * task.period) + node['_d'],
+                          "priority:", node['_p'])
+                    '''
+                    all_lines.append([task_id,
+                                      (i * no_jobs) + job_id,
+                                      (i * task.period) + node['_amin'],
+                                      (i * task.period) + node['_amax'],
+                                      node['_cmin'],
+                                      node['_cmax'],
+                                      (i * task.period) + node['_d'],
+                                      node['_p']])
+
+        writer = open(self.cpu_jobs_input_path, "w+")
+        print("Writer", "all lines: ", all_lines)
+        writer.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        for line in all_lines:
+            to_write = ""
+            for field in line:
+                print("to_write:", to_write, "field:", field, "type(field):", type(field))
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer.write(to_write)
+            
 
     def generate_ce_projection_input():
         x = 1
-
+                                      
     def generate_sm_projection_input():
         x = 1
 
