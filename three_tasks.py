@@ -637,7 +637,14 @@ if __name__ == "__main__":
     
 
     TASK2 = TASK(DAG1, 180, 200, suspensions_dict_DAG1, cpu_projection_DAG2)
+
+
+    DAG3 = create_digraph()
+    all_suspensions_DAG3 = recursive_paths(DAG3)
+    suspensions_dict_DAG3 = create_suspensions_dict(all_suspensions_DAG3)
+    cpu_projection_DAG3 = generate_cpu_projection(DAG3, suspensions_dict_DAG3)
+
+    TASK3 = TASK(DAG3, 150, 300, suspensions_dict_DAG3, cpu_projection_DAG3)
     
-    
-    TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
     TASKSET_ZERO.generate_cpu_projection_input()
