@@ -12,9 +12,10 @@ class TASK:
         self.period = period
         self.deadline = deadline
         ##Computed task features
-        self.all_suspensions = self.recursive_paths(self.DAG)
-        self.suspensions_dict = self.create_suspensions_dict(self.all_suspensions)
-        self.cpu_projection = self.generate_cpu_projection(self.DAG, self.suspensions_dict) ##Make this called and computed here
+        self.all_suspensions = self.recursive_paths()
+        self.suspensions_dict = self.create_suspensions_dict()
+        self.cpu_projection = self.generate_cpu_projection_first_iter() 
+        self.sm_projection = self.generate_sm_projection_first_iter() 
         
 
     ##Start is the node where search is started, source and destination define an edge
@@ -42,27 +43,27 @@ class TASK:
 
         path.pop()
 
-    def recursive_paths(self, G):
+    def recursive_paths(self):
 
-        nodes = dict(G.nodes(data=True))
+        nodes = dict(self.DAG.nodes(data=True))
         all_suspensions = []
         for node in nodes:
-            out_edges = G.out_edges(nbunch = node)
+            out_edges = self.DAG.out_edges(nbunch = node)
             for edge in out_edges:
                 path = []
                 all_paths = []
-                self.recursive_search(G, node, node, edge[1], path, all_paths)
+                self.recursive_search(self.DAG, node, node, edge[1], path, all_paths)
                 all_suspensions.extend(all_paths)
 
 
         return all_suspensions
 
     
-    def create_suspensions_dict(self, all_suspensions):
+    def create_suspensions_dict(self):
 
         suspensions_dict = {}
         enum = 1
-        for suspension in all_suspensions: ##Enumerating manually here
+        for suspension in self.all_suspensions: ##Enumerating manually here
             len_suspend = len(suspension)
             source_node = suspension[0][0]
             target_node = suspension[len_suspend - 1][1]
@@ -86,16 +87,16 @@ class TASK:
         return suspensions_dict
 
 
-    def generate_cpu_projection(self, G, suspensions_dict):
+    def generate_cpu_projection_first_iter(self):
 
         cpu_projection = nx.DiGraph()
-        all_nodes = dict(G.nodes(data=True))
-        all_edges = G.edges(data=True)
-        access_nodes = G.nodes(data=True)
+        all_nodes = dict(self.DAG.nodes(data=True))
+        all_edges = self.DAG.edges(data=True)
+        access_nodes = self.DAG.nodes(data=True)
 
         for node in all_nodes:
             if(access_nodes[node]["_type"] == "CPU"):
-                node_data = G.nodes[node]
+                node_data = self.DAG.nodes[node]
                 cpu_projection.add_node(node, **node_data)
 
         print("##############################")
@@ -118,11 +119,11 @@ class TASK:
 
 
         ##Add suspension edges
-        for key in suspensions_dict:
+        for key in self.suspensions_dict:
 
-            suspension = suspensions_dict[key]
+            suspension = self.suspensions_dict[key]
             if(suspension['type'] == "CPU"):
-                min_susp, max_susp = utils.return_path_with_maximum_suspension_first_iter(G, suspension)
+                min_susp, max_susp = utils.return_path_with_maximum_suspension_first_iter(self.DAG, suspension)
                 cpu_projection.add_edge(suspension['source_node'], suspension['target_node'], susp_min = min_susp, susp_max = max_susp)
         ###############################################
 
@@ -135,6 +136,62 @@ class TASK:
         return cpu_projection
 
 
+    ##From here, it starts to become more object oriented, will fix others later :)
+    ##This function is actually very similiar to generate_cpu_projection() but there are small changes and there might be more later
+    ##therefore, it is better to keep it as a separate function
+    def generate_sm_projection_first_iter(self):
+
+        sm_projection = nx.DiGraph()
+        all_nodes = dict(self.DAG.nodes(data=True))
+        all_edges = self.DAG.edges(data=True)
+        access_nodes = self.DAG.nodes(data=True)
+
+        ##This part is different than generate_cpu_projection(), suspension time from root node of DAG (which is a CPU node) to root node of this
+        ##projection is added as jitter in release time
+        for node in all_nodes:
+            if(access_nodes[node]["_type"] == "SM"):
+                node_data = self.DAG.nodes[node]
+                sm_projection.add_node(node, **node_data)
+
+        ##Add suspension of root from original DAG to root of this projection
+        ##TO DO
+                
+        print("##############################")
+        print("SM Projection All Nodes")
+        nodes = sm_projection.nodes(data=True)
+        for node in nodes:
+            print(node)
+        print("##############################")
+        
+
+        ###############################################
+        ##Add related edges here
+
+        ##Edges that remains the same, source and target same type
+        for edge in all_edges:
+            source_type = utils.find_type(edge[0])
+            target_type = utils.find_type(edge[1])
+            if(source_type == "SM" and target_type == "SM"):
+                sm_projection.add_edge(edge[0], edge[1], susp_min = 0, susp_max = 0)
+
+
+        ##Add suspension edges
+        for key in self.suspensions_dict:
+
+            suspension = self.suspensions_dict[key]
+            if(suspension['type'] == "SM"):
+                min_susp, max_susp = utils.return_path_with_maximum_suspension_first_iter(self.DAG, suspension)
+                sm_projection.add_edge(suspension['source_node'], suspension['target_node'], susp_min = min_susp, susp_max = max_susp)
+        ###############################################
+
+        print("##############################")
+        print("SM Projection All Edges")
+        edges = sm_projection.edges(data=True)
+        for edge in edges:
+            print(edge)
+        print("##############################")
+        return sm_projection
+                
 
 class TASKSET:
 
