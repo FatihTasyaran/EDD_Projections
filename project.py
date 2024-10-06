@@ -364,7 +364,7 @@ class TASKSET:
 
         return susp_min, susp_max
 
-    def generate_job_precs(self, nodes_to_job_ids):
+    def generate_cpu_job_precs(self, nodes_to_job_ids):
         ##We use the same enumeration with generate_cpu_projection_input, so it generates
         ##same ids for tasks
         prec_lines = []
@@ -398,7 +398,7 @@ class TASKSET:
     ##!!Make a mapping of which job is affected of which job's response time
     ##Make a mapping between periods-nodes-jobs, like immediate predecessors and paths (immediate predecessors actually become paths after 1st iteration)
     ##
-    def generate_cpu_projection_input(self):
+    def generate_cpu_projection_first_input(self):
 
         ###############################################################################
         ##Jobs and Precedences Together##
@@ -448,7 +448,7 @@ class TASKSET:
                     
 
         #print("nodes_to_job_ids:", nodes_to_job_ids)
-        prec_lines = self.generate_job_precs(nodes_to_job_ids)
+        prec_lines = self.generate_cpu_job_precs(nodes_to_job_ids)
         writer_jobs = open(self.cpu_jobs_input_path, "w+")
         writer_prec = open(self.cpu_prec_input_path, "w+")
         writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
@@ -509,5 +509,5 @@ if __name__ == "__main__":
     TASK3 = TASK(DAG3, 100, 150)
 
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    TASKSET_ZERO.generate_cpu_projection_input()
+    TASKSET_ZERO.generate_cpu_projection_first_input()
     
