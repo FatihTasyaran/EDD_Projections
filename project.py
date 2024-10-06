@@ -14,12 +14,24 @@ class TASK:
         ##Computed task features
         self.all_suspensions = self.recursive_paths()
         self.suspensions_dict = self.create_suspensions_dict()
-        self.cpu_projection = self.generate_cpu_projection_first_iter() 
-        self.sm_projection = self.generate_sm_projection_first_iter() 
+        self.cpu_projection_first = self.generate_cpu_projection_first_iter() 
+        self.sm_projection_first = self.generate_sm_projection_first_iter()
+        ##We generate all projections for first iterations because we update jitters 
+        #self.ce_projection_first = self.generate_ce_projection_first_iter()
+        #self.cpu_projection_ctd = self.generate_cpu_projection_ctd() 
+        #self.sm_projection_ctd = self.generate_sm_projection_ctd()
+        #self.ce_projection_ctd = self.generate_ce_projection_ctd() 
         
 
+    ##This finds paths between any two nodes
+    def recursive_search_general(self, G, node_start, node_source, node_destination, path, all_paths):
+        ##TO DO: implement this and find every path between any two given nodes.
+        ##use this to update jitter on roots of sm and ce projection dags
+        
     ##Start is the node where search is started, source and destination define an edge
+    ##This finds paths between any two nodes of the same type with intermediate different typed nodes
     def recursive_search(self, G, node_start, node_source, node_destination, path, all_paths):
+        print("node start:", node_start, "node_source:", node_source, "node_destination:", node_destination)
         path.append((node_source, node_destination))
         nodes = dict(G.nodes)
         ##All conditions satisfied, FOUND
@@ -133,6 +145,7 @@ class TASK:
         for edge in edges:
             print(edge)
         print("##############################")
+        
         return cpu_projection
 
 
@@ -157,7 +170,7 @@ class TASK:
         ##TO DO
                 
         print("##############################")
-        print("SM Projection All Nodes")
+        print("SM Projection All Nodes Before Update")
         nodes = sm_projection.nodes(data=True)
         for node in nodes:
             print(node)
@@ -190,7 +203,27 @@ class TASK:
         for edge in edges:
             print(edge)
         print("##############################")
+
+        ##Add jitter for root nodes in projection DAG
+        root_nodes = []
+        for node in sm_projection:
+            print("sm node:", node, sm_projection.in_degree(node))
+            if(sm_projection.in_degree(node) == 0):
+                root_nodes.append(node)
+
+        task_root = utils.find_roots_in_DAG(self.DAG)
+        task_root = task_root[0] ##Currently, only implements single root in task DAG
+
+        
+        for node in root_nodes:
+            all_paths = []
+            path = []
+            ##TO DO: Write recursive search between any two given nodes
+            dag_root_to_projection_root_paths = self.recursive_search(self.DAG, task_root, task_root, node, path, all_paths)
+            print("sm_node:", node, "paths:", dag_root_to_projection_root_paths)
+        
         return sm_projection
+    
                 
 
 class TASKSET:
@@ -250,7 +283,11 @@ class TASKSET:
                                        ])
 
         return prec_lines
-        
+
+
+    ##!!Make a mapping of which job is affected of which job's response time
+    ##Make a mapping between periods-nodes-jobs, like immediate predecessors and paths (immediate predecessors actually become paths after 1st iteration)
+    ##
     def generate_cpu_projection_input(self):
 
         ###############################################################################
@@ -351,7 +388,7 @@ class TASKSET:
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
-    
+    '''
     DAG1, DAG2 = get_four_basic_tasks.return_tasks()
     TASK1 = TASK(DAG1, 100, 150)
     TASK2 = TASK(DAG1, 180, 200)
@@ -361,10 +398,8 @@ if __name__ == "__main__":
     TASKSET_ZERO.generate_cpu_projection_input()
     
     '''
-    DAG3 = create_digraph()
-    all_suspensions_DAG3 = recursive_paths(DAG3)
-    suspensions_dict_DAG3 = create_suspensions_dict(all_suspensions_DAG3)
-    cpu_projection_DAG3 = generate_cpu_projection(DAG3, suspensions_dict_DAG3)
 
-    TASK3 = TASK(DAG3, 100, 150, suspensions_dict_DAG3, cpu_projection_DAG3)
-    '''
+    
+    DAG3 = get_four_basic_tasks.create_digraph()
+    TASK3 = TASK(DAG3, 100, 150)
+    

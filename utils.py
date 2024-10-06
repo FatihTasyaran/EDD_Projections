@@ -85,8 +85,22 @@ def return_path_with_maximum_suspension_first_iter(G, suspension):
     return my_min, my_max
     
 
+##Currently, assumes one CPU type root, therefore multiple roots are not implemented
+def find_roots_in_DAG(DAG):
 
+    root_nodes = []
+    nodes = list(DAG.nodes())
 
+    for node in nodes:
+        if(DAG.in_degree(node) == 0):
+            root_nodes.append(node)
+
+    if(len(root_nodes) > 1):
+        print("Error code 3: Currently does not support multiple roots in task DAG, exiting..")
+        exit(1)
+
+    return root_nodes
+    
 
 def visualize_bfs_w_depth(G):
     # Ensure the graph is not empty
@@ -137,3 +151,5 @@ def visualize_bfs_w_depth(G):
     plt.show()
 
     
+
+
