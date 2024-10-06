@@ -14,24 +14,37 @@ class TASK:
         ##Computed task features
         self.all_suspensions = self.recursive_paths()
         self.suspensions_dict = self.create_suspensions_dict()
-        self.cpu_projection_first = self.generate_cpu_projection_first_iter() 
-        self.sm_projection_first = self.generate_sm_projection_first_iter()
+        self.cpu_projection_first = self.generate_cpu_projection_first_iter()
         ##We generate all projections for first iterations because we update jitters 
-        #self.ce_projection_first = self.generate_ce_projection_first_iter()
+        self.jitter_suspensions_dict = {} ##This is computed during sm and ce projections and updated
+        self.sm_projection_first = self.generate_sm_projection_first_iter()
+        self.ce_projection_first = self.generate_ce_projection_first_iter()
         #self.cpu_projection_ctd = self.generate_cpu_projection_ctd() 
         #self.sm_projection_ctd = self.generate_sm_projection_ctd()
         #self.ce_projection_ctd = self.generate_ce_projection_ctd() 
         
 
     ##This finds paths between any two nodes
-    def recursive_search_general(self, G, node_start, node_source, node_destination, path, all_paths):
-        ##TO DO: implement this and find every path between any two given nodes.
-        ##use this to update jitter on roots of sm and ce projection dags
-        
+    ##use this to update jitter on roots of sm and ce projection dags
+    ##!!This function may not be very efficient
+    def recursive_paths_between_two_nodes(self, start_node, end_node, path=[]):
+        #print("type(path):", type(path), "path:", path, type([start_node]))
+        path = path + [start_node]
+        if start_node == end_node:
+            return [path]
+        if start_node not in self.DAG:
+            return []
+        paths = []
+        for node in self.DAG.successors(start_node):
+            if node not in path:
+                new_paths = self.recursive_paths_between_two_nodes(node, end_node, path)
+                for new_path in new_paths:
+                    paths.append(new_path)
+        return paths
+
     ##Start is the node where search is started, source and destination define an edge
     ##This finds paths between any two nodes of the same type with intermediate different typed nodes
     def recursive_search(self, G, node_start, node_source, node_destination, path, all_paths):
-        print("node start:", node_start, "node_source:", node_source, "node_destination:", node_destination)
         path.append((node_source, node_destination))
         nodes = dict(G.nodes)
         ##All conditions satisfied, FOUND
@@ -149,7 +162,6 @@ class TASK:
         return cpu_projection
 
 
-    ##From here, it starts to become more object oriented, will fix others later :)
     ##This function is actually very similiar to generate_cpu_projection() but there are small changes and there might be more later
     ##therefore, it is better to keep it as a separate function
     def generate_sm_projection_first_iter(self):
@@ -165,9 +177,6 @@ class TASK:
             if(access_nodes[node]["_type"] == "SM"):
                 node_data = self.DAG.nodes[node]
                 sm_projection.add_node(node, **node_data)
-
-        ##Add suspension of root from original DAG to root of this projection
-        ##TO DO
                 
         print("##############################")
         print("SM Projection All Nodes Before Update")
@@ -204,10 +213,10 @@ class TASK:
             print(edge)
         print("##############################")
 
+        ##Add suspension of root from original DAG to root of this projection
         ##Add jitter for root nodes in projection DAG
         root_nodes = []
         for node in sm_projection:
-            print("sm node:", node, sm_projection.in_degree(node))
             if(sm_projection.in_degree(node) == 0):
                 root_nodes.append(node)
 
@@ -216,13 +225,114 @@ class TASK:
 
         
         for node in root_nodes:
-            all_paths = []
-            path = []
-            ##TO DO: Write recursive search between any two given nodes
-            dag_root_to_projection_root_paths = self.recursive_search(self.DAG, task_root, task_root, node, path, all_paths)
-            print("sm_node:", node, "paths:", dag_root_to_projection_root_paths)
+            paths = dag_root_to_projection_root_paths = self.recursive_paths_between_two_nodes(task_root, node)
+
+            for path in paths:
+                path.pop() ##Remove the last node at the end of the path which is the root node itself
+                
+            self.jitter_suspensions_dict[node] = paths
+            min_extra_jitter = utils.minimum_extra_jitter_from_paths(self.DAG, paths)
+            max_extra_jitter = utils.maximum_extra_jitter_from_paths(self.DAG, paths)
+
+                        
+            sm_projection.nodes(data=True)[node]['_amin'] = sm_projection.nodes(data=True)[node]['_amin'] + min_extra_jitter
+            sm_projection.nodes(data=True)[node]['_amax'] = sm_projection.nodes(data=True)[node]['_amax'] + max_extra_jitter
+            
+        print("##############################")
+        print("SM Projection All Nodes After Update")
+        nodes = sm_projection.nodes(data=True)
+        for node in nodes:
+            print(node)
+        print("##############################")
         
         return sm_projection
+
+
+    ##This function is actually very similiar to generate_sm_projection() but there are small changes and there might be more later
+    ##therefore, it is better to keep it as a separate function
+    def generate_ce_projection_first_iter(self):
+
+        ce_projection = nx.DiGraph()
+        all_nodes = dict(self.DAG.nodes(data=True))
+        all_edges = self.DAG.edges(data=True)
+        access_nodes = self.DAG.nodes(data=True)
+
+        ##This part is different than generate_cpu_projection(), suspension time from root node of DAG (which is a CPU node) to root node of this
+        ##projection is added as jitter in release time
+        for node in all_nodes:
+            if(access_nodes[node]["_type"] == "CE"):
+                node_data = self.DAG.nodes[node]
+                ce_projection.add_node(node, **node_data)
+                
+        print("##############################")
+        print("CE Projection All Nodes Before Update")
+        nodes = ce_projection.nodes(data=True)
+        for node in nodes:
+            print(node)
+        print("##############################")
+        
+
+        ###############################################
+        ##Add related edges here
+
+        ##Edges that remains the same, source and target same type
+        for edge in all_edges:
+            source_type = utils.find_type(edge[0])
+            target_type = utils.find_type(edge[1])
+            if(source_type == "CE" and target_type == "CE"):
+                ce_projection.add_edge(edge[0], edge[1], susp_min = 0, susp_max = 0)
+
+
+        ##Add suspension edges
+        for key in self.suspensions_dict:
+
+            suspension = self.suspensions_dict[key]
+            if(suspension['type'] == "CE"):
+                min_susp, max_susp = utils.return_path_with_maximum_suspension_first_iter(self.DAG, suspension)
+                ce_projection.add_edge(suspension['source_node'], suspension['target_node'], susp_min = min_susp, susp_max = max_susp)
+        ###############################################
+
+        print("##############################")
+        print("CE Projection All Edges")
+        edges = ce_projection.edges(data=True)
+        for edge in edges:
+            print(edge)
+        print("##############################")
+
+        ##Add suspension of root from original DAG to root of this projection
+        ##Add jitter for root nodes in projection DAG
+        root_nodes = []
+        for node in ce_projection:
+            if(ce_projection.in_degree(node) == 0):
+                root_nodes.append(node)
+
+        task_root = utils.find_roots_in_DAG(self.DAG)
+        task_root = task_root[0] ##Currently, only implements single root in task DAG
+
+        
+        for node in root_nodes:
+            paths = dag_root_to_projection_root_paths = self.recursive_paths_between_two_nodes(task_root, node)
+
+            for path in paths:
+                path.pop() ##Remove the last node at the end of the path which is the root node itself
+                
+            self.jitter_suspensions_dict[node] = paths
+            min_extra_jitter = utils.minimum_extra_jitter_from_paths(self.DAG, paths)
+            max_extra_jitter = utils.maximum_extra_jitter_from_paths(self.DAG, paths)
+
+                        
+            ce_projection.nodes(data=True)[node]['_amin'] = ce_projection.nodes(data=True)[node]['_amin'] + min_extra_jitter
+            ce_projection.nodes(data=True)[node]['_amax'] = ce_projection.nodes(data=True)[node]['_amax'] + max_extra_jitter
+            
+
+        print("##############################")
+        print("CE Projection All Nodes After Update")
+        nodes = ce_projection.nodes(data=True)
+        for node in nodes:
+            print(node)
+        print("##############################")
+        
+        return ce_projection
     
                 
 
@@ -241,10 +351,10 @@ class TASKSET:
         self.sm_jobs_input_path = "sm_jobs.csv"
         self.sm_prec_input_path = "sm_prec.csv"
 
-    def find_suspension_time_from_cpu_projection(self, task, source, target):
+    def find_suspension_time_from_cpu_projection_first(self, task, source, target):
 
         #We assume there is maximum of one edge between two nodes 
-        edges = task.cpu_projection.edges(data = True)
+        edges = task.cpu_projection_first.edges(data = True)
         susp_min = -1
         susp_max = -1
         for edge in edges:
@@ -260,7 +370,7 @@ class TASKSET:
         prec_lines = []
         
         for task_id, task in enumerate(self.task_list, start = 1):
-            task_edges = task.cpu_projection.edges(data=True)
+            task_edges = task.cpu_projection_first.edges(data=True)
             task_precs = nodes_to_job_ids[task_id]
             
 
@@ -273,7 +383,7 @@ class TASKSET:
                     print("Error Code 2: Number of job instances between two segments of a task is not equal, therefore I can't write precedence file, exiting..")
                     exit(1)
                 for i in range(0, len(nodes_to_job_ids[task_id][source])):
-                    susp_min, susp_max = self.find_suspension_time_from_cpu_projection(task, source, target)
+                    susp_min, susp_max = self.find_suspension_time_from_cpu_projection_first(task, source, target)
                     prec_lines.append([task_id,
                                        nodes_to_job_ids[task_id][source][i],
                                        task_id,
@@ -305,8 +415,8 @@ class TASKSET:
             if(task_id not in nodes_to_job_ids):
                 nodes_to_job_ids[task_id] = {}
             for i in range(0, repeat):
-                nodes = task.cpu_projection.nodes(data=True)
-                edges = task.cpu_projection.edges(data=True)
+                nodes = task.cpu_projection_first.nodes(data=True)
+                edges = task.cpu_projection_first.edges(data=True)
                 no_jobs = len(nodes)
                 for job_id, node in enumerate(nodes, start = 1):
                     node_name = node[0]
@@ -388,18 +498,16 @@ class TASKSET:
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
-    '''
+    
     DAG1, DAG2 = get_four_basic_tasks.return_tasks()
     TASK1 = TASK(DAG1, 100, 150)
-    TASK2 = TASK(DAG1, 180, 200)
+    TASK2 = TASK(DAG1, 180, 200)    
     
-    
-    TASKSET_ZERO = TASKSET([TASK1, TASK2])
-    TASKSET_ZERO.generate_cpu_projection_input()
-    
-    '''
 
     
     DAG3 = get_four_basic_tasks.create_digraph()
     TASK3 = TASK(DAG3, 100, 150)
+
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    TASKSET_ZERO.generate_cpu_projection_input()
     

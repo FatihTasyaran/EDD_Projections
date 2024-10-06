@@ -53,20 +53,57 @@ def return_intermediate_nodes_in_path(path):
 def get_cmin_sum_intermediates(G, intermediates):
 
     nodes = G.nodes(data=True)
-    sum = 0
+    _sum = 0
     for intermediate in intermediates:
-        sum = sum + nodes[intermediate]["_cmin"]
+        _sum = _sum + nodes[intermediate]["_cmin"]
     
-    return sum
+    return _sum
     
 def get_cmax_sum_intermediates(G, intermediates):
 
     nodes = G.nodes(data=True)
-    sum = 0
+    _sum = 0
     for intermediate in intermediates:
-        sum = sum + nodes[intermediate]["_cmax"]
+        _sum = _sum + nodes[intermediate]["_cmax"]
     
-    return sum
+    return _sum
+
+def return_path_cmin_sum(G, path):
+
+    _sum = 0
+    for node in path:
+        _sum = _sum + G.nodes(data=True)[node]['_cmin'] 
+
+    return _sum
+
+def return_path_cmax_sum(G, path):
+
+    _sum = 0
+    for node in path:
+        _sum = _sum + G.nodes(data=True)[node]['_cmax'] 
+
+    return _sum
+        
+def minimum_extra_jitter_from_paths(G, paths):
+
+    my_min = 2**20
+    for path in paths:
+        _sum = return_path_cmin_sum(G, path)
+        if(my_min > _sum):
+            my_min = _sum
+
+    return my_min
+
+def maximum_extra_jitter_from_paths(G, paths):
+
+    my_max = 0
+
+    for path in paths:
+        _sum = return_path_cmax_sum(G, path)
+        if(my_max < _sum):
+            my_max = _sum
+
+    return my_max
     
 def return_path_with_maximum_suspension_first_iter(G, suspension):
 
