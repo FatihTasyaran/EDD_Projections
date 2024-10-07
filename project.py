@@ -345,12 +345,15 @@ class TASKSET:
         
         self.cpu_jobs_input_path = "cpu_jobs.csv"
         self.cpu_prec_input_path = "cpu_prec.csv"
+        self.cpu_rta_path = "cpu_jobs.rta.csv"
         
         self.ce_jobs_input_path = "ce_jobs.csv"
         self.ce_prec_input_path = "ce_prec.csv"
+        self.ce_rta_path = "ce_jobs.rta.csv"
 
         self.sm_jobs_input_path = "sm_jobs.csv"
         self.sm_prec_input_path = "sm_prec.csv"
+        self.sm_rta_path = "sm_jobs.rta.csv"
 
         self.nodes_to_job_ids = {}
         ##An edge's refined suspension time is depend on the response time of immediate predecessor's
@@ -779,15 +782,66 @@ class TASKSET:
     
 
 
-    def parse_cpu_output(self):
+    def parse_output(self, out_file):
 
-        reader = open("cpu_jobs.rta.csv")
+        result = {}
+        
+        
+        reader = open(out_file)
         lines = reader.readlines()
+        lines = lines[1:] ##Skip the header
+        for line in lines:
+            fields = line.strip("\n").split(",")
+            print("fields:", fields)
+            task_id = int(fields[0])
+            job_id = int(fields[1])
+            bcct = int(fields[2])
+            wcct = int(fields[3])
+            bcrt = int(fields[4])
+            wcrt = int(fields[5])
 
-        #for line in lines:
-        #    print(line)
+            
+            
+            if task_id not in result:
+                result[task_id] = {}
+
+            if job_id not in result[task_id]:
+                result[task_id][job_id] = {}
+
+            result[task_id][job_id]['bcct'] = bcct
+            result[task_id][job_id]['wcct'] = wcct
+            result[task_id][job_id]['bcrt'] = bcrt
+            result[task_id][job_id]['wcrt'] = wcrt
+
+        return result
+
+    
+
+    def update_exec_output_fields(self, exec_outputs, result):
+
+        fields = result.split(",")
+        print("fields:", fields)
+
+        exec_outputs['filename'].append(fields[0])
+        exec_outputs['sched_result'].append(int(fields[1]))
+        exec_outputs['no_jobs_in_set'].append(int(fields[2]))
+        exec_outputs['no_nodes_created'].append(int(fields[3]))
+        exec_outputs['no_stages_explored'].append(int(fields[4]))
+        exec_outputs['no_edges_discovered'].append(int(fields[5]))
+        exec_outputs['max_exp_front_width'].append(int(fields[6]))
+        exec_outputs['cpu_time_in_sec'].append(float(fields[7]))
+        exec_outputs['peak_mem_used'].append(float(fields[8]))
+        exec_outputs['is_timeout'].append(float(fields[9]))
+        exec_outputs['no_processors_assumed'].append(float(fields[10]))
+        
+        return exec_outputs
 
 
+    def update_ce_by_cpu(self, result):
+
+        for task_id, task in enumerate(self.task_list, start=1):
+            print("task_id:", task_id)
+        
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
         self.generate_ce_projection_first_input()
@@ -805,32 +859,14 @@ class TASKSET:
         result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
-            print("CPU Execution successful:", result.stdout)
+            print("First CPU Execution successful:", result.stdout)
         else:
-            print("CPU Execution failed with error:", result.stderr)
+            print("First CPU Execution failed with error:", result.stderr)
 
 
-        ##Testing ce projection file
-        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r'], capture_output=True, text=True)
-
-        if result.returncode == 0:
-            print("CE Execution successful:", result.stdout)
-        else:
-            print("CE Execution failed with error:", result.stderr)
-
-
-        ##Testing sm projection file
-        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r'], capture_output=True, text=True)
-
-        if result.returncode == 0:
-            print("SM Execution successful:", result.stdout)
-        else:
-            print("SM Execution failed with error:", result.stderr)
-
-
-            
-        self.parse_cpu_output()
-        
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.cpu_rta_path)
+        print("result:", result)
 
     def generate_ce_projection_input():
         x = 1
