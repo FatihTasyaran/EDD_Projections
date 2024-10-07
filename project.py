@@ -799,13 +799,33 @@ class TASKSET:
                         'no_nodes_created': [], 'no_stages_explored': [], 'no_edges_discovered': [],
                         'max_exp_front_width': [], 'cpu_time_in_sec': [], 'peak_mem_used': [],
                         'is_timeout': [], 'no_processors_assumed': []}
-        ##First iteration
+
+
+        ##Testing cpu projection file
         result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
-            print("Execution successful:", result.stdout)
+            print("CPU Execution successful:", result.stdout)
         else:
-            print("Execution failed with error:", result.stderr)
+            print("CPU Execution failed with error:", result.stderr)
+
+
+        ##Testing ce projection file
+        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("CE Execution successful:", result.stdout)
+        else:
+            print("CE Execution failed with error:", result.stderr)
+
+
+        ##Testing sm projection file
+        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("SM Execution successful:", result.stdout)
+        else:
+            print("SM Execution failed with error:", result.stderr)
 
 
             
