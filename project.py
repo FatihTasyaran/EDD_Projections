@@ -339,7 +339,7 @@ class TASK:
 
 class TASKSET:
 
-    ##dags is a list of DAG class instances
+    ##task_list is a list of TASK class instances
     def __init__(self, task_list):
         self.task_list = task_list
         
@@ -353,9 +353,77 @@ class TASKSET:
         self.sm_prec_input_path = "sm_prec.csv"
 
         self.nodes_to_job_ids = {}
+        ##An edge's refined suspension time is depend on the response time of immediate predecessor's
+        ##previous response time
+        ##This dictionary maps that connections to faciliate updating suspension times
+        ##It is generated in self.run_analysis()
+
+    def map_suspension_nodes_to_jobs(self):
+
+        for task_num, task in enumerate(self.task_list, start=1):
+
+            for key in task.suspensions_dict:
+                task.suspensions_dict[key]['compute_mapping'] = {}
+                task.suspensions_dict[key]['compute_mapping']['start_node'] = []
+                suspension_time_start_node = task.suspensions_dict[key]['compute']['suspension_time_start_node']
+                suspension_time_end_nodes = task.suspensions_dict[key]['compute']['suspension_time_end_nodes']
+                suspension_time_start_jobs = []
+                suspension_time_end_jobs = {}
+                for job_id in self.nodes_to_job_ids[task_num][suspension_time_start_node]:
+                    suspension_time_start_jobs.append(job_id)
+
+                for suspension_time_end_node in suspension_time_end_nodes:
+                    suspension_time_end_jobs[suspension_time_end_node] = []
+                    for job_id in self.nodes_to_job_ids[task_num][suspension_time_end_node]:
+                        suspension_time_end_jobs[suspension_time_end_node].append(job_id)
+
+                task.suspensions_dict[key]['compute_mapping']['start_node'] = suspension_time_start_jobs
+                task.suspensions_dict[key]['compute_mapping']['end_nodes'] = suspension_time_end_jobs
+
+                print("########################################")
+                print("AFTER:", "Task: ", task_num, "suspensions_dict:", task.suspensions_dict[key])
+                print("nodes_to_job_ids:", self.nodes_to_job_ids)
+                print("#########################################")
+    #This modifies the suspensions in tasks, maybe move this function to TASK class?
+    def generate_suspension_compute_sets(self):
+
+        x = 1
+
+        for task_num, task in enumerate(self.task_list, start=1):
+                
+            for key in task.suspensions_dict:
+
+                suspension_edge_source_node = task.suspensions_dict[key]['source_node']
+                suspension_edge_target_node = task.suspensions_dict[key]['target_node']
+                suspension_time_start_node = suspension_edge_source_node
+                suspension_time_end_nodes = []
+                
+                for path in task.suspensions_dict[key]['paths']:
+                    print("last edge along the way:", path[len(path) - 1])
+                    suspension_time_end_node = path[len(path) - 1][0] ##Immediate predecessor of other type
+                    suspension_time_end_nodes.append(suspension_time_end_node)
 
 
+                ##Reduce list to unique elements if there are multiple paths starts and ends with the same node
+                suspension_time_end_nodes = list(set(suspension_time_end_nodes))
+                task.suspensions_dict[key]['compute'] = {}
+                task.suspensions_dict[key]['compute']['suspension_time_start_node'] = suspension_time_start_node
+                task.suspensions_dict[key]['compute']['suspension_time_end_nodes'] = suspension_time_end_nodes
 
+                '''
+                print("task:", task_num, "suspension:", task.suspensions_dict[key], "\n",
+                      "suspension_edge_source_node:", suspension_edge_source_node, "\n",
+                      "suspension_edge_target_node:", suspension_edge_target_node, "\n",
+                      "suspension_time_start_node:", suspension_time_start_node, "\n",
+                      "suspension_time_end_nodes:", suspension_time_end_nodes, "\n",
+                      "suspension:", task.suspensions_dict[key])
+                '''
+                
+
+                
+        self.map_suspension_nodes_to_jobs()
+        
+        
     #########################################
     ##Following functions could actually be parameterized and used for all three cpu, sm and ce. But first make sure that any changes will not be required
     #########################################
@@ -725,8 +793,8 @@ class TASKSET:
         reader = open("cpu_jobs.rta.csv")
         lines = reader.readlines()
 
-        for line in lines:
-            print(line)
+        #for line in lines:
+        #    print(line)
 
 
     def run_analysis(self):
@@ -734,6 +802,7 @@ class TASKSET:
         self.generate_ce_projection_first_input()
         self.generate_sm_projection_first_input()
 
+        self.generate_suspension_compute_sets()
 
         ##First iteration
         result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
@@ -777,11 +846,12 @@ if __name__ == "__main__":
     TASK1 = TASK(DAG1, 100, 150)
     TASK2 = TASK(DAG1, 180, 200)    
     
-    #DAG3 = get_four_basic_tasks.create_digraph()
-    #TASK3 = TASK(DAG3, 100, 150)
+    DAG3 = get_four_basic_tasks.create_digraph()
+    TASK3 = TASK(DAG3, 100, 150)
 
-    #TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    #TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    #TASKSET_ZERO = TASKSET([TASK3])
     TASKSET_ZERO.run_analysis()
     #TASKSET_ZERO.generate_cpu_projection_first_input()
     #TASKSET_ZERO.generate_ce_projection_first_input()
