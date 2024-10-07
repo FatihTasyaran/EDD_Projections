@@ -514,7 +514,7 @@ class TASKSET:
 
                     
         
-        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+                    
         prec_lines = self.generate_cpu_job_precs()
         writer_jobs = open(self.cpu_jobs_input_path, "w+")
         writer_prec = open(self.cpu_prec_input_path, "w+")
@@ -633,7 +633,7 @@ class TASKSET:
 
                     
         
-        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+
         prec_lines = self.generate_ce_job_precs() ##Make this generate_ce_job_precs
         writer_jobs = open(self.ce_jobs_input_path, "w+")
         writer_prec = open(self.ce_prec_input_path, "w+")
@@ -752,7 +752,7 @@ class TASKSET:
 
                     
         
-        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+                    
         prec_lines = self.generate_sm_job_precs() ##Make this generate_ce_job_precs
         writer_jobs = open(self.sm_jobs_input_path, "w+")
         writer_prec = open(self.sm_prec_input_path, "w+")
