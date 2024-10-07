@@ -380,10 +380,7 @@ class TASKSET:
                 task.suspensions_dict[key]['compute_mapping']['start_node'] = suspension_time_start_jobs
                 task.suspensions_dict[key]['compute_mapping']['end_nodes'] = suspension_time_end_jobs
 
-                print("########################################")
-                print("AFTER:", "Task: ", task_num, "suspensions_dict:", task.suspensions_dict[key])
-                print("nodes_to_job_ids:", self.nodes_to_job_ids)
-                print("#########################################")
+                
     #This modifies the suspensions in tasks, maybe move this function to TASK class?
     def generate_suspension_compute_sets(self):
 
@@ -399,7 +396,6 @@ class TASKSET:
                 suspension_time_end_nodes = []
                 
                 for path in task.suspensions_dict[key]['paths']:
-                    print("last edge along the way:", path[len(path) - 1])
                     suspension_time_end_node = path[len(path) - 1][0] ##Immediate predecessor of other type
                     suspension_time_end_nodes.append(suspension_time_end_node)
 
@@ -423,10 +419,6 @@ class TASKSET:
                 
         self.map_suspension_nodes_to_jobs()
         
-        
-    #########################################
-    ##Following functions could actually be parameterized and used for all three cpu, sm and ce. But first make sure that any changes will not be required
-    #########################################
     def find_suspension_time_from_cpu_projection_first(self, task, source, target):
 
         #We assume there is maximum of one edge between two nodes 
@@ -546,8 +538,7 @@ class TASKSET:
             to_write = to_write + "\n"
             writer_prec.write(to_write)
 
-    #########################################
-    #########################################
+
 
     def find_suspension_time_from_ce_projection_first(self, task, source, target):
 
@@ -784,8 +775,8 @@ class TASKSET:
             to_write = to_write[:-1]
             to_write = to_write + "\n"
             writer_prec.write(to_write)
-            
 
+    
 
 
     def parse_cpu_output(self):
@@ -804,6 +795,10 @@ class TASKSET:
 
         self.generate_suspension_compute_sets()
 
+        exec_outputs = {'filename': [], 'sched_result': [], 'no_jobs_in_set': [],
+                        'no_nodes_created': [], 'no_stages_explored': [], 'no_edges_discovered': [],
+                        'max_exp_front_width': [], 'cpu_time_in_sec': [], 'peak_mem_used': [],
+                        'is_timeout': [], 'no_processors_assumed': []}
         ##First iteration
         result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
@@ -813,7 +808,9 @@ class TASKSET:
             print("Execution failed with error:", result.stderr)
 
 
+            
         self.parse_cpu_output()
+        
 
     def generate_ce_projection_input():
         x = 1
