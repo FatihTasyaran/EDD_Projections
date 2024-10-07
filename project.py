@@ -2,6 +2,7 @@ import networkx as nx
 import math
 import get_four_basic_tasks
 import utils
+import subprocess
 
 
 class TASK:
@@ -353,6 +354,11 @@ class TASKSET:
 
         self.nodes_to_job_ids = {}
 
+
+
+    #########################################
+    ##Following functions could actually be parameterized and used for all three cpu, sm and ce. But first make sure that any changes will not be required
+    #########################################
     def find_suspension_time_from_cpu_projection_first(self, task, source, target):
 
         #We assume there is maximum of one edge between two nodes 
@@ -472,7 +478,8 @@ class TASKSET:
             to_write = to_write + "\n"
             writer_prec.write(to_write)
 
-
+    #########################################
+    #########################################
 
     def find_suspension_time_from_ce_projection_first(self, task, source, target):
 
@@ -712,6 +719,33 @@ class TASKSET:
             
 
 
+
+    def parse_cpu_output(self):
+
+        reader = open("cpu_jobs.rta.csv")
+        lines = reader.readlines()
+
+        for line in lines:
+            print(line)
+
+
+    def run_analysis(self):
+        self.generate_cpu_projection_first_input()
+        self.generate_ce_projection_first_input()
+        self.generate_sm_projection_first_input()
+
+
+        ##First iteration
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("Execution successful:", result.stdout)
+        else:
+            print("Execution failed with error:", result.stderr)
+
+
+        self.parse_cpu_output()
+
     def generate_ce_projection_input():
         x = 1
                                       
@@ -739,16 +773,17 @@ class TASKSET:
 if __name__ == "__main__":
 
     
-    #DAG1, DAG2 = get_four_basic_tasks.return_tasks()
-    #TASK1 = TASK(DAG1, 100, 150)
-    #TASK2 = TASK(DAG1, 180, 200)    
+    DAG1, DAG2 = get_four_basic_tasks.return_tasks()
+    TASK1 = TASK(DAG1, 100, 150)
+    TASK2 = TASK(DAG1, 180, 200)    
     
-    DAG3 = get_four_basic_tasks.create_digraph()
-    TASK3 = TASK(DAG3, 100, 150)
+    #DAG3 = get_four_basic_tasks.create_digraph()
+    #TASK3 = TASK(DAG3, 100, 150)
 
     #TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    TASKSET_ZERO = TASKSET([TASK3])
-    TASKSET_ZERO.generate_cpu_projection_first_input()
-    TASKSET_ZERO.generate_ce_projection_first_input()
-    TASKSET_ZERO.generate_sm_projection_first_input()
+    TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    TASKSET_ZERO.run_analysis()
+    #TASKSET_ZERO.generate_cpu_projection_first_input()
+    #TASKSET_ZERO.generate_ce_projection_first_input()
+    #TASKSET_ZERO.generate_sm_projection_first_input()
     
