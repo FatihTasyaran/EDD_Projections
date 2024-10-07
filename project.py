@@ -355,6 +355,16 @@ class TASKSET:
         self.sm_prec_input_path = "sm_prec.csv"
         self.sm_rta_path = "sm_jobs.rta.csv"
 
+        self.last_cpu_rta = {}
+        self.last_ce_rta = {}
+        self.last_sm_rta = {}
+
+        self.last_known_rta = {}
+        self.last_known_rta['CPU'] = {}
+        self.last_known_rta['CE'] = {}
+        self.last_known_rta['SM'] = {}
+        
+
         self.nodes_to_job_ids = {}
         ##An edge's refined suspension time is depend on the response time of immediate predecessor's
         ##previous response time
@@ -445,7 +455,7 @@ class TASKSET:
             task_edges = task.cpu_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
             self.job_level_suspensions[task_id] = {}
-            self.job_level_suspensions[task_id]['cpu'] = []
+            self.job_level_suspensions[task_id]['CPU'] = []
             
 
             for edge in task_edges:
@@ -465,7 +475,7 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
-                    self.job_level_suspensions[task_id]['cpu'].append({'pred_tid': task_id,
+                    self.job_level_suspensions[task_id]['CPU'].append({'pred_tid': task_id,
                                                                        'pred_jid': self.nodes_to_job_ids[task_id][source][i],
                                                                        'succ_tid': task_id,
                                                                        'succ_jid': self.nodes_to_job_ids[task_id][target][i],
@@ -574,7 +584,7 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.ce_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
-            self.job_level_suspensions[task_id]['ce'] = []
+            self.job_level_suspensions[task_id]['CE'] = []
             
             for edge in task_edges:
                 source = edge[0]
@@ -593,7 +603,7 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
-                    self.job_level_suspensions[task_id]['ce'].append({'pred_tid': task_id,
+                    self.job_level_suspensions[task_id]['CE'].append({'pred_tid': task_id,
                                                                         'pred_jid': self.nodes_to_job_ids[task_id][source][i],
                                                                         'succ_tid': task_id,
                                                                         'succ_jid': self.nodes_to_job_ids[task_id][target][i],
@@ -700,7 +710,7 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.sm_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
-            self.job_level_suspensions[task_id]['sm'] = []
+            self.job_level_suspensions[task_id]['SM'] = []
 
             for edge in task_edges:
                 source = edge[0]
@@ -719,7 +729,7 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
-                    self.job_level_suspensions[task_id]['sm'].append({'pred_tid': task_id,
+                    self.job_level_suspensions[task_id]['SM'].append({'pred_tid': task_id,
                                                                         'pred_jid': self.nodes_to_job_ids[task_id][source][i],
                                                                         'succ_tid': task_id,
                                                                         'succ_jid': self.nodes_to_job_ids[task_id][target][i],
@@ -806,7 +816,7 @@ class TASKSET:
     
 
 
-    def parse_output(self, out_file):
+    def parse_output(self, out_file, _type):
 
         result = {}
         
@@ -835,14 +845,22 @@ class TASKSET:
             result[task_id][job_id]['bcrt'] = bcrt
             result[task_id][job_id]['wcrt'] = wcrt
 
-        return result
+        if(_type == "CPU"):
+            self.last_known_rta["CPU"] = result
+        elif(_type == "CE"):
+            self.last_known_rta["CE"] = result
+        elif(_type == "SM"):
+            self.last_known_rta["SM"] = result
+        else:
+            print("Error Code 4: Encountered weird analysis type in parse_output(), exiting..")
+            exit(1)
+        
 
     
 
     def update_exec_output_fields(self, exec_outputs, result):
 
         fields = result.split(",")
-        print("fields:", fields)
 
         exec_outputs['filename'].append(fields[0])
         exec_outputs['sched_result'].append(int(fields[1]))
@@ -859,7 +877,7 @@ class TASKSET:
         return exec_outputs
 
 
-    '''
+
     def update_ce_by_cpu(self, result):
 
         
@@ -882,9 +900,53 @@ class TASKSET:
             #print("!!After, Task Number:", task_id, "Suspensions Dict:", task.suspensions_dict)
             #print("##################################")
             #print("task_id:", task_id, "ce_projection edges:", task.ce_projection_first.edges(data=True))
-    '''
-    
 
+    
+    def update_cpu(self):
+
+        for task_id, task in enumerate(self.task_list, start = 1):
+            projection = task.cpu_projection_first
+            for edge in projection.edges(data=True):
+                if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0):
+                    print("edge", edge, "this is a suspension edge")
+                    #print(self.nodes_to_job_ids)
+                    #print(self.job_level_suspensions[task_id]['CPU'])
+                    #print("THIS:", self.nodes_to_job_ids[task_id][edge[0]])
+
+                    for i in range(len(self.nodes_to_job_ids[task_id][edge[0]])):
+                        print("suspension edge source job id:", self.nodes_to_job_ids[task_id][edge[0]][i],
+                              "suspension edge target job id:", self.nodes_to_job_ids[task_id][edge[1]][i])
+
+                    for key in task.suspensions_dict:
+                        if(task.suspensions_dict[key]["source_node"] == edge[0] and task.suspensions_dict[key]["target_node"] == edge[1]):
+                            updates = []
+                            for i in range(len(task.suspensions_dict[key]['compute_mapping']['start_node'])):
+                                ##Min and max will change for end node, for now just do the one end node
+                                compute_start_job = task.suspensions_dict[key]['compute_mapping']['start_node'][i]
+                                for end_node in task.suspensions_dict[key]['compute_mapping']['end_nodes']:
+                                    compute_end_job = task.suspensions_dict[key]['compute_mapping']['end_nodes'][end_node][i]
+                                    compute_start_type = utils.find_type(task.suspensions_dict[key]['compute']['suspension_time_start_node'])
+                                    compute_end_type = utils.find_type(end_node)
+                                    compute_start_bcct = self.last_known_rta[compute_start_type][task_id][compute_start_job]['bcct']
+                                    compute_start_wcct = self.last_known_rta[compute_start_type][task_id][compute_start_job]['wcct']
+                                    compute_end_bcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['bcct']
+                                    compute_end_wcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['wcct']
+                                    new_susp_min = compute_end_bcct - compute_start_wcct
+                                    new_susp_max = compute_end_wcct - compute_start_bcct
+                                    print("compute_start_type:", compute_start_type)
+                                    print("compute_end_type:", compute_end_type)
+                                    print("compute_start_job:", compute_start_job)
+                                    print("compute_end_job:", compute_end_job)
+                                    print("compute_start_bcct:", compute_start_bcct)
+                                    print("compute_start_wcct:", compute_start_wcct)
+                                    print("compute_end_bcct:", compute_end_bcct)
+                                    print("compute_end_wcct:", compute_end_wcct)
+                                    print("new_susp_min:", new_susp_min)
+                                    print("new_susp_max:", new_susp_max)
+                                    
+                                    
+                        exit(1)
+            
                     
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
@@ -901,16 +963,55 @@ class TASKSET:
 
         ##Running first iteration for all because we need bcct and wcct of different types to be able to do the second iteration's operations
         ##Testing cpu projection file
-        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
+
+        ###First iteration##
+        ##CPU
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-c'], capture_output=True, text=True)
 
         if result.returncode == 0:
-            print("First CPU Execution successful:", result.stdout)
+            #print("First CPU Execution successful:", result.stdout)
+            print("First CPU Execution successful")
         else:
             print("First CPU Execution failed with error:", result.stderr)
+            exit(1)
 
 
         exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
-        result = self.parse_output(self.cpu_rta_path)
+        result = self.parse_output(self.cpu_rta_path, "CPU")
+
+        ##CE
+        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r', '-c'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            #print("First CE Execution successful:", result.stdout)
+            print("First CE Execution successful")
+        else:
+            print("First CE Execution failed with error:", result.stderr)
+            exit(1)
+
+
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.ce_rta_path, "CE")
+
+
+        ##SM
+        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r', '-c'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            #print("First SM Execution successful:", result.stdout)
+            print("First SM Execution successful")
+        else:
+            print("First SM Execution failed with error:", result.stderr)
+            exit(1)
+
+
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.sm_rta_path, "SM")
+        
+        ###First iteration##
+
+        self.update_cpu()
+        
         #self.update_ce_by_cpu(result)
         
 
@@ -948,9 +1049,10 @@ if __name__ == "__main__":
     DAG3 = get_four_basic_tasks.create_digraph()
     TASK3 = TASK(DAG3, 100, 150)
 
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    #TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    #TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    TASKSET_ZERO = TASKSET([TASK1, TASK2])
     #TASKSET_ZERO = TASKSET([TASK3])
+    #TASKSET_ZERO = TASKSET([TASK1])
     TASKSET_ZERO.run_analysis()
     #TASKSET_ZERO.generate_cpu_projection_first_input()
     #TASKSET_ZERO.generate_ce_projection_first_input()

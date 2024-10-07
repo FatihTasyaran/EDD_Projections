@@ -28,6 +28,7 @@ def check_different(G, path):
 
 def find_type(a_node):
 
+        
     if(a_node.find("CPU") != -1):
         return "CPU"
 
