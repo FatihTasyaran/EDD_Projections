@@ -351,6 +351,8 @@ class TASKSET:
         self.sm_jobs_input_path = "sm_jobs.csv"
         self.sm_prec_input_path = "sm_prec.csv"
 
+        self.nodes_to_job_ids = {}
+
     def find_suspension_time_from_cpu_projection_first(self, task, source, target):
 
         #We assume there is maximum of one edge between two nodes 
@@ -364,14 +366,14 @@ class TASKSET:
 
         return susp_min, susp_max
 
-    def generate_cpu_job_precs(self, nodes_to_job_ids):
+    def generate_cpu_job_precs(self):
         ##We use the same enumeration with generate_cpu_projection_input, so it generates
         ##same ids for tasks
         prec_lines = []
         
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.cpu_projection_first.edges(data=True)
-            task_precs = nodes_to_job_ids[task_id]
+            task_precs = self.nodes_to_job_ids[task_id]
             
 
             for edge in task_edges:
@@ -379,15 +381,15 @@ class TASKSET:
                 target = edge[1]
 
                 ##We assume that edge will exist in all instances with same order of the list
-                if(len(nodes_to_job_ids[task_id][source]) != len(nodes_to_job_ids[task_id][source])):
+                if(len(self.nodes_to_job_ids[task_id][source]) != len(self.nodes_to_job_ids[task_id][source])):
                     print("Error Code 2: Number of job instances between two segments of a task is not equal, therefore I can't write precedence file, exiting..")
                     exit(1)
-                for i in range(0, len(nodes_to_job_ids[task_id][source])):
+                for i in range(0, len(self.nodes_to_job_ids[task_id][source])):
                     susp_min, susp_max = self.find_suspension_time_from_cpu_projection_first(task, source, target)
                     prec_lines.append([task_id,
-                                       nodes_to_job_ids[task_id][source][i],
+                                       self.nodes_to_job_ids[task_id][source][i],
                                        task_id,
-                                       nodes_to_job_ids[task_id][target][i],
+                                       self.nodes_to_job_ids[task_id][target][i],
                                        susp_min,
                                        susp_max
                                        ])
@@ -409,11 +411,10 @@ class TASKSET:
         hyperperiod = utils.lcm_of_list(periods)
         all_lines = []
         prec_lines = []
-        nodes_to_job_ids = {}
         for task_id, task in enumerate(self.task_list, start = 1):
             repeat = int(hyperperiod / task.period)
-            if(task_id not in nodes_to_job_ids):
-                nodes_to_job_ids[task_id] = {}
+            if(task_id not in self.nodes_to_job_ids):
+                self.nodes_to_job_ids[task_id] = {}
             for i in range(0, repeat):
                 nodes = task.cpu_projection_first.nodes(data=True)
                 edges = task.cpu_projection_first.edges(data=True)
@@ -421,11 +422,11 @@ class TASKSET:
                 for job_id, node in enumerate(nodes, start = 1):
                     node_name = node[0]
                     node = node[1] ##Bypass key, get dictionary
-                    if(node_name in nodes_to_job_ids[task_id]):
-                        nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    if(node_name in self.nodes_to_job_ids[task_id]):
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
                     else:
-                        nodes_to_job_ids[task_id][node_name] = []
-                        nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                        self.nodes_to_job_ids[task_id][node_name] = []
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
                     '''
                     print("task_id:", task_id,
                           "job_id: ", (i * no_jobs) + job_id,
@@ -446,9 +447,9 @@ class TASKSET:
                                       node['_p']])
 
                     
-
-        #print("nodes_to_job_ids:", nodes_to_job_ids)
-        prec_lines = self.generate_cpu_job_precs(nodes_to_job_ids)
+        
+        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+        prec_lines = self.generate_cpu_job_precs()
         writer_jobs = open(self.cpu_jobs_input_path, "w+")
         writer_prec = open(self.cpu_prec_input_path, "w+")
         writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
@@ -470,7 +471,246 @@ class TASKSET:
             to_write = to_write[:-1]
             to_write = to_write + "\n"
             writer_prec.write(to_write)
+
+
+
+    def find_suspension_time_from_ce_projection_first(self, task, source, target):
+
+        #We assume there is maximum of one edge between two nodes 
+        edges = task.ce_projection_first.edges(data = True)
+        susp_min = -1
+        susp_max = -1
+        for edge in edges:
+            if(edge[0] == source and edge[1] == target):
+                susp_min = edge[2]['susp_min']
+                susp_max = edge[2]['susp_max']
+
+        return susp_min, susp_max
+
+    def generate_ce_job_precs(self):
+        ##We use the same enumeration with generate_ce_projection_input, so it generates
+        ##same ids for tasks
+        prec_lines = []
+        
+        for task_id, task in enumerate(self.task_list, start = 1):
+            task_edges = task.ce_projection_first.edges(data=True)
+            task_precs = self.nodes_to_job_ids[task_id]
+
+            for edge in task_edges:
+                source = edge[0]
+                target = edge[1]
+
+                ##We assume that edge will exist in all instances with same order of the list
+                if(len(self.nodes_to_job_ids[task_id][source]) != len(self.nodes_to_job_ids[task_id][source])):
+                    print("Error Code 2: Number of job instances between two segments of a task is not equal, therefore I can't write precedence file, exiting..")
+                    exit(1)
+                for i in range(0, len(self.nodes_to_job_ids[task_id][source])):
+                    susp_min, susp_max = self.find_suspension_time_from_ce_projection_first(task, source, target)
+                    prec_lines.append([task_id,
+                                       self.nodes_to_job_ids[task_id][source][i],
+                                       task_id,
+                                       self.nodes_to_job_ids[task_id][target][i],
+                                       susp_min,
+                                       susp_max
+                                       ])
+
+        return prec_lines
             
+    ##!!Make a mapping of which job is affected of which job's response time
+    ##Make a mapping between periods-nodes-jobs, like immediate predecessors and paths (immediate predecessors actually become paths after 1st iteration)
+    ##
+    def generate_ce_projection_first_input(self):
+
+        ###############################################################################
+        ##Jobs and Precedences Together##
+        periods = []
+        for task in self.task_list:
+            periods.append(task.period)
+
+        hyperperiod = utils.lcm_of_list(periods)
+        all_lines = []
+        prec_lines = []
+        for task_id, task in enumerate(self.task_list, start = 1):
+            repeat = int(hyperperiod / task.period)
+            if(task_id not in self.nodes_to_job_ids):
+                self.nodes_to_job_ids[task_id] = {}
+            for i in range(0, repeat):
+                nodes = task.ce_projection_first.nodes(data=True)
+                edges = task.ce_projection_first.edges(data=True)
+                no_jobs = len(nodes)
+                for job_id, node in enumerate(nodes, start = 1):
+                    node_name = node[0]
+                    node = node[1] ##Bypass key, get dictionary
+                    if(node_name in self.nodes_to_job_ids[task_id]):
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    else:
+                        self.nodes_to_job_ids[task_id][node_name] = []
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    '''
+                    print("task_id:", task_id,
+                          "job_id: ", (i * no_jobs) + job_id,
+                          "arrival min: ", (i * task.period) + node['_amin'],
+                          "arrival max: ", (i * task.period) + node['_amax'],
+                          "cost min: ", node['_cmin'],
+                          "cost max", node['_cmax'],
+                          "deadline:", (i * task.period) + node['_d'],
+                          "priority:", node['_p'])
+                    '''
+                    all_lines.append([task_id,
+                                      (i * no_jobs) + job_id,
+                                      (i * task.period) + node['_amin'],
+                                      (i * task.period) + node['_amax'],
+                                      node['_cmin'],
+                                      node['_cmax'],
+                                      (i * task.period) + node['_d'],
+                                      node['_p']])
+
+                    
+        
+        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+        prec_lines = self.generate_ce_job_precs() ##Make this generate_ce_job_precs
+        writer_jobs = open(self.ce_jobs_input_path, "w+")
+        writer_prec = open(self.ce_prec_input_path, "w+")
+        writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        for line in all_lines:
+            to_write = ""
+            for field in line:
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer_jobs.write(to_write)
+
+        for line in prec_lines:
+            to_write = ""
+            for field in line:
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer_prec.write(to_write)
+
+
+
+    def find_suspension_time_from_sm_projection_first(self, task, source, target):
+
+        #We assume there is maximum of one edge between two nodes 
+        edges = task.sm_projection_first.edges(data = True)
+        susp_min = -1
+        susp_max = -1
+        for edge in edges:
+            if(edge[0] == source and edge[1] == target):
+                susp_min = edge[2]['susp_min']
+                susp_max = edge[2]['susp_max']
+
+        return susp_min, susp_max
+
+    def generate_sm_job_precs(self):
+        ##We use the same enumeration with generate_sm_projection_input, so it generates
+        ##same ids for tasks
+        prec_lines = []
+        
+        for task_id, task in enumerate(self.task_list, start = 1):
+            task_edges = task.sm_projection_first.edges(data=True)
+            task_precs = self.nodes_to_job_ids[task_id]
+
+            for edge in task_edges:
+                source = edge[0]
+                target = edge[1]
+
+                ##We assume that edge will exist in all instances with same order of the list
+                if(len(self.nodes_to_job_ids[task_id][source]) != len(self.nodes_to_job_ids[task_id][source])):
+                    print("Error Code 2: Number of job instances between two segments of a task is not equal, therefore I can't write precedence file, exiting..")
+                    exit(1)
+                for i in range(0, len(self.nodes_to_job_ids[task_id][source])):
+                    susp_min, susp_max = self.find_suspension_time_from_sm_projection_first(task, source, target)
+                    prec_lines.append([task_id,
+                                       self.nodes_to_job_ids[task_id][source][i],
+                                       task_id,
+                                       self.nodes_to_job_ids[task_id][target][i],
+                                       susp_min,
+                                       susp_max
+                                       ])
+
+        return prec_lines
+            
+    ##!!Make a mapping of which job is affected of which job's response time
+    ##Make a mapping between periods-nodes-jobs, like immediate predecessors and paths (immediate predecessors actually become paths after 1st iteration)
+    ##
+    def generate_sm_projection_first_input(self):
+
+        ###############################################################################
+        ##Jobs and Precedences Together##
+        periods = []
+        for task in self.task_list:
+            periods.append(task.period)
+
+        hyperperiod = utils.lcm_of_list(periods)
+        all_lines = []
+        prec_lines = []
+        for task_id, task in enumerate(self.task_list, start = 1):
+            repeat = int(hyperperiod / task.period)
+            if(task_id not in self.nodes_to_job_ids):
+                self.nodes_to_job_ids[task_id] = {}
+            for i in range(0, repeat):
+                nodes = task.sm_projection_first.nodes(data=True)
+                edges = task.sm_projection_first.edges(data=True)
+                no_jobs = len(nodes)
+                for job_id, node in enumerate(nodes, start = 1):
+                    node_name = node[0]
+                    node = node[1] ##Bypass key, get dictionary
+                    if(node_name in self.nodes_to_job_ids[task_id]):
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    else:
+                        self.nodes_to_job_ids[task_id][node_name] = []
+                        self.nodes_to_job_ids[task_id][node_name].append(i*no_jobs + job_id)
+                    '''
+                    print("task_id:", task_id,
+                          "job_id: ", (i * no_jobs) + job_id,
+                          "arrival min: ", (i * task.period) + node['_amin'],
+                          "arrival max: ", (i * task.period) + node['_amax'],
+                          "cost min: ", node['_cmin'],
+                          "cost max", node['_cmax'],
+                          "deadline:", (i * task.period) + node['_d'],
+                          "priority:", node['_p'])
+                    '''
+                    all_lines.append([task_id,
+                                      (i * no_jobs) + job_id,
+                                      (i * task.period) + node['_amin'],
+                                      (i * task.period) + node['_amax'],
+                                      node['_cmin'],
+                                      node['_cmax'],
+                                      (i * task.period) + node['_d'],
+                                      node['_p']])
+
+                    
+        
+        print("nodes_to_job_ids:", self.nodes_to_job_ids)
+        prec_lines = self.generate_sm_job_precs() ##Make this generate_ce_job_precs
+        writer_jobs = open(self.sm_jobs_input_path, "w+")
+        writer_prec = open(self.sm_prec_input_path, "w+")
+        writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        for line in all_lines:
+            to_write = ""
+            for field in line:
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer_jobs.write(to_write)
+
+        for line in prec_lines:
+            to_write = ""
+            for field in line:
+                to_write = to_write + str(field) + ","
+        
+            to_write = to_write[:-1]
+            to_write = to_write + "\n"
+            writer_prec.write(to_write)
+            
+
 
     def generate_ce_projection_input():
         x = 1
@@ -499,15 +739,16 @@ class TASKSET:
 if __name__ == "__main__":
 
     
-    DAG1, DAG2 = get_four_basic_tasks.return_tasks()
-    TASK1 = TASK(DAG1, 100, 150)
-    TASK2 = TASK(DAG1, 180, 200)    
-    
-
+    #DAG1, DAG2 = get_four_basic_tasks.return_tasks()
+    #TASK1 = TASK(DAG1, 100, 150)
+    #TASK2 = TASK(DAG1, 180, 200)    
     
     DAG3 = get_four_basic_tasks.create_digraph()
     TASK3 = TASK(DAG3, 100, 150)
 
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    #TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    TASKSET_ZERO = TASKSET([TASK3])
     TASKSET_ZERO.generate_cpu_projection_first_input()
+    TASKSET_ZERO.generate_ce_projection_first_input()
+    TASKSET_ZERO.generate_sm_projection_first_input()
     
