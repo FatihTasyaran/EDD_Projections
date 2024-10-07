@@ -360,6 +360,7 @@ class TASKSET:
         ##previous response time
         ##This dictionary maps that connections to faciliate updating suspension times
         ##It is generated in self.run_analysis()
+        self.job_level_suspensions = {}
 
     def map_suspension_nodes_to_jobs(self):
 
@@ -387,8 +388,7 @@ class TASKSET:
     #This modifies the suspensions in tasks, maybe move this function to TASK class?
     def generate_suspension_compute_sets(self):
 
-        x = 1
-
+        
         for task_num, task in enumerate(self.task_list, start=1):
                 
             for key in task.suspensions_dict:
@@ -564,7 +564,9 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.ce_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
-
+            self.job_level_suspensions[task_id] = {}
+            self.job_level_suspensions[task_id]['ce'] = []
+            
             for edge in task_edges:
                 source = edge[0]
                 target = edge[1]
@@ -582,6 +584,12 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
+                    self.job_level_suspensions[task_id]['ce'].append({'pred_tid': task_id,
+                                                                        'pred_jid': self.nodes_to_job_ids[task_id][source][i],
+                                                                        'succ_tid': task_id,
+                                                                        'succ_jid': self.nodes_to_job_ids[task_id][target][i],
+                                                                        'susp_min': susp_min,
+                                                                        'susp_max': susp_max})
 
         return prec_lines
             
@@ -837,18 +845,30 @@ class TASKSET:
 
     def update_ce_by_cpu(self, result):
 
+        
         for task_id, task in enumerate(self.task_list, start=1):
+            #print("##################################")
+            #print("!!Before, Task Number:", task_id, "Suspensions Dict:", task.suspensions_dict)
+            #print("##################################")
             projection = task.ce_projection_first
             for edge in projection.edges(data=True):
                 if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0):
                     print("edge:", edge, "this is a suspension edge")
-                    
-                    
+                    for key in task.suspensions_dict:
+                        if(task.suspensions_dict[key]['source_node'] == edge[0] and task.suspensions_dict[key]['target_node'] == edge[1]):
+                            print("task.suspensions_dict:", task.suspensions_dict[key])
+                            print("nodes_to_job_ids:", self.nodes_to_job_ids)
+                            print("job_level_suspensions:", self.job_level_suspensions)
+                        
+                            
+            #print("##################################")
+            #print("!!After, Task Number:", task_id, "Suspensions Dict:", task.suspensions_dict)
+            #print("##################################")
             #print("task_id:", task_id, "ce_projection edges:", task.ce_projection_first.edges(data=True))
-            #print("task_id:", task_id, "ce_projection:", task.suspensions_dict)
-
             
-        
+            
+
+                    
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
         self.generate_ce_projection_first_input()
