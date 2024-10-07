@@ -786,13 +786,11 @@ class TASKSET:
 
         result = {}
         
-        
         reader = open(out_file)
         lines = reader.readlines()
         lines = lines[1:] ##Skip the header
         for line in lines:
             fields = line.strip("\n").split(",")
-            print("fields:", fields)
             task_id = int(fields[0])
             job_id = int(fields[1])
             bcct = int(fields[2])
@@ -840,7 +838,16 @@ class TASKSET:
     def update_ce_by_cpu(self, result):
 
         for task_id, task in enumerate(self.task_list, start=1):
-            print("task_id:", task_id)
+            projection = task.ce_projection_first
+            for edge in projection.edges(data=True):
+                if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0):
+                    print("edge:", edge, "this is a suspension edge")
+                    
+                    
+            #print("task_id:", task_id, "ce_projection edges:", task.ce_projection_first.edges(data=True))
+            #print("task_id:", task_id, "ce_projection:", task.suspensions_dict)
+
+            
         
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
@@ -866,7 +873,8 @@ class TASKSET:
 
         exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
         result = self.parse_output(self.cpu_rta_path)
-        print("result:", result)
+        self.update_ce_by_cpu(result)
+        
 
     def generate_ce_projection_input():
         x = 1
