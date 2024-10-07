@@ -441,8 +441,11 @@ class TASKSET:
         prec_lines = []
         
         for task_id, task in enumerate(self.task_list, start = 1):
+            
             task_edges = task.cpu_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
+            self.job_level_suspensions[task_id] = {}
+            self.job_level_suspensions[task_id]['cpu'] = []
             
 
             for edge in task_edges:
@@ -462,6 +465,12 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
+                    self.job_level_suspensions[task_id]['cpu'].append({'pred_tid': task_id,
+                                                                       'pred_jid': self.nodes_to_job_ids[task_id][source][i],
+                                                                       'succ_tid': task_id,
+                                                                       'succ_jid': self.nodes_to_job_ids[task_id][target][i],
+                                                                       'susp_min': susp_min,
+                                                                       'susp_max': susp_max})
 
         return prec_lines
 
@@ -481,6 +490,7 @@ class TASKSET:
         all_lines = []
         prec_lines = []
         for task_id, task in enumerate(self.task_list, start = 1):
+            
             repeat = int(hyperperiod / task.period)
             if(task_id not in self.nodes_to_job_ids):
                 self.nodes_to_job_ids[task_id] = {}
@@ -564,7 +574,6 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.ce_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
-            self.job_level_suspensions[task_id] = {}
             self.job_level_suspensions[task_id]['ce'] = []
             
             for edge in task_edges:
@@ -691,6 +700,7 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             task_edges = task.sm_projection_first.edges(data=True)
             task_precs = self.nodes_to_job_ids[task_id]
+            self.job_level_suspensions[task_id]['sm'] = []
 
             for edge in task_edges:
                 source = edge[0]
@@ -709,6 +719,12 @@ class TASKSET:
                                        susp_min,
                                        susp_max
                                        ])
+                    self.job_level_suspensions[task_id]['sm'].append({'pred_tid': task_id,
+                                                                        'pred_jid': self.nodes_to_job_ids[task_id][source][i],
+                                                                        'succ_tid': task_id,
+                                                                        'succ_jid': self.nodes_to_job_ids[task_id][target][i],
+                                                                        'susp_min': susp_min,
+                                                                        'susp_max': susp_max})
 
         return prec_lines
             
@@ -843,6 +859,7 @@ class TASKSET:
         return exec_outputs
 
 
+    '''
     def update_ce_by_cpu(self, result):
 
         
@@ -865,8 +882,8 @@ class TASKSET:
             #print("!!After, Task Number:", task_id, "Suspensions Dict:", task.suspensions_dict)
             #print("##################################")
             #print("task_id:", task_id, "ce_projection edges:", task.ce_projection_first.edges(data=True))
-            
-            
+    '''
+    
 
                     
     def run_analysis(self):
@@ -882,6 +899,7 @@ class TASKSET:
                         'is_timeout': [], 'no_processors_assumed': []}
 
 
+        ##Running first iteration for all because we need bcct and wcct of different types to be able to do the second iteration's operations
         ##Testing cpu projection file
         result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
@@ -893,7 +911,7 @@ class TASKSET:
 
         exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
         result = self.parse_output(self.cpu_rta_path)
-        self.update_ce_by_cpu(result)
+        #self.update_ce_by_cpu(result)
         
 
     def generate_ce_projection_input():
