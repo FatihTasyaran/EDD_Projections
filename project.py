@@ -907,22 +907,18 @@ class TASKSET:
         for task_id, task in enumerate(self.task_list, start = 1):
             projection = task.cpu_projection_first
             for edge in projection.edges(data=True):
-                if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0):
-                    print("edge", edge, "this is a suspension edge")
-                    #print(self.nodes_to_job_ids)
-                    #print(self.job_level_suspensions[task_id]['CPU'])
-                    #print("THIS:", self.nodes_to_job_ids[task_id][edge[0]])
-
-                    for i in range(len(self.nodes_to_job_ids[task_id][edge[0]])):
-                        print("suspension edge source job id:", self.nodes_to_job_ids[task_id][edge[0]][i],
-                              "suspension edge target job id:", self.nodes_to_job_ids[task_id][edge[1]][i])
-
+                if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0): ##Find suspension edges
+                                        
+                    
+                        
                     for key in task.suspensions_dict:
                         if(task.suspensions_dict[key]["source_node"] == edge[0] and task.suspensions_dict[key]["target_node"] == edge[1]):
-                            updates = []
-                            for i in range(len(task.suspensions_dict[key]['compute_mapping']['start_node'])):
+                            
+                            for i in range(len(task.suspensions_dict[key]['compute_mapping']['start_node'])): 
                                 ##Min and max will change for end node, for now just do the one end node
                                 compute_start_job = task.suspensions_dict[key]['compute_mapping']['start_node'][i]
+                                new_susp_min = 2**20
+                                new_susp_max = -2**20
                                 for end_node in task.suspensions_dict[key]['compute_mapping']['end_nodes']:
                                     compute_end_job = task.suspensions_dict[key]['compute_mapping']['end_nodes'][end_node][i]
                                     compute_start_type = utils.find_type(task.suspensions_dict[key]['compute']['suspension_time_start_node'])
@@ -931,8 +927,13 @@ class TASKSET:
                                     compute_start_wcct = self.last_known_rta[compute_start_type][task_id][compute_start_job]['wcct']
                                     compute_end_bcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['bcct']
                                     compute_end_wcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['wcct']
-                                    new_susp_min = compute_end_bcct - compute_start_wcct
-                                    new_susp_max = compute_end_wcct - compute_start_bcct
+                                    new_susp_min_temp = compute_end_bcct - compute_start_wcct
+                                    new_susp_max_temp = compute_end_wcct - compute_start_bcct
+                                    if(new_susp_min_temp < new_susp_min):
+                                        new_susp_min = new_susp_min_temp
+                                    if(new_susp_max_temp > new_susp_max):
+                                        new_susp_max = new_susp_max_temp
+                                
                                     print("compute_start_type:", compute_start_type)
                                     print("compute_end_type:", compute_end_type)
                                     print("compute_start_job:", compute_start_job)
@@ -944,8 +945,23 @@ class TASKSET:
                                     print("new_susp_min:", new_susp_min)
                                     print("new_susp_max:", new_susp_max)
                                     
+                                    #print("job_level_suspensions:", self.job_level_suspensions)
+                                    suspension_edge_source_job_id = self.nodes_to_job_ids[task_id][edge[0]][i]
+                                    suspension_edge_target_job_id = self.nodes_to_job_ids[task_id][edge[1]][i]
                                     
-                        exit(1)
+                                    print("suspension_edge_source_job_id:", suspension_edge_source_job_id)
+                                    print("suspension_edge_target_job_id:", suspension_edge_target_job_id)
+                                    
+                                    for job_level_suspension in self.job_level_suspensions[task_id]['CPU']:
+                                        if(job_level_suspension['pred_jid'] == suspension_edge_source_job_id and
+                                           job_level_suspension['succ_jid'] == suspension_edge_target_job_id):
+                                            job_level_suspension['susp_min'] = new_susp_min
+                                            job_level_suspension['susp_max'] = new_susp_max
+                                            
+                                        
+                                    
+                                            
+                                    
             
                     
     def run_analysis(self):
@@ -1011,6 +1027,7 @@ class TASKSET:
         ###First iteration##
 
         self.update_cpu()
+        print(self.job_level_suspensions)
         
         #self.update_ce_by_cpu(result)
         
