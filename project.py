@@ -579,6 +579,9 @@ class TASKSET:
             to_write = to_write[:-1]
             to_write = to_write + "\n"
             writer_prec.write(to_write)
+            
+        writer_jobs.close()
+        writer_prec.close()
 
 
 
@@ -706,6 +709,9 @@ class TASKSET:
             to_write = to_write + "\n"
             writer_prec.write(to_write)
 
+        writer_jobs.close()
+        writer_prec.close()
+
 
 
     def find_suspension_time_from_sm_projection_first(self, task, source, target):
@@ -831,8 +837,9 @@ class TASKSET:
             to_write = to_write[:-1]
             to_write = to_write + "\n"
             writer_prec.write(to_write)
-
-    
+            
+        writer_jobs.close()
+        writer_prec.close()
 
 
     def parse_output(self, out_file, _type):
@@ -1160,11 +1167,114 @@ class TASKSET:
                                             job_level_suspension['susp_max'] = new_susp_max
                                             
                                         
+
                                     
-                                            
-                                    
-            
-                    
+    def write_new_inputs(self):
+
+        #writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        #writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        
+        #print(self.job_level_suspensions)
+        #print(self.job_file_definitions)
+        ##Write CPU
+        ##Jobs ##Does it necessary?
+        writer = open(self.cpu_jobs_input_path, "w+")
+        writer.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        for key in self.job_file_definitions["CPU"]:
+            _dict = self.job_file_definitions["CPU"][key]
+            writer.write(f"{_dict['tid']}, {_dict['jid']}, {_dict['amin']}, {_dict['amax']}, {_dict['cmin']}, {_dict['cmax']}, {_dict['deadline']}, {_dict['priority']}\n")
+        writer.close()
+        ##Suspensions and precedences
+        writer = open(self.cpu_prec_input_path, "w+")
+        writer.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        for task in self.job_level_suspensions:
+            for item in self.job_level_suspensions[task]["CPU"]:
+                writer.write(f"{item['pred_tid']}, {item['pred_jid']}, {item['succ_tid']}, {item['succ_jid']}, {item['susp_min']}, {item['susp_max']}\n")
+        writer.close()
+
+
+        ##Write CE
+        writer = open(self.ce_jobs_input_path, "w+")
+        writer.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        for key in self.job_file_definitions["CE"]:
+            _dict = self.job_file_definitions["CE"][key]
+            writer.write(f"{_dict['tid']}, {_dict['jid']}, {_dict['amin']}, {_dict['amax']}, {_dict['cmin']}, {_dict['cmax']}, {_dict['deadline']}, {_dict['priority']}\n")
+        writer.close()
+        ##Suspensions and precedences
+        writer = open(self.ce_prec_input_path, "w+")
+        writer.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        for task in self.job_level_suspensions:
+            for item in self.job_level_suspensions[task]["CE"]:
+                writer.write(f"{item['pred_tid']}, {item['pred_jid']}, {item['succ_tid']}, {item['succ_jid']}, {item['susp_min']}, {item['susp_max']}\n")
+        writer.close()
+
+
+        ##Write SM
+        writer = open(self.sm_jobs_input_path, "w+")
+        writer.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+        for key in self.job_file_definitions["SM"]:
+            _dict = self.job_file_definitions["SM"][key]
+            writer.write(f"{_dict['tid']}, {_dict['jid']}, {_dict['amin']}, {_dict['amax']}, {_dict['cmin']}, {_dict['cmax']}, {_dict['deadline']}, {_dict['priority']}\n")
+        writer.close()
+        ##Suspensions and precedences
+        writer = open(self.sm_prec_input_path, "w+")
+        writer.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+        for task in self.job_level_suspensions:
+            for item in self.job_level_suspensions[task]["SM"]:
+                writer.write(f"{item['pred_tid']}, {item['pred_jid']}, {item['succ_tid']}, {item['succ_jid']}, {item['susp_min']}, {item['susp_max']}\n")
+        writer.close()
+        
+        
+
+    def ctd_iterations(self, exec_outputs):
+
+        ##CPU
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-c'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("CPU Iteration successful")
+        else:
+            print("CPU iteration failed with error:", result.stderr)
+            exit(1)
+
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.cpu_rta_path, "CPU")
+
+        ##CE
+        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r', '-c'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("CE Iteration successful")
+        else:
+            print("CE Iteration failed with error:", result.stderr)
+            exit(1)
+
+
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.ce_rta_path, "CE")
+
+
+        ##SM
+        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r', '-c'], capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print("SM Iteration successful")
+        else:
+            print("SM Iteration failed with error:", result.stderr)
+            exit(1)
+
+
+        exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
+        result = self.parse_output(self.sm_rta_path, "SM")
+
+        self.update_cpu()
+        self.update_ce()
+        self.update_sm()
+
+        self.write_new_inputs()
+
+        return exec_outputs
+        
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
         self.generate_ce_projection_first_input()
@@ -1230,27 +1340,24 @@ class TASKSET:
         self.update_cpu()
         self.update_ce()
         self.update_sm()
-        #print(self.job_level_suspensions)
+
+        self.write_new_inputs()
+
+
+        ##
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        self.ctd_iterations(exec_outputs)
+        ##
+        print(exec_outputs)
         
-        #self.update_ce_by_cpu(result)
         
-
-    def generate_ce_projection_input():
-        x = 1
-                                      
-    def generate_sm_projection_input():
-        x = 1
-
-    def run_cpu_parse_and_update():
-        x = 1
-
-    def run_ce_parse_and_update():
-        x = 1
-
-    def run_sm_parse_and_update():
-        x = 1
         
-
 
 
 
