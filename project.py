@@ -178,7 +178,8 @@ class TASK:
             if(access_nodes[node]["_type"] == "SM"):
                 node_data = self.DAG.nodes[node]
                 sm_projection.add_node(node, **node_data)
-                
+
+        
         print("##############################")
         print("SM Projection All Nodes Before Update")
         nodes = sm_projection.nodes(data=True)
@@ -375,7 +376,13 @@ class TASKSET:
         ##This dictionary maps that connections to faciliate updating suspension times
         ##It is generated in self.run_analysis()
         self.job_level_suspensions = {}
+        self.exit_not_satisfied = False
         
+
+    def check_exit(self, old_interval, new_interval):
+
+        if not(old_interval[0] <= new_interval[0] and old_interval[1] <= new_interval[1]):
+            self.exit_not_satisfied = True
 
     def map_suspension_nodes_to_jobs(self):
 
@@ -914,7 +921,7 @@ class TASKSET:
             projection = task.ce_projection_first
             for edge in projection.edges(data=True):
                 if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0):
-                    print("edge:", edge, "this is a suspension edge")
+                    #print("edge:", edge, "this is a suspension edge")
                     for key in task.suspensions_dict:
                         if(task.suspensions_dict[key]['source_node'] == edge[0] and task.suspensions_dict[key]['target_node'] == edge[1]):
                             print("task.suspensions_dict:", task.suspensions_dict[key])
@@ -935,6 +942,7 @@ class TASKSET:
             for edge in projection.edges(data=True):
                 if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0): ##Find suspension edges
                                         
+                    lower_bound = edge[2]['susp_min']
                     
                         
                     for key in task.suspensions_dict:
@@ -960,18 +968,6 @@ class TASKSET:
                                     if(new_susp_max_temp > new_susp_max):
                                         new_susp_max = new_susp_max_temp
 
-                                    '''
-                                    print("compute_start_type:", compute_start_type)
-                                    print("compute_end_type:", compute_end_type)
-                                    print("compute_start_job:", compute_start_job)
-                                    print("compute_end_job:", compute_end_job)
-                                    print("compute_start_bcct:", compute_start_bcct)
-                                    print("compute_start_wcct:", compute_start_wcct)
-                                    print("compute_end_bcct:", compute_end_bcct)
-                                    print("compute_end_wcct:", compute_end_wcct)
-                                    print("new_susp_min:", new_susp_min)
-                                    print("new_susp_max:", new_susp_max)
-                                    '''
                                     
                                     #print("job_level_suspensions:", self.job_level_suspensions)
                                     suspension_edge_source_job_id = self.nodes_to_job_ids[task_id][edge[0]][i]
@@ -983,10 +979,14 @@ class TASKSET:
                                     for job_level_suspension in self.job_level_suspensions[task_id]['CPU']:
                                         if(job_level_suspension['pred_jid'] == suspension_edge_source_job_id and
                                            job_level_suspension['succ_jid'] == suspension_edge_target_job_id):
-                                            job_level_suspension['susp_min'] = new_susp_min
+                                            #print("CPU edge[2]['susp_min']:", edge[2]['susp_min'], "new_susp_min:", new_susp_min)
+                                            #print("CPU edge[2]['susp_max']:", edge[2]['susp_max'], "new_susp_max:", new_susp_max)
+                                            update_min = max(new_susp_min, lower_bound)
+                                            self.check_exit([job_level_suspension['susp_min'], job_level_suspension['susp_max']], [update_min, new_susp_max])
+                                            job_level_suspension['susp_min'] = update_min
                                             job_level_suspension['susp_max'] = new_susp_max
-
-
+                                            
+                                            
                                             
     def bcct_wcct_by_job_id(self, task_id, job_id, node):
 
@@ -1034,7 +1034,8 @@ class TASKSET:
             projection = task.ce_projection_first
             for edge in projection.edges(data=True):
                 if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0): ##Find suspension edges
-                                        
+
+                    lower_bound = edge[2]['susp_min']
                         
                     for key in task.suspensions_dict:
                         if(task.suspensions_dict[key]["source_node"] == edge[0] and task.suspensions_dict[key]["target_node"] == edge[1]):
@@ -1059,18 +1060,7 @@ class TASKSET:
                                     if(new_susp_max_temp > new_susp_max):
                                         new_susp_max = new_susp_max_temp
 
-                                    '''
-                                    print("compute_start_type:", compute_start_type)
-                                    print("compute_end_type:", compute_end_type)
-                                    print("compute_start_job:", compute_start_job)
-                                    print("compute_end_job:", compute_end_job)
-                                    print("compute_start_bcct:", compute_start_bcct)
-                                    print("compute_start_wcct:", compute_start_wcct)
-                                    print("compute_end_bcct:", compute_end_bcct)
-                                    print("compute_end_wcct:", compute_end_wcct)
-                                    print("new_susp_min:", new_susp_min)
-                                    print("new_susp_max:", new_susp_max)
-                                    '''
+                                        
                                     #print("job_level_suspensions:", self.job_level_suspensions)
                                     suspension_edge_source_job_id = self.nodes_to_job_ids[task_id][edge[0]][i]
                                     suspension_edge_target_job_id = self.nodes_to_job_ids[task_id][edge[1]][i]
@@ -1081,8 +1071,13 @@ class TASKSET:
                                     for job_level_suspension in self.job_level_suspensions[task_id]['CE']:
                                         if(job_level_suspension['pred_jid'] == suspension_edge_source_job_id and
                                            job_level_suspension['succ_jid'] == suspension_edge_target_job_id):
-                                            job_level_suspension['susp_min'] = new_susp_min
-                                            job_level_suspension['susp_max'] = new_susp_max
+                                            #print("CE edge[2]['susp_min']:", edge[2]['susp_min'], "new_susp_min:", new_susp_min)
+                                            #print("CE edge[2]['susp_max']:", edge[2]['susp_max'], "new_susp_max:", new_susp_max)
+                                            if(new_susp_min >= edge[2]['susp_min']):
+                                                update_min = max(new_susp_min, lower_bound)
+                                                self.check_exit([job_level_suspension['susp_min'], job_level_suspension['susp_max']], [update_min, new_susp_max])
+                                                job_level_suspension['susp_min'] = update_min
+                                                job_level_suspension['susp_max'] = new_susp_max
 
 
 
@@ -1116,7 +1111,8 @@ class TASKSET:
             projection = task.sm_projection_first
             for edge in projection.edges(data=True):
                 if(edge[2]['susp_min'] != 0 and edge[2]['susp_max'] != 0): ##Find suspension edges
-                                        
+
+                    lower_bound = edge[2]['susp_min']
                         
                     for key in task.suspensions_dict:
                         if(task.suspensions_dict[key]["source_node"] == edge[0] and task.suspensions_dict[key]["target_node"] == edge[1]):
@@ -1141,29 +1137,21 @@ class TASKSET:
                                     if(new_susp_max_temp > new_susp_max):
                                         new_susp_max = new_susp_max_temp
 
-                                    '''
-                                    print("compute_start_type:", compute_start_type)
-                                    print("compute_end_type:", compute_end_type)
-                                    print("compute_start_job:", compute_start_job)
-                                    print("compute_end_job:", compute_end_job)
-                                    print("compute_start_bcct:", compute_start_bcct)
-                                    print("compute_start_wcct:", compute_start_wcct)
-                                    print("compute_end_bcct:", compute_end_bcct)
-                                    print("compute_end_wcct:", compute_end_wcct)
-                                    print("new_susp_min:", new_susp_min)
-                                    print("new_susp_max:", new_susp_max)
-                                    '''
+
                                     #print("job_level_suspensions:", self.job_level_suspensions)
+                                    
                                     suspension_edge_source_job_id = self.nodes_to_job_ids[task_id][edge[0]][i]
                                     suspension_edge_target_job_id = self.nodes_to_job_ids[task_id][edge[1]][i]
                                     
                                     #print("suspension_edge_source_job_id:", suspension_edge_source_job_id)
                                     #print("suspension_edge_target_job_id:", suspension_edge_target_job_id)
                                     
-                                    for job_level_suspension in self.job_level_suspensions[task_id]['CE']:
+                                    for job_level_suspension in self.job_level_suspensions[task_id]['SM']:
                                         if(job_level_suspension['pred_jid'] == suspension_edge_source_job_id and
                                            job_level_suspension['succ_jid'] == suspension_edge_target_job_id):
-                                            job_level_suspension['susp_min'] = new_susp_min
+                                            update_min = max(new_susp_min, lower_bound)
+                                            self.check_exit([job_level_suspension['susp_min'], job_level_suspension['susp_max']], [update_min, new_susp_max])
+                                            job_level_suspension['susp_min'] = update_min
                                             job_level_suspension['susp_max'] = new_susp_max
                                             
                                         
@@ -1229,7 +1217,7 @@ class TASKSET:
     def ctd_iterations(self, exec_outputs):
 
         ##CPU
-        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-m', '2'], capture_output=True, text=True)
 
         if result.returncode == 0:
             print("CPU Iteration successful")
@@ -1241,7 +1229,7 @@ class TASKSET:
         result = self.parse_output(self.cpu_rta_path, "CPU")
 
         ##CE
-        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             print("CE Iteration successful")
@@ -1255,7 +1243,7 @@ class TASKSET:
 
 
         ##SM
-        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             print("SM Iteration successful")
@@ -1274,6 +1262,24 @@ class TASKSET:
         self.write_new_inputs()
 
         return exec_outputs
+
+    def print_quickly(self):
+
+        print("###############################################################")
+        for task in self.job_level_suspensions:
+            for key in self.job_level_suspensions[task]:
+                for item in self.job_level_suspensions[task][key]:
+                    print("task:", task, "key:", key, "min:", item['susp_min'], "max:", item['susp_max'])
+        print("###############################################################")
+
+    def exit_condition(self):
+
+        for task in self.job_level_suspensions:
+            for susp in self.job_level_suspensions[task]:
+                for type in self.job_level_suspensions[task][susp]:
+                    print(type)
+
+
         
     def run_analysis(self):
         self.generate_cpu_projection_first_input()
@@ -1293,7 +1299,7 @@ class TASKSET:
 
         ###First iteration##
         ##CPU
-        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-m', '2'], capture_output=True, text=True)
 
         if result.returncode == 0:
             #print("First CPU Execution successful:", result.stdout)
@@ -1307,7 +1313,7 @@ class TASKSET:
         result = self.parse_output(self.cpu_rta_path, "CPU")
 
         ##CE
-        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'ce_jobs.csv', '-p', 'ce_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             #print("First CE Execution successful:", result.stdout)
@@ -1322,7 +1328,7 @@ class TASKSET:
 
 
         ##SM
-        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r', '-c'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'sm_jobs.csv', '-p', 'sm_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             #print("First SM Execution successful:", result.stdout)
@@ -1334,7 +1340,7 @@ class TASKSET:
 
         exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
         result = self.parse_output(self.sm_rta_path, "SM")
-        
+
         ###First iteration##
 
         self.update_cpu()
@@ -1343,18 +1349,21 @@ class TASKSET:
 
         self.write_new_inputs()
 
-
+        ##!!Also update the arrival time smin smax!!!!!
+        self.print_quickly()
+        iteration = 1
         ##
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
-        self.ctd_iterations(exec_outputs)
+        while(self.exit_not_satisfied or iteration == 1):
+            self.exit_not_satisfied = False
+            self.ctd_iterations(exec_outputs)
+            iteration = iteration + 1
+            print("Iteration: ", iteration)
+            self.print_quickly()
+            #print(exec_outputs)
+            
         ##
-        print(exec_outputs)
+        for key in exec_outputs:
+            print(key, exec_outputs[key])
         
         
         
@@ -1370,14 +1379,18 @@ if __name__ == "__main__":
 
     
     DAG1, DAG2 = get_four_basic_tasks.return_tasks()
-    TASK1 = TASK(DAG1, 100, 150)
-    TASK2 = TASK(DAG1, 180, 200)    
+    TASK1 = TASK(DAG1, 200, 140)
+    TASK2 = TASK(DAG2, 250, 145)
+    TASK3 = TASK(DAG1, 300, 140)
+    TASK4 = TASK(DAG1, 350, 145)
+    TASK5 = TASK(DAG1, 300, 140)
+    TASK6 = TASK(DAG1, 350, 145)    
     
-    DAG3 = get_four_basic_tasks.create_digraph()
-    TASK3 = TASK(DAG3, 100, 150)
+    #DAG3 = get_four_basic_tasks.create_digraph()
+    #TASK3 = TASK(DAG3, 100, 150)
 
-    #TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    TASKSET_ZERO = TASKSET([TASK1, TASK2])
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK2])
+    #TASKSET_ZERO = TASKSET([TASK1, TASK2])
     #TASKSET_ZERO = TASKSET([TASK3])
     #TASKSET_ZERO = TASKSET([TASK1])
     TASKSET_ZERO.run_analysis()
@@ -1385,3 +1398,11 @@ if __name__ == "__main__":
     #TASKSET_ZERO.generate_ce_projection_first_input()
     #TASKSET_ZERO.generate_sm_projection_first_input()
     
+
+    ##Several baselines
+    ##This is one; everything is at job level
+    ##By min-maxing S_i^max and S_i^min for all j and (next step)
+    
+    ##use it in comparison as a baseline (task-level)
+    #Daniel Casini -> another baseline
+    #Nidhi knows which analysis
