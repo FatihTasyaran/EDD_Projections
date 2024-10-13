@@ -1,6 +1,7 @@
 import networkx as nx
 import math
 import get_four_basic_tasks
+import test_tasks_0
 import utils
 import subprocess
 
@@ -1053,6 +1054,15 @@ class TASKSET:
                                     compute_start_wcct = self.last_known_rta[compute_start_type][task_id][compute_start_job]['wcct']
                                     compute_end_bcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['bcct']
                                     compute_end_wcct = self.last_known_rta[compute_end_type][task_id][compute_end_job]['wcct']
+
+                                    print("dict:", task.suspensions_dict[key],
+                                          "sbcct:", compute_start_bcct,
+                                          "swcct:", compute_start_wcct,
+                                          "ebcct:", compute_end_bcct,
+                                          "ewcct:", compute_end_wcct)
+
+                                    #exit(1)
+                                    
                                     new_susp_min_temp = compute_end_bcct - compute_start_wcct
                                     new_susp_max_temp = compute_end_wcct - compute_start_bcct
                                     if(new_susp_min_temp < new_susp_min):
@@ -1217,7 +1227,7 @@ class TASKSET:
     def ctd_iterations(self, exec_outputs):
 
         ##CPU
-        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-m', '2'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             print("CPU Iteration successful")
@@ -1299,7 +1309,7 @@ class TASKSET:
 
         ###First iteration##
         ##CPU
-        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r', '-m', '2'], capture_output=True, text=True)
+        result = subprocess.run(['./nptest', 'cpu_jobs.csv', '-p', 'cpu_prec.csv', '-r'], capture_output=True, text=True)
 
         if result.returncode == 0:
             #print("First CPU Execution successful:", result.stdout)
@@ -1340,15 +1350,15 @@ class TASKSET:
 
         exec_outputs = self.update_exec_output_fields(exec_outputs, result.stdout)
         result = self.parse_output(self.sm_rta_path, "SM")
-
+        
         ###First iteration##
-
+        exit(1)
         self.update_cpu()
         self.update_ce()
         self.update_sm()
-
+        
         self.write_new_inputs()
-
+        
         ##!!Also update the arrival time smin smax!!!!!
         self.print_quickly()
         iteration = 1
@@ -1377,32 +1387,24 @@ class TASKSET:
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
-    
-    DAG1, DAG2 = get_four_basic_tasks.return_tasks()
-    TASK1 = TASK(DAG1, 200, 140)
-    TASK2 = TASK(DAG2, 250, 145)
-    TASK3 = TASK(DAG1, 300, 140)
-    TASK4 = TASK(DAG1, 350, 145)
-    TASK5 = TASK(DAG1, 300, 140)
-    TASK6 = TASK(DAG1, 350, 145)    
-    
-    #DAG3 = get_four_basic_tasks.create_digraph()
-    #TASK3 = TASK(DAG3, 100, 150)
+    #def __init__(self, DAG, period, deadline):
+    DAG1, DAG2, DAG3 = test_tasks_0.return_tasks()
+    TASK1 = TASK(DAG1, 350, 350)
+    TASK2 = TASK(DAG2, 120, 120)
+    TASK3 = TASK(DAG3, 60, 60)
 
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK2])
-    #TASKSET_ZERO = TASKSET([TASK1, TASK2])
-    #TASKSET_ZERO = TASKSET([TASK3])
-    #TASKSET_ZERO = TASKSET([TASK1])
+    #utils.visualize_bfs_w_depth(DAG1)
+    #utils.visualize_bfs_w_depth(DAG2)
+    #utils.visualize_bfs_w_depth(DAG3)
+
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
     TASKSET_ZERO.run_analysis()
-    #TASKSET_ZERO.generate_cpu_projection_first_input()
-    #TASKSET_ZERO.generate_ce_projection_first_input()
-    #TASKSET_ZERO.generate_sm_projection_first_input()
     
 
     ##Several baselines
     ##This is one; everything is at job level
     ##By min-maxing S_i^max and S_i^min for all j and (next step)
     
-    ##use it in comparison as a baseline (task-level)
+    ##use it i[On comparison as a baseline (task-level)
     #Daniel Casini -> another baseline
     #Nidhi knows which analysis
