@@ -1,0 +1,127 @@
+import networkx as nx
+import math
+import get_four_basic_tasks
+import test_tasks_0
+import utils_refactored as utils
+import subprocess
+import global_definitions
+
+##Types
+CPU = 0
+SM = 1
+CE = 2
+
+class TASK:
+
+    def __init__(self, DAG, period, deadline):
+        ##Task properties
+        self.DAG = DAG
+        self.period = period
+        self.deadline = deadline
+        ##Computed task features
+        self.all_suspensions = self.recursive_paths()
+        self.suspensions_dict = self.create_suspensions_dict()
+        
+
+    ##This finds paths between any two nodes
+    ##use this to update jitter on roots of sm and ce projection dags
+    ##!!This function may not be very efficient
+    def recursive_paths_between_two_nodes(self, start_node, end_node, path=[]):
+        #print("type(path):", type(path), "path:", path, type([start_node]))
+        path = path + [start_node]
+        if start_node == end_node:
+            return [path]
+        if start_node not in self.DAG:
+            return []
+        paths = []
+        for node in self.DAG.successors(start_node):
+            if node not in path:
+                new_paths = self.recursive_paths_between_two_nodes(node, end_node, path)
+                for new_path in new_paths:
+                    paths.append(new_path)
+        return paths
+
+    ##Start is the node where search is started, source and destination define an edge
+    ##This finds paths between any two nodes of the same type with intermediate different typed nodes
+    def recursive_search(self, G, node_start, node_source, node_destination, path, all_paths):
+        path.append((node_source, node_destination))
+        nodes = dict(G.nodes)
+        ##All conditions satisfied, FOUND
+        if(nodes[node_destination]["_type"] == nodes[node_start]["_type"] and utils.check_different(G, path)):
+            all_paths.append(list(path))
+            ##Start with consecutively same types, SKIP
+        elif(not utils.check_different(G, path) and len(path) == 2):
+            path.pop()
+            return
+        ##Same types exist but there are other, 
+        elif(nodes[node_source]["_type"] == nodes[node_destination]["_type"] and not utils.check_different(G, path)):
+            path.pop()
+            return
+        else:
+            new_out_edges = G.out_edges(nbunch = node_destination)
+            temp = node_source
+            node_source = node_destination
+            for edge in new_out_edges:
+                node_destination = edge[1]
+                self.recursive_search(G, node_start, node_source, node_destination, path, all_paths)
+
+        path.pop()
+
+    def recursive_paths(self):
+
+        nodes = dict(self.DAG.nodes(data=True))
+        all_suspensions = []
+        for node in nodes:
+            out_edges = self.DAG.out_edges(nbunch = node)
+            for edge in out_edges:
+                path = []
+                all_paths = []
+                self.recursive_search(self.DAG, node, node, edge[1], path, all_paths)
+                all_suspensions.extend(all_paths)
+
+
+        return all_suspensions
+
+
+    def create_suspensions_dict(self):
+
+        t = global_definitions.TYPES_ALPHA
+        nodes = self.DAG.nodes(data=True)
+        suspensions_dict = {}
+        enum = 1
+        for suspension in self.all_suspensions: ##Enumerating manually here
+            len_suspend = len(suspension)
+            source_node = suspension[0][0]
+            target_node = suspension[len_suspend - 1][1]
+
+            exist = False
+            for key in suspensions_dict:
+                if(suspensions_dict[key]['source_node'] == source_node and suspensions_dict[key]['target_node'] == target_node):
+                    exist = True
+                    suspensions_dict[key]['paths'].append(suspension)
+
+            if(not exist):
+                new_key = str(enum)
+                suspensions_dict[new_key] = {}
+                suspensions_dict[new_key]['source_node'] = source_node
+                suspensions_dict[new_key]['target_node'] = target_node
+                suspensions_dict[new_key]['type'] = nodes[source_node]["_type"] ##Can further augment this with t up there
+                suspensions_dict[new_key]['paths'] = []
+                suspensions_dict[new_key]['paths'].append(suspension)
+                enum = enum + 1
+
+        return suspensions_dict
+    
+    
+##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
+if __name__ == "__main__":
+
+    #def __init__(self, DAG, period, deadline):
+    DAG1, DAG2, DAG3 = test_tasks_0.return_tasks()
+    TASK1 = TASK(DAG1, 350, 350)
+    #TASK2 = TASK(DAG2, 120, 120)
+    #TASK3 = TASK(DAG3, 60, 60)
+
+    #utils.visualize_bfs_w_depth(DAG1)
+    
+

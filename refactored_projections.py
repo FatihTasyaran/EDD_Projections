@@ -26,11 +26,12 @@ class TASK:
         self.task_level_projections = {} ##No predetermined class
         self.generate_projections()
         ##
-        self.job_level_projections = {}
+        self.job_level_projections = {} ##OK
         self.job_level_suspensions = {}
-        self.job_level_jitter_roots = {}
+        self.job_level_all_edges = {}
+        self.job_level_jitter_roots = {} ##OK
         ##
-        self.nodes_to_job_ids = {}
+        self.nodes_to_job_ids = {} ##OK
         
 
         
@@ -273,44 +274,87 @@ class TASKSET:
                                     task.job_level_jitter_roots[projection][one_root_jobs[i]].append(incoming_all[j][i])
                 
 
+    def get_jobs_for_node(self, task, _type, node):
 
+        #print("node:", node, "node jobs:", task.nodes_to_job_ids[_type][node])
+        return task.nodes_to_job_ids[_type][node]
+
+    def find_type_of_node(self, task, node):
+        
+        #print("node:", node, "type:", task.DAG.nodes(data=True)[node]["_type"])
+        return task.DAG.nodes(data=True)[node]["_type"]
+    
+    def get_jobs_list_for_nodes_list(self, task, nodes):
+
+        jobs = []
+        types = []
+        
+        _type = self.find_type_of_node(task, nodes[0])
+        _len = len(task.nodes_to_job_ids[_type][nodes[0]])
+
+        for node in nodes:
+            _type = self.find_type_of_node(task, node)
+            types.append(_type)
+            
+        for i in range(_len):
+            this_release_jobs = []
+            for node in nodes:
+                _type = self.find_type_of_node(task, node)
+                this_release_jobs.append(task.nodes_to_job_ids[_type][node][i])
+            jobs.append(this_release_jobs)
+                
+        return types, jobs
+
+    
 
     def populate_with_precs(self):
+
+        x = 1
+
+        ##Where are non-suspension edges?
         
         for task_id, task in enumerate(self.tasks, start=1):
             for _type in task.task_level_suspensions_dict:
                 print("Type:", _type)
                 print("task_id:", task_id, "suspensions_dict:", task.task_level_suspensions_dict[_type])
-            
-            for key in task.suspensions_dict:
+                print("task_id:", task_id, "nodes_to_job_ids:", task.nodes_to_job_ids)
+                
+            for key in task.task_level_suspensions_dict:
 
-                suspension_edge_source_node = task.suspensions_dict[key]['source_node']
-                suspension_edge_target_node = task.suspensions_dict[key]['target_node']
+                suspension_edge_source_node = task.task_level_suspensions_dict[key]['source_node']
+                suspension_edge_target_node = task.task_level_suspensions_dict[key]['target_node']
                 suspension_time_start_node = suspension_edge_source_node
                 suspension_time_end_nodes = []
+
                 
-                for path in task.suspensions_dict[key]['paths']:
+                for path in task.task_level_suspensions_dict[key]['paths']:
                     suspension_time_end_node = path[len(path) - 1][0] ##Immediate predecessor of other type
                     suspension_time_end_nodes.append(suspension_time_end_node)
 
 
                 ##Reduce list to unique elements if there are multiple paths starts and ends with the same node
                 suspension_time_end_nodes = list(set(suspension_time_end_nodes))
-                task.suspensions_dict[key]['compute'] = {}
-                task.suspensions_dict[key]['compute']['suspension_time_start_node'] = suspension_time_start_node
-                task.suspensions_dict[key]['compute']['suspension_time_end_nodes'] = suspension_time_end_nodes
 
-                '''
-                print("task:", task_num, "suspension:", task.suspensions_dict[key], "\n",
+                start_type = task.task_level_suspensions_dict[key]["type"]
+                _dict = {}
+                if(_type not in task.job_level_suspensions):
+                    task.job_level_suspensions[_type] = {}
+
+                suspension_time_start_jobs = self.get_jobs_for_node(task, start_type, suspension_time_start_node)
+                suspension_time_end_types, suspension_time_end_jobs = self.get_jobs_list_for_nodes_list(task, suspension_time_end_nodes)
+
+                print("task:", task_id, "suspension:", task.task_level_suspensions_dict[key], "\n",
                       "suspension_edge_source_node:", suspension_edge_source_node, "\n",
                       "suspension_edge_target_node:", suspension_edge_target_node, "\n",
                       "suspension_time_start_node:", suspension_time_start_node, "\n",
                       "suspension_time_end_nodes:", suspension_time_end_nodes, "\n",
-                      "suspension:", task.suspensions_dict[key])
-                '''
+                      "suspension_time_start_jobs:", suspension_time_start_jobs, "\n",
+                      "suspension_time_end_types:", suspension_time_end_types, "\n",
+                      "suspension_time_end_jobs:", suspension_time_end_jobs)
+                
+                
                 
 
-            
 
                                     
     
