@@ -206,7 +206,7 @@ class TASKSET:
         
         self.tasks = TASKS
         self.populate_with_jobs()
-
+        self.populate_with_precs()
 
 
     def populate_with_jobs(self):
@@ -266,7 +266,7 @@ class TASKSET:
                             if(len(one_root_jobs) != len(incoming_jobs)):
                                 print("Error: Unequal number of jobs during jitter root mapping, exiting..")
                                 exit(1)
-                            print("incoming_all:", incoming_all)
+
                             for i in range(len(one_root_jobs)):
                                 task.job_level_jitter_roots[projection][one_root_jobs[i]] = []
                                 for j in range(len(incoming_all)):
@@ -274,6 +274,45 @@ class TASKSET:
                 
 
 
+
+    def populate_with_precs(self):
+        
+        for task_id, task in enumerate(self.tasks, start=1):
+            for _type in task.task_level_suspensions_dict:
+                print("Type:", _type)
+                print("task_id:", task_id, "suspensions_dict:", task.task_level_suspensions_dict[_type])
+            
+            for key in task.suspensions_dict:
+
+                suspension_edge_source_node = task.suspensions_dict[key]['source_node']
+                suspension_edge_target_node = task.suspensions_dict[key]['target_node']
+                suspension_time_start_node = suspension_edge_source_node
+                suspension_time_end_nodes = []
+                
+                for path in task.suspensions_dict[key]['paths']:
+                    suspension_time_end_node = path[len(path) - 1][0] ##Immediate predecessor of other type
+                    suspension_time_end_nodes.append(suspension_time_end_node)
+
+
+                ##Reduce list to unique elements if there are multiple paths starts and ends with the same node
+                suspension_time_end_nodes = list(set(suspension_time_end_nodes))
+                task.suspensions_dict[key]['compute'] = {}
+                task.suspensions_dict[key]['compute']['suspension_time_start_node'] = suspension_time_start_node
+                task.suspensions_dict[key]['compute']['suspension_time_end_nodes'] = suspension_time_end_nodes
+
+                '''
+                print("task:", task_num, "suspension:", task.suspensions_dict[key], "\n",
+                      "suspension_edge_source_node:", suspension_edge_source_node, "\n",
+                      "suspension_edge_target_node:", suspension_edge_target_node, "\n",
+                      "suspension_time_start_node:", suspension_time_start_node, "\n",
+                      "suspension_time_end_nodes:", suspension_time_end_nodes, "\n",
+                      "suspension:", task.suspensions_dict[key])
+                '''
+                
+
+            
+
+                                    
     
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
@@ -284,6 +323,11 @@ if __name__ == "__main__":
     TASK2 = TASK(DAG2, 120, 120)
     TASK3 = TASK(DAG3, 60, 60)
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    print("TASK1:")
+    print(TASK1.job_level_jitter_roots)
+    print("TASK2:")
+    print(TASK2.job_level_jitter_roots)
+    print("TASK3:")
     print(TASK3.job_level_jitter_roots)
 
     
