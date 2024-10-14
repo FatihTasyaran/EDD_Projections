@@ -28,6 +28,7 @@ class TASK:
         ##
         self.job_level_projections = {}
         self.job_level_suspensions = {}
+        self.job_level_jitter_roots = {}
         ##
         self.nodes_to_job_ids = {}
         
@@ -182,16 +183,8 @@ class TASK:
 
                     to_generate.nodes(data=True)[node]['_amin'] = to_generate.nodes(data=True)[node]['_amin'] + min_extra_jitter
                     to_generate.nodes(data=True)[node]['_amax'] = to_generate.nodes(data=True)[node]['_amax'] + max_extra_jitter
-
+                    
             self.task_level_projections[_type] = to_generate
-            print("#################################################")
-            print("Type:", _type)
-            print("Nodes:")
-            for node in to_generate.nodes(data=True):
-                print(node)
-            for edge in to_generate.edges(data=True):
-                print(edge)
-            print("#################################################")
 
 
 def print_projection(_type, a_dag):
@@ -224,21 +217,16 @@ class TASKSET:
         hyperperiod = utils.lcm_of_list(periods)
 
         
-        
         for task_id, task in enumerate(self.tasks, start=1):
             period = task.period
             repeat = int(hyperperiod / period)
-            job_level_jitter_roots = {}
             for projection in task.task_level_projections:
                 projection_dag = task.task_level_projections[projection]
                 projection_len = len(projection_dag.nodes)
                 projection_roots = [-1]
                 if(projection not in task.nodes_to_job_ids):
                     task.nodes_to_job_ids[projection] = {}
-
                 
-                
-                print("projection:", projection, "projection_len:", projection_len)
                 for i in range(repeat):
                     for node_id, node in enumerate(projection_dag.nodes(data=True)):
                         job_id = i * projection_len + node_id + 1 ##Start counting from 1
@@ -247,15 +235,7 @@ class TASKSET:
                         if(node_name not in task.nodes_to_job_ids[projection]):
                             task.nodes_to_job_ids[projection][node_name] = []
                         task.nodes_to_job_ids[projection][node_name].append(job_id)
-                        print("node:", node, "job_id:", job_id)
-                        print("Task ID:", task_id,
-                              "Job_id:", job_id,
-                              "a_min: ", node_info["_amin"] + (i * period),
-                              "a_max: ", node_info["_amax"] + (i * period),
-                              "c_min:", node_info["_cmin"],
-                              "c_max:", node_info["_cmax"],
-                              "deadline:", node_info["_d"] * (i + 1),
-                              "priority:", node_info["_p"])
+                        
                         if(projection not in task.job_level_projections):
                             task.job_level_projections[projection] = {}
                         _dict = {"Task ID:", task_id,
@@ -268,30 +248,31 @@ class TASKSET:
                                  "priority:", node_info["_p"]}
                         task.job_level_projections[projection][job_id] = _dict
                         
-                ##For non-CPU projections
+                ##For non-CPU projections, add suspension as jitter
                 if(projection != "0"):
-                    print("projection:", projection)
-                    print_projection(projection, projection_dag)
+                    if(projection not in task.job_level_jitter_roots):
+                        task.job_level_jitter_roots[projection] = {}
                     projection_roots = utils.find_roots_in_DAG(projection_dag)
                     if(len(projection_roots) != 0):
                         for i in range(len(projection_roots)):
                             one_root = projection_roots[i]
                             one_root_jobs = task.nodes_to_job_ids[projection][one_root]
-                            print("one_root:", one_root)
-                            edge = list(task.DAG.in_edges(one_root))
-                            incoming = edge[0][0]
-                            incoming_jobs = task.nodes_to_job_ids["0"][incoming]
-
-                            if(projection not in task.job_level_jitter_roots):
-                                task.job_level_jitter_roots[projection] = {}
-
+                            edges = list(task.DAG.in_edges(one_root))
+                            incoming_all = []
+                            for edge in edges:
+                                incoming = edge[0]
+                                incoming_jobs = task.nodes_to_job_ids["0"][incoming]
+                                incoming_all.append(incoming_jobs)
                             if(len(one_root_jobs) != len(incoming_jobs)):
                                 print("Error: Unequal number of jobs during jitter root mapping, exiting..")
                                 exit(1)
+                            print("incoming_all:", incoming_all)
                             for i in range(len(one_root_jobs)):
-                                task.job_level_jitter_roots[projection][one_root_jobs[i]] = incoming_jobs[i]
+                                task.job_level_jitter_roots[projection][one_root_jobs[i]] = []
+                                for j in range(len(incoming_all)):
+                                    task.job_level_jitter_roots[projection][one_root_jobs[i]].append(incoming_all[j][i])
                 
-                        
+
 
     
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
@@ -303,7 +284,7 @@ if __name__ == "__main__":
     TASK2 = TASK(DAG2, 120, 120)
     TASK3 = TASK(DAG3, 60, 60)
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    
+    print(TASK3.job_level_jitter_roots)
 
     
 
