@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from collections import defaultdict
 import functools
 import math
+import global_definitions
 
 
 def lcm(a, b):

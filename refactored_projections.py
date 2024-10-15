@@ -27,11 +27,11 @@ class TASK:
         self.generate_projections()
         ##
         self.job_level_projections = {} ##OK
-        self.job_level_suspensions = {}
-        self.job_level_all_edges = {}
+        self.job_level_suspensions = {} ##OK
         self.job_level_jitter_roots = {} ##OK
         ##
         self.nodes_to_job_ids = {} ##OK
+        
         
 
         
@@ -208,7 +208,7 @@ class TASKSET:
         self.tasks = TASKS
         self.populate_with_jobs()
         self.populate_with_precs()
-
+        self.write_projections_to_file()
 
     def populate_with_jobs(self):
 
@@ -239,14 +239,14 @@ class TASKSET:
                         
                         if(projection not in task.job_level_projections):
                             task.job_level_projections[projection] = {}
-                        _dict = {"Task ID:", task_id,
-                                 "Job_id:", job_id,
-                                 "a_min: ", node_info["_amin"] + (i * period),
-                                 "a_max: ", node_info["_amax"] + (i * period),
-                                 "c_min:", node_info["_cmin"],
-                                 "c_max:", node_info["_cmax"],
-                                 "deadline:", node_info["_d"] * (i + 1),
-                                 "priority:", node_info["_p"]}
+                        _dict = {"Task_id": task_id,
+                                 "Job_id": job_id,
+                                 "a_min": node_info["_amin"] + (i * period),
+                                 "a_max": node_info["_amax"] + (i * period),
+                                 "c_min": node_info["_cmin"],
+                                 "c_max": node_info["_cmax"],
+                                 "deadline": node_info["_d"] * (i + 1),
+                                 "priority": node_info["_p"]}
                         task.job_level_projections[projection][job_id] = _dict
                         
                 ##For non-CPU projections, add suspension as jitter
@@ -335,8 +335,6 @@ class TASKSET:
         ##Note that if a path is augmented as suspension, it's response must be bigger than zero
         
         edges = task.DAG.edges()
-        print("task_id:", task_id, "edges:", edges)
-        print("a dict: ", job_level_suspensions["0"][0])
         
         for edge in edges:
             source = edge[0]
@@ -363,6 +361,7 @@ class TASKSET:
 
         for _type in job_level_suspensions:
             job_level_suspensions[_type] = sorted(job_level_suspensions[_type], key=lambda x: (x['succ_jid'], x['pred_jid'], x['pred_tid']))
+            
         return job_level_suspensions
     
     def populate_with_precs(self):
@@ -409,29 +408,63 @@ class TASKSET:
             task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
             
                 
+    def write_projections_to_file(self):
+        
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            writer_jobs = open(_type_alpha + "_jobs.csv", "w+")
+            writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
+            writer_prec = open(_type_alpha + "_prec.csv", "w+")
+            writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
+            for task in self.tasks:
+                for key in task.job_level_projections[_type]:
+                    job = task.job_level_projections[_type][key]
+                    writer_jobs.write(f"{job['Task_id']}, {job['Job_id']}, {job['a_min']}, {job['a_max']}, {job['c_min']}, {job['c_max']}, {job['deadline']}, {job['priority']}\n")
+                for s in task.job_level_suspensions[_type]:
+                    writer_prec.write(f"{s['pred_tid']}, {s['pred_jid']}, {s['succ_tid']}, {s['succ_jid']}, {s['sus_min']}, {s['sus_max']}\n")
 
 
+    def read_and_update_response_times(self, _type):
+
+        ##Huh
+                    
+
+    def run_analysis(self):
+
+        iter = 0
+        
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            jobs_file_name = _type + "_jobs.csv"
+            prec_file_name = _type + "_prec.csv"
+        
+            result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r'], capture_output=True, text=True)
+
+            if result.returncode == 0:
+                print(_type + " " + str(iter) + " Iteration successful")
+            else:
+                print(_type + " " + str(iter) + " iteration failed with error:", result.stderr)
+                exit(1)
+
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            self.update_response_times(_type)
+
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            self.update_projections(_type)
+        
                                     
     
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
     #def __init__(self, DAG, period, deadline):
-    DAG1, DAG2, DAG3 = test_tasks_0.return_tasks()
+    DAG1, DAG2, DAG3, DAG4, DAG5= test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
-    TASK2 = TASK(DAG2, 120, 120)
-    TASK3 = TASK(DAG3, 60, 60)
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
-    print("#########################################")
-    print("TASK1:")
-    for key in TASK1.job_level_suspensions:
-        for item in TASK1.job_level_suspensions[key]:
-            print(item)
-    print("TASK2:")
-    #print(TASK2.job_level_suspensions)
-    print("TASK3:")
-    #print(TASK3.job_level_suspensions)
-    print("#########################################")
+    TASK2 = TASK(DAG4, 90, 90)
+    TASK3 = TASK(DAG5, 160, 160)
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 

@@ -72,7 +72,53 @@ def return_tasks():
     G3.add_edge('CE_2', 'CPU_3', susp_min=0, susp_max=0)
     
 
-    
-    
+    ##Task4##
+    G4 = nx.DiGraph()
+    G4.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=5, _d=90, _p=2, _q=1)
+    G4.add_node('CPU_2', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+    G4.add_node('CPU_3', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+    G4.add_node('CPU_4', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+    G4.add_node('CPU_5', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=90, _p=2, _q=1)
 
-    return G1, G2, G3
+    G4.add_node('CE_1', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+    G4.add_node('CE_2', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+
+    G4.add_node('SM_1', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+    G4.add_node('SM_2', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=90, _p=2, _q=1)
+
+
+    G4.add_edge('CPU_1', 'CE_1', susp_min=0, susp_max=0)
+    G4.add_edge('CE_1', 'CPU_2', susp_min=0, susp_max=0)
+    G4.add_edge('CPU_2', 'SM_1', susp_min=0, susp_max=0)
+    G4.add_edge('SM_1', 'CPU_3', susp_min=0, susp_max=0)
+    G4.add_edge('CPU_3', 'CE_2', susp_min=0, susp_max=0)
+    G4.add_edge('CE_2', 'CPU_4', susp_min=0, susp_max=0)
+    G4.add_edge('CPU_4', 'SM_2', susp_min=0, susp_max=0)
+    G4.add_edge('SM_2', 'CPU_5', susp_min=0, susp_max=0)
+
+
+    ##Task5##
+    G5 = nx.DiGraph()
+    G5.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=5, _d=160, _p=2, _q=1)
+    G5.add_node('CPU_2', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+    G5.add_node('CPU_3', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+    G5.add_node('CPU_4', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+    G5.add_node('CPU_5', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+
+    G5.add_node('CE_1', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+    G5.add_node('CE_2', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+
+    G5.add_node('SM_1', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+    G5.add_node('SM_2', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=160, _p=2, _q=1)
+
+
+    G5.add_edge('CPU_1', 'CE_1', susp_min=0, susp_max=0)
+    G5.add_edge('CE_1', 'CPU_2', susp_min=0, susp_max=0)
+    G5.add_edge('CPU_2', 'SM_1', susp_min=0, susp_max=0)
+    G5.add_edge('SM_1', 'CPU_3', susp_min=0, susp_max=0)
+    G5.add_edge('CPU_3', 'CE_2', susp_min=0, susp_max=0)
+    G5.add_edge('CE_2', 'CPU_4', susp_min=0, susp_max=0)
+    G5.add_edge('CPU_4', 'SM_2', susp_min=0, susp_max=0)
+    G5.add_edge('SM_2', 'CPU_5', susp_min=0, susp_max=0)
+    
+    return G1, G2, G3, G4, G5
