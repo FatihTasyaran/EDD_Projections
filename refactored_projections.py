@@ -305,8 +305,66 @@ class TASKSET:
                 
         return types, jobs
 
-    
+    def transform_to_individual(self, task_id, job_level_suspensions):
+        ##At the moment, we assume there is no precedence between tasks
 
+        new = {}
+        
+        for key in job_level_suspensions:
+            new[key] = []
+            for _dict in job_level_suspensions[key]:
+                for i in range(len(_dict['start_job'])):
+                    pred_jid = _dict["start_job"][i]
+                    succ_jid = _dict["suspension_target_end_job"][i]
+                    end_types = _dict["suspension_time_end_types"]
+                    end_jobs = _dict["suspension_time_end_jobs"][i]
+                    to_add = {"pred_tid": task_id, ##This is the same with start job while computing new bound
+                              "pred_jid": pred_jid,
+                              "succ_tid": task_id,
+                              "succ_jid": succ_jid,
+                              "sus_min": _dict["susp_min_first"],
+                              "sus_max": _dict["susp_max_first"],
+                              "end_types": end_types,
+                              "end_jobs": end_jobs,
+                              "edge_type": "suspension"}
+                    new[key].append(to_add)
+
+        return new
+
+    def add_non_suspension_edges(self, task_id, task, job_level_suspensions):
+        ##Note that if a path is augmented as suspension, it's response must be bigger than zero
+        
+        edges = task.DAG.edges()
+        print("task_id:", task_id, "edges:", edges)
+        print("a dict: ", job_level_suspensions["0"][0])
+        
+        for edge in edges:
+            source = edge[0]
+            target = edge[1]
+
+            source_type = self.find_type_of_node(task, source)
+            target_type = self.find_type_of_node(task, target)
+
+            if(source_type == target_type):
+                source_jobs = task.nodes_to_job_ids[source_type][source]
+                target_jobs = task.nodes_to_job_ids[source_type][target]
+                
+                for i in range(len(source_jobs)):
+                    _dict = {"pred_tid": task_id,
+                             "pred_jid": source_jobs[i],
+                             "succ_tid": task_id,
+                             "succ_jid": target_jobs[i],
+                             "sus_min": 0,
+                             "sus_max": 0,
+                             "end_types:": None,
+                             "end_jobs": None,
+                             "edge_type": "only_precedence"}
+                    job_level_suspensions[source_type].append(_dict)
+
+        for _type in job_level_suspensions:
+            job_level_suspensions[_type] = sorted(job_level_suspensions[_type], key=lambda x: (x['succ_jid'], x['pred_jid'], x['pred_tid']))
+        return job_level_suspensions
+    
     def populate_with_precs(self):
 
         ##Where are non-suspension edges?        
@@ -339,25 +397,17 @@ class TASKSET:
                 susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
 
                 for i in range(len(suspension_time_start_jobs)):
-                    _dict{"start_job": suspension_time_start_jobs,
-                          "end_job": suspension_time_end_jobs,
-                          "suspension_time_end_types": suspension_time_end_types,
-                          "suspension_time_end_jobs": suspension_time_end_jobs,
-                          "susp_min": susp_min,
-                          "susp_max": susp_max} ##Sus min and sus max for now is path
+                    _dict = {"start_job": suspension_time_start_jobs,
+                             "suspension_target_end_job": suspension_target_end_jobs,
+                             "suspension_time_end_types": suspension_time_end_types,
+                             "suspension_time_end_jobs": suspension_time_end_jobs,
+                             "susp_min_first": susp_min,
+                             "susp_max_first": susp_max} ##Sus min and sus max for now is path
 
                 task.job_level_suspensions[start_type].append(_dict)
+            task.job_level_suspensions = self.transform_to_individual(task_id, task.job_level_suspensions)
+            task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
             
-                print("task:", task_id, "suspension:", task.task_level_suspensions_dict[key], "\n",
-                      "suspension_edge_source_node:", suspension_edge_source_node, "\n",
-                      "suspension_edge_target_node:", suspension_edge_target_node, "\n",
-                      "suspension_time_start_node:", suspension_time_start_node, "\n",
-                      "suspension_time_end_nodes:", suspension_time_end_nodes, "\n",
-                      "suspension_time_start_jobs:", suspension_time_start_jobs, "\n",
-                      "suspension_time_end_types:", suspension_time_end_types, "\n",
-                      "suspension_time_end_jobs:", suspension_time_end_jobs)
-                
-                
                 
 
 
@@ -372,12 +422,16 @@ if __name__ == "__main__":
     TASK2 = TASK(DAG2, 120, 120)
     TASK3 = TASK(DAG3, 60, 60)
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3])
+    print("#########################################")
     print("TASK1:")
-    print(TASK1.job_level_jitter_roots)
+    for key in TASK1.job_level_suspensions:
+        for item in TASK1.job_level_suspensions[key]:
+            print(item)
     print("TASK2:")
-    print(TASK2.job_level_jitter_roots)
+    #print(TASK2.job_level_suspensions)
     print("TASK3:")
-    print(TASK3.job_level_jitter_roots)
+    #print(TASK3.job_level_suspensions)
+    print("#########################################")
 
     
 
