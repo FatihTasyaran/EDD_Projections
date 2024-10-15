@@ -309,15 +309,8 @@ class TASKSET:
 
     def populate_with_precs(self):
 
-        x = 1
-
-        ##Where are non-suspension edges?
-        
+        ##Where are non-suspension edges?        
         for task_id, task in enumerate(self.tasks, start=1):
-            for _type in task.task_level_suspensions_dict:
-                print("Type:", _type)
-                print("task_id:", task_id, "suspensions_dict:", task.task_level_suspensions_dict[_type])
-                print("task_id:", task_id, "nodes_to_job_ids:", task.nodes_to_job_ids)
                 
             for key in task.task_level_suspensions_dict:
 
@@ -337,12 +330,24 @@ class TASKSET:
 
                 start_type = task.task_level_suspensions_dict[key]["type"]
                 _dict = {}
-                if(_type not in task.job_level_suspensions):
-                    task.job_level_suspensions[_type] = {}
+                if(start_type not in task.job_level_suspensions):
+                    task.job_level_suspensions[start_type] = []
 
                 suspension_time_start_jobs = self.get_jobs_for_node(task, start_type, suspension_time_start_node)
+                suspension_target_end_jobs = self.get_jobs_for_node(task, start_type, suspension_edge_target_node)
                 suspension_time_end_types, suspension_time_end_jobs = self.get_jobs_list_for_nodes_list(task, suspension_time_end_nodes)
+                susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
 
+                for i in range(len(suspension_time_start_jobs)):
+                    _dict{"start_job": suspension_time_start_jobs,
+                          "end_job": suspension_time_end_jobs,
+                          "suspension_time_end_types": suspension_time_end_types,
+                          "suspension_time_end_jobs": suspension_time_end_jobs,
+                          "susp_min": susp_min,
+                          "susp_max": susp_max} ##Sus min and sus max for now is path
+
+                task.job_level_suspensions[start_type].append(_dict)
+            
                 print("task:", task_id, "suspension:", task.task_level_suspensions_dict[key], "\n",
                       "suspension_edge_source_node:", suspension_edge_source_node, "\n",
                       "suspension_edge_target_node:", suspension_edge_target_node, "\n",
