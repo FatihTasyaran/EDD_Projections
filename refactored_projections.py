@@ -574,7 +574,7 @@ class TASKSET:
         return stop
     
     def run_analysis(self):
-
+        type_core_numbers = {"0": "4", "1": "3", "2": "3"}
         _iter = 0
         average_suspension_times = [[]]
         stop = False
@@ -583,7 +583,7 @@ class TASKSET:
                 _type = global_definitions.TYPES_ALPHA[_type_alpha]
                 jobs_file_name = _type_alpha + "_jobs.csv"
                 prec_file_name = _type_alpha + "_prec.csv"
-                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', '4'], capture_output=True, text=True)
+                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type]], capture_output=True, text=True)
 
                 if result.returncode == 0:
                     print(_type_alpha + " iteration " + str(_iter) + " successful")
@@ -616,8 +616,8 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5= test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 700, 700)
-    TASKSET_ZERO = TASKSET([TASK1, TASK2]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASK3 = TASK(DAG5, 699, 700)
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
