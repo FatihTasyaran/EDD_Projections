@@ -5,6 +5,7 @@ import test_tasks_0
 import utils_refactored as utils
 import subprocess
 import global_definitions
+import copy
 
 ##Types
 CPU = 0
@@ -31,7 +32,9 @@ class TASK:
         self.job_level_jitter_roots = {} ##OK
         ##
         self.nodes_to_job_ids = {} ##OK
-        
+        ##
+        self.last_iteration_projections = {}
+        self.last_iteration_suspensions = {}
         
 
         
@@ -465,7 +468,7 @@ class TASKSET:
 
 
     def update_projections(self):
-
+    
         ##Jitter root case
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
@@ -484,8 +487,9 @@ class TASKSET:
                         new_wcct = max(related_wccts)
                         task.job_level_projections[_type][jitter_root]['a_min'] = new_bcct
                         task.job_level_projections[_type][jitter_root]['a_max'] = new_wcct
-
-
+                        #print("type:", _type, "new a_min:", new_bcct)
+                        #print("type:", _type, "new a_max:", new_wcct)
+                
         ##Other suspensions
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
@@ -498,43 +502,100 @@ class TASKSET:
                             end_type = suspension['end_types'][i]
                             end_job = suspension['end_jobs'][i]
                             bcct = task.job_level_projections[end_type][end_job]['bcct']
-                            wcct = task.job_level_projections[end_type][end_job]['bcct']
+                            wcct = task.job_level_projections[end_type][end_job]['wcct']
                             related_bccts.append(bcct)
                             related_wccts.append(wcct)
                         related_bcct = min(related_bccts)
+                        #print("#######################")
+                        #print(suspension)
+                        #print("related_wccts:", related_wccts)
                         related_wcct = max(related_wccts)
                         start_job = suspension['pred_jid']
                         start_bcct = task.job_level_projections[_type][start_job]['bcct']
                         start_wcct = task.job_level_projections[_type][start_job]['wcct']
-                        
+                        #print("type:", _type, "before sus_min:", suspension["sus_min"])
+                        #print("type:", _type, "before sus_max:", suspension["sus_max"])
                         min_susp_candidate = related_bcct - start_wcct
-                        min_susp = min(min_susp_candidate, suspension["sus_min_first"])
+                        min_susp = max(min_susp_candidate, suspension["sus_min_first"])
                         max_susp = related_wcct - start_bcct
                         suspension["sus_min"] = min_susp
                         suspension["sus_max"] = max_susp
+                        #print("type:", _type, "new sus_min:", min_susp)
+                        #print("type:", _type, "new sus_max:", max_susp)
+                        #print("related_bcct:", related_bcct, "related_wcct:", related_wcct, "start_bcct:", start_bcct, "start_wcct:", start_wcct)
+                        #print("related_wcct - start_bcct:", related_wcct - start_bcct)
+                        #print("#######################")
+
+    def check_exit(self, _iter, stop, average_suspension_times):
         
-                        
+        if(iter == 0):
+            return stop
+
+        stop = True
+        for task in self.tasks:
+            for _type in task.job_level_suspensions:
+                _len = len(task.job_level_suspensions[_type])
+                for i in range(_len):
+                    old_min = task.last_iteration_suspensions[_type][i]['sus_min']
+                    old_max = task.last_iteration_suspensions[_type][i]['sus_max']
+
+                    new_min = task.job_level_suspensions[_type][i]['sus_min']
+                    new_max = task.job_level_suspensions[_type][i]['sus_max']
+                    #print("new_min:", new_min, "old_min:", old_min, "new_max:", new_max, "old_max:", old_max)
+                    if(new_min < old_min):
+                        stop = False
+                    if(new_max > old_max):
+                        stop = False
+
+                    average_suspension_times[_iter].append(new_max - new_min)
+
+        if(stop):
+            print("Stop: Non-growing boundaries")
+
+        return stop, average_suspension_times
+
+    def check_result(self, result, stop):
+
+        print("Result:", result.stdout)
+        if(int(result.stdout.split(",")[1]) == 0):
+            print("Stop: Unschedulable set")
+            stop = True
+            exit(1)
+        return stop
+    
     def run_analysis(self):
 
-        iter = 0
+        _iter = 0
+        average_suspension_times = [[]]
         stop = False
-        while(iter < 1):
+        while(not stop):
             for _type_alpha in global_definitions.TYPES_ALPHA:
                 _type = global_definitions.TYPES_ALPHA[_type_alpha]
                 jobs_file_name = _type_alpha + "_jobs.csv"
                 prec_file_name = _type_alpha + "_prec.csv"
-                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r'], capture_output=True, text=True)
+                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', '4'], capture_output=True, text=True)
 
                 if result.returncode == 0:
-                    print(_type_alpha + " " + str(iter) + " Iteration successful")
+                    print(_type_alpha + " iteration " + str(_iter) + " successful")
                 else:
-                    print(_type_alpha + " " + str(iter) + " iteration failed with error:", result.stderr)
+                    print(_type_alpha + " iteration " + str(_iter) + " failed with error:", result.stderr)
                     exit(1)
 
+                stop = self.check_result(result, stop)
+                if(stop):
+                    break
+                
+            for task in self.tasks:
+                task.last_iteration_projections = copy.deepcopy(task.job_level_projections)
+                task.last_iteration_suspensions = copy.deepcopy(task.job_level_suspensions)
+                
             self.read_and_update_response_times()
             self.update_projections()
+            stop, average_suspension_times = self.check_exit(_iter, stop, average_suspension_times)
+            average_suspension_times.append([])
             self.write_projections_to_file()
-            iter = iter + 1
+            _iter = _iter + 1
+
 
                                     
     
@@ -544,9 +605,9 @@ if __name__ == "__main__":
     #def __init__(self, DAG, period, deadline):
     DAG1, DAG2, DAG3, DAG4, DAG5= test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
-    TASK2 = TASK(DAG4, 90, 90)
-    TASK3 = TASK(DAG5, 160, 160)
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASK2 = TASK(DAG4, 350, 350)
+    TASK3 = TASK(DAG5, 700, 700)
+    TASKSET_ZERO = TASKSET([TASK1, TASK2]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
@@ -554,6 +615,7 @@ if __name__ == "__main__":
 
     #utils.print_task_level_suspensions_dict(TASK1)
     #utils.visualize_bfs_w_depth(DAG1)
+    #utils.visualize_bfs_w_depth(DAG4)
     
 
     
