@@ -24,7 +24,7 @@ class TASK:
         
 
         self.task_level_projections = {} ##No predetermined class
-        self.generate_projections()
+        self.generate_projections() 
         ##
         self.job_level_projections = {} ##OK
         self.job_level_suspensions = {} ##OK
@@ -209,6 +209,7 @@ class TASKSET:
         self.populate_with_jobs()
         self.populate_with_precs()
         self.write_projections_to_file()
+        self.run_analysis()
 
     def populate_with_jobs(self):
 
@@ -246,7 +247,11 @@ class TASKSET:
                                  "c_min": node_info["_cmin"],
                                  "c_max": node_info["_cmax"],
                                  "deadline": node_info["_d"] * (i + 1),
-                                 "priority": node_info["_p"]}
+                                 "priority": node_info["_p"],
+                                 "bcct": -1,
+                                 "wcct": -1,
+                                 "bcrt": -1,
+                                 "wcrt": -1}
                         task.job_level_projections[projection][job_id] = _dict
                         
                 ##For non-CPU projections, add suspension as jitter
@@ -324,6 +329,8 @@ class TASKSET:
                               "succ_jid": succ_jid,
                               "sus_min": _dict["susp_min_first"],
                               "sus_max": _dict["susp_max_first"],
+                              "sus_min_first": _dict["susp_min_first"],
+                              "sus_max_first": _dict["susp_max_first"],
                               "end_types": end_types,
                               "end_jobs": end_jobs,
                               "edge_type": "suspension"}
@@ -354,6 +361,8 @@ class TASKSET:
                              "succ_jid": target_jobs[i],
                              "sus_min": 0,
                              "sus_max": 0,
+                             "sus_min_first": 0,
+                             "sus_max_first": 0,
                              "end_types:": None,
                              "end_jobs": None,
                              "edge_type": "only_precedence"}
@@ -422,38 +431,111 @@ class TASKSET:
                     writer_jobs.write(f"{job['Task_id']}, {job['Job_id']}, {job['a_min']}, {job['a_max']}, {job['c_min']}, {job['c_max']}, {job['deadline']}, {job['priority']}\n")
                 for s in task.job_level_suspensions[_type]:
                     writer_prec.write(f"{s['pred_tid']}, {s['pred_jid']}, {s['succ_tid']}, {s['succ_jid']}, {s['sus_min']}, {s['sus_max']}\n")
+            writer_jobs.close()
+            writer_prec.close()
+
+    def read_and_update_response_times(self):
+
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            rta_file = _type_alpha + "_jobs.rta.csv"
+
+            reader = open(rta_file, "r")
+            lines = reader.readlines()
+            lines = lines[1:]
+            
+            for line in lines:
+                fields = line.strip("\n").split(",")
+                task_id = int(fields[0])
+                job_id = int(fields[1])
+                bcct = int(fields[2])
+                wcct = int(fields[3])
+                bcrt = int(fields[4])
+                wcrt = int(fields[5])
+
+                for iter_task_id, task in enumerate(self.tasks, start = 1):
+                    if(task_id != iter_task_id):
+                        continue
+
+                    task.job_level_projections[_type][job_id]['bcct'] = bcct
+                    task.job_level_projections[_type][job_id]['wcct'] = wcct
+                    task.job_level_projections[_type][job_id]['bcrt'] = bcrt
+                    task.job_level_projections[_type][job_id]['wcrt'] = wcrt
 
 
-    def read_and_update_response_times(self, _type):
 
-        ##Huh
-                    
+    def update_projections(self):
 
+        ##Jitter root case
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            if(_type != "0"): ##CPU projection doesn't have such case
+                for task_id, task in enumerate(self.tasks):
+                    for jitter_root in task.job_level_jitter_roots[_type]:
+                        related_jobs = task.job_level_jitter_roots[_type][jitter_root]
+                        related_bccts = []
+                        related_wccts = []
+                        for related_job in related_jobs:
+                            bcct = task.job_level_projections["0"][related_job]['bcct'] ##Because it's guaranteed to be a CPU node
+                            wcct = task.job_level_projections["0"][related_job]['wcct'] ##Because it's guaranteed to be a CPU node
+                            related_bccts.append(bcct)
+                            related_wccts.append(wcct)
+                        new_bcct = min(related_bccts)
+                        new_wcct = max(related_wccts)
+                        task.job_level_projections[_type][jitter_root]['a_min'] = new_bcct
+                        task.job_level_projections[_type][jitter_root]['a_max'] = new_wcct
+
+
+        ##Other suspensions
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            for task_id, task in enumerate(self.tasks):
+                for suspension in task.job_level_suspensions[_type]:
+                    if(suspension['edge_type'] != 'only_precedence'):
+                        related_bccts = []
+                        related_wccts = []
+                        for i in range(len(suspension['end_types'])):
+                            end_type = suspension['end_types'][i]
+                            end_job = suspension['end_jobs'][i]
+                            bcct = task.job_level_projections[end_type][end_job]['bcct']
+                            wcct = task.job_level_projections[end_type][end_job]['bcct']
+                            related_bccts.append(bcct)
+                            related_wccts.append(wcct)
+                        related_bcct = min(related_bccts)
+                        related_wcct = max(related_wccts)
+                        start_job = suspension['pred_jid']
+                        start_bcct = task.job_level_projections[_type][start_job]['bcct']
+                        start_wcct = task.job_level_projections[_type][start_job]['wcct']
+                        
+                        min_susp_candidate = related_bcct - start_wcct
+                        min_susp = min(min_susp_candidate, suspension["sus_min_first"])
+                        max_susp = related_wcct - start_bcct
+                        suspension["sus_min"] = min_susp
+                        suspension["sus_max"] = max_susp
+        
+                        
     def run_analysis(self):
 
         iter = 0
-        
-        for _type_alpha in global_definitions.TYPES_ALPHA:
-            _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            jobs_file_name = _type + "_jobs.csv"
-            prec_file_name = _type + "_prec.csv"
-        
-            result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r'], capture_output=True, text=True)
+        stop = False
+        while(iter < 1):
+            for _type_alpha in global_definitions.TYPES_ALPHA:
+                _type = global_definitions.TYPES_ALPHA[_type_alpha]
+                jobs_file_name = _type_alpha + "_jobs.csv"
+                prec_file_name = _type_alpha + "_prec.csv"
+                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r'], capture_output=True, text=True)
 
-            if result.returncode == 0:
-                print(_type + " " + str(iter) + " Iteration successful")
-            else:
-                print(_type + " " + str(iter) + " iteration failed with error:", result.stderr)
-                exit(1)
+                if result.returncode == 0:
+                    print(_type_alpha + " " + str(iter) + " Iteration successful")
+                else:
+                    print(_type_alpha + " " + str(iter) + " iteration failed with error:", result.stderr)
+                    exit(1)
 
-        for _type_alpha in global_definitions.TYPES_ALPHA:
-            _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            self.update_response_times(_type)
+            self.read_and_update_response_times()
+            self.update_projections()
+            self.write_projections_to_file()
+            iter = iter + 1
 
-        for _type_alpha in global_definitions.TYPES_ALPHA:
-            _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            self.update_projections(_type)
-        
                                     
     
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
