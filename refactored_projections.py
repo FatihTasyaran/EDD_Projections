@@ -541,7 +541,7 @@ class TASKSET:
 
                     new_min = task.job_level_suspensions[_type][i]['sus_min']
                     new_max = task.job_level_suspensions[_type][i]['sus_max']
-                    #print("new_min:", new_min, "old_min:", old_min, "new_max:", new_max, "old_max:", old_max)
+                    #/print("new_min:", new_min, "old_min:", old_min, "new_max:", new_max, "old_max:", old_max)
                     if(new_min < old_min):
                         stop = False
                     if(new_max > old_max):
@@ -554,13 +554,23 @@ class TASKSET:
 
         return stop, average_suspension_times
 
-    def check_result(self, result, stop):
+    def report_ast(self, ast):
+
+        _len = len(ast[0])
+        for i in range(_len):
+            if(len(ast[i]) == 0):
+                return
+            #print("ast[i]: ", ast[i])
+            print("Iter,", i, ",avg,", sum(ast[i]) / _len)
+    
+    def check_result(self, result, stop, ast):
 
         print("Result:", result.stdout)
         if(int(result.stdout.split(",")[1]) == 0):
             print("Stop: Unschedulable set")
             stop = True
-            exit(1)
+            #self.report_ast(ast)
+            #exit(1)
         return stop
     
     def run_analysis(self):
@@ -581,7 +591,7 @@ class TASKSET:
                     print(_type_alpha + " iteration " + str(_iter) + " failed with error:", result.stderr)
                     exit(1)
 
-                stop = self.check_result(result, stop)
+                stop = self.check_result(result, stop, average_suspension_times)
                 if(stop):
                     break
                 
@@ -595,7 +605,7 @@ class TASKSET:
             average_suspension_times.append([])
             self.write_projections_to_file()
             _iter = _iter + 1
-
+        self.report_ast(average_suspension_times)
 
                                     
     
