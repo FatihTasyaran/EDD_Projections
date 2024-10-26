@@ -275,14 +275,44 @@ class TASKSET:
                             if(len(one_root_jobs) != len(incoming_jobs)):
                                 print("Error: Unequal number of jobs during jitter root mapping, exiting..")
                                 exit(1)
-
-                            ##Arrival of CPU root node is missing!!!!11!111!!!1!
+                            
                             for i in range(len(one_root_jobs)):
                                 task.job_level_jitter_roots[projection][one_root_jobs[i]] = []
                                 for j in range(len(incoming_all)):
                                     task.job_level_jitter_roots[projection][one_root_jobs[i]].append(incoming_all[j][i])
-                
 
+        self.add_jitter_values_to_jitter_roots()
+
+
+    def find_task_level_cpu_root(self, task_id):
+
+        task = self.tasks[task_id - 1] ##Because we are starting from 1 while enumerating
+        nodes = task.DAG.nodes(data=True)
+        for node in nodes:
+            if task.DAG.in_degree(node[0]) == 0:
+                return node[0]##We assume there is one root at the moment
+        
+
+    def add_jitter_values_to_jitter_roots(self):
+
+        for task_id, task in enumerate(self.tasks, start=1):
+            #print("task_id:", task_id)
+            #print("job_level_jitter_roots:", task.job_level_jitter_roots)
+            cpu_root = self.find_task_level_cpu_root(task_id)
+            cpu_root_node = task.DAG.nodes(data=True)[cpu_root]
+            cpu_root_amin = cpu_root_node["_amin"]
+            cpu_root_amax = cpu_root_node["_amax"]
+
+            for projection in task.job_level_jitter_roots:
+                #print("projection:", projection)
+                for root_job in task.job_level_jitter_roots[projection]:
+                    #print("root_job_entry:, BEFORE", task.job_level_projections[projection][root_job])
+                    root_job_entry = task.job_level_projections[projection][root_job]
+                    root_job_entry["a_min"] = root_job_entry["a_min"] + cpu_root_amin
+                    root_job_entry["a_max"] = root_job_entry["a_max"] + cpu_root_amax
+                    #print("root_job_entry:, AFTER", task.job_level_projections[projection][root_job])
+                    
+            
     def get_jobs_for_node(self, task, _type, node):
 
         #print("node:", node, "node jobs:", task.nodes_to_job_ids[_type][node])
