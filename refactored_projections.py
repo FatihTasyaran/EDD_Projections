@@ -211,7 +211,7 @@ class TASKSET:
         self.tasks = TASKS
         self.populate_with_jobs()
         self.populate_with_precs()
-        self.write_projections_to_file()
+        self.write_projections_to_file(0)
         self.run_analysis()
 
     def populate_with_jobs(self):
@@ -276,6 +276,7 @@ class TASKSET:
                                 print("Error: Unequal number of jobs during jitter root mapping, exiting..")
                                 exit(1)
 
+                            ##Arrival of CPU root node is missing!!!!11!111!!!1!
                             for i in range(len(one_root_jobs)):
                                 task.job_level_jitter_roots[projection][one_root_jobs[i]] = []
                                 for j in range(len(incoming_all)):
@@ -420,13 +421,13 @@ class TASKSET:
             task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
             
                 
-    def write_projections_to_file(self):
+    def write_projections_to_file(self, _iter):
         
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            writer_jobs = open(_type_alpha + "_jobs.csv", "w+")
+            writer_jobs = open(_type_alpha + "_" + str(_iter) +"_jobs.csv", "w+")
             writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
-            writer_prec = open(_type_alpha + "_prec.csv", "w+")
+            writer_prec = open(_type_alpha + "_" + str(_iter) +"_prec.csv", "w+")
             writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
             for task in self.tasks:
                 for key in task.job_level_projections[_type]:
@@ -437,11 +438,11 @@ class TASKSET:
             writer_jobs.close()
             writer_prec.close()
 
-    def read_and_update_response_times(self):
+    def read_and_update_response_times(self, _iter):
 
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            rta_file = _type_alpha + "_jobs.rta.csv"
+            rta_file = _type_alpha + "_" + str(_iter)+ "_jobs.rta.csv"
 
             reader = open(rta_file, "r")
             lines = reader.readlines()
@@ -574,15 +575,16 @@ class TASKSET:
         return stop
     
     def run_analysis(self):
-        type_core_numbers = {"0": "4", "1": "3", "2": "3"}
+
+        type_core_numbers = {"0": "4", "1": "3", "2": "4"}
         _iter = 0
         average_suspension_times = [[]]
         stop = False
         while(not stop):
             for _type_alpha in global_definitions.TYPES_ALPHA:
                 _type = global_definitions.TYPES_ALPHA[_type_alpha]
-                jobs_file_name = _type_alpha + "_jobs.csv"
-                prec_file_name = _type_alpha + "_prec.csv"
+                jobs_file_name = _type_alpha + "_" + str(_iter) + "_jobs.csv"
+                prec_file_name = _type_alpha + "_" + str(_iter) + "_prec.csv"
                 result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type]], capture_output=True, text=True)
 
                 if result.returncode == 0:
@@ -593,20 +595,22 @@ class TASKSET:
 
                 stop = self.check_result(result, stop, average_suspension_times)
                 if(stop):
-                    break
-                
+                    self.report_ast(average_suspension_times)
+                    exit(1)
+
             for task in self.tasks:
                 task.last_iteration_projections = copy.deepcopy(task.job_level_projections)
                 task.last_iteration_suspensions = copy.deepcopy(task.job_level_suspensions)
-                
-            self.read_and_update_response_times()
+
+
+            self.read_and_update_response_times(_iter)
             self.update_projections()
             stop, average_suspension_times = self.check_exit(_iter, stop, average_suspension_times)
             average_suspension_times.append([])
-            self.write_projections_to_file()
             _iter = _iter + 1
+            self.write_projections_to_file(_iter)
         self.report_ast(average_suspension_times)
-
+        
                                     
     
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
@@ -616,8 +620,8 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5= test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 699, 700)
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASK3 = TASK(DAG5, 700, 700)
+    TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
