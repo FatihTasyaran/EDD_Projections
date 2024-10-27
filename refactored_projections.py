@@ -606,7 +606,7 @@ class TASKSET:
     
     def run_analysis(self):
 
-        type_core_numbers = {"0": "4", "1": "3", "2": "4"}
+        type_core_numbers = {"0": "4", "1": "4", "2": "4"}
         _iter = 0
         average_suspension_times = [[]]
         stop = False
@@ -651,7 +651,7 @@ if __name__ == "__main__":
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
     TASK3 = TASK(DAG5, 700, 700)
-    TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
