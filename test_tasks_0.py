@@ -9,7 +9,7 @@ def return_tasks():
     ##Task 1##
     ##While reading tasks/jobs from input file, can implement this as t[type] + _ +counter
     G1 = nx.DiGraph()
-    G1.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
+    G1.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=10, _d=350, _p=1, _q=1)
     G1.add_node('CPU_2', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
     G1.add_node('CPU_3', _type=t["CPU"], _cmin=5, _cmax=10, _amin=0, _amax=0, _d=350, _p=1, _q=1)
     G1.add_node('CPU_4', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
@@ -103,17 +103,17 @@ def return_tasks():
 
     ##Task5##
     G5 = nx.DiGraph()
-    G5.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('CPU_2', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('CPU_3', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('CPU_4', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('CPU_5', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=700, _p=2, _q=1)
+    G5.add_node('CPU_1', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('CPU_2', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('CPU_3', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('CPU_4', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('CPU_5', _type=t["CPU"], _cmin=1, _cmax=1, _amin=0, _amax=0, _d=350, _p=2, _q=1)
 
-    G5.add_node('CE_1', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('CE_2', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=700, _p=2, _q=1)
+    G5.add_node('CE_1', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('CE_2', _type=t["CE"], _cmin=1, _cmax=3, _amin=0, _amax=0, _d=350, _p=2, _q=1)
 
-    G5.add_node('SM_1', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=700, _p=2, _q=1)
-    G5.add_node('SM_2', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=700, _p=2, _q=1)
+    G5.add_node('SM_1', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=2, _q=1)
+    G5.add_node('SM_2', _type=t["SM"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=2, _q=1)
 
 
     G5.add_edge('CPU_1', 'CE_1', susp_min=0, susp_max=0)
@@ -138,7 +138,10 @@ def return_tasks():
     G6.add_node('CPU_7', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
     G6.add_node('CPU_8', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
     G6.add_node('CPU_9', _type=t["CPU"], _cmin=1, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
-    G6.add_node('CPU_10', _type=t["CPU"], _cmin=10, _cmax=30, _amin=0, _amax=0, _d=350, _p=1, _q=1)
+    G6.add_node('CPU_10', _type=t["CPU"], _cmin=3, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
+    G6.add_node('CPU_11', _type=t["CPU"], _cmin=3, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
+    G6.add_node('CPU_12', _type=t["CPU"], _cmin=3, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
+    G6.add_node('CPU_13', _type=t["CPU"], _cmin=3, _cmax=5, _amin=0, _amax=0, _d=350, _p=1, _q=1)
 
     G6.add_node('SM_1', _type=t["SM"], _cmin=5, _cmax=10, _amin=0, _amax=0, _d=350, _p=1, _q=1)
     G6.add_node('SM_2', _type=t["SM"], _cmin=5, _cmax=10, _amin=0, _amax=0, _d=350, _p=1, _q=1)
@@ -167,6 +170,15 @@ def return_tasks():
     G6.add_edge('CE_3', 'CPU_9', susp_min=0, susp_max=0)
     G6.add_edge('CPU_2', 'CPU_10', susp_min=0, susp_max=0)
     G6.add_edge('CPU_10', 'CPU_4', susp_min=0, susp_max=0)
+
+    G6.add_edge('CPU_2', 'CPU_11', susp_min=0, susp_max=0)
+    G6.add_edge('CPU_11', 'CPU_4', susp_min=0, susp_max=0)
+
+    G6.add_edge('CPU_2', 'CPU_12', susp_min=0, susp_max=0)
+    G6.add_edge('CPU_12', 'CPU_4', susp_min=0, susp_max=0)
+
+    G6.add_edge('CPU_2', 'CPU_13', susp_min=0, susp_max=0)
+    G6.add_edge('CPU_13', 'CPU_4', susp_min=0, susp_max=0)
     
     
     return G1, G2, G3, G4, G5, G6

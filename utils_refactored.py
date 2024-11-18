@@ -177,11 +177,11 @@ def visualize_bfs_w_depth(G):
     color_map = []
     for node in G.nodes(data=True):
         print(node)
-        if node[1]['_type'] == 'CPU':
-            color_map.append('blue')
-        elif node[1]['_type'] == 'SM':
+        if node[1]['_type'] == '0':
+            color_map.append('beige')
+        elif node[1]['_type'] == '1': 
             color_map.append('green')
-        elif node[1]['_type'] == 'CE':
+        elif node[1]['_type'] == '2':
             color_map.append('red')
             
     # Draw the graph using the custom BFS layout
