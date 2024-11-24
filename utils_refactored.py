@@ -6,10 +6,99 @@ import math
 import global_definitions
 
 
+def print_task_level_all_suspensions(a_task):
+
+    print("############################")
+    print("TASK LEVEL ALL SUSPENSIONS: ")
+    for item in a_task.task_level_all_suspensions:
+        print(item)
+    print("############################")
+
+
+def print_task_level_suspensions_dict(a_task):
+
+    print("############################")
+    print("TASK LEVEL ALL SUSPENSIONS DICT: ")
+    for key in a_task.task_level_suspensions_dict:
+        print(key, a_task.task_level_suspensions_dict[key])
+    print("############################")
+
+
+def print_task_level_projections(a_task):
+
+    print("############################")
+    print("TASK LEVEL PROJECTIONS: ")
+    all_nodes = a_task.DAG.nodes(data=True)
+    all_edges = a_task.DAG.edges(data=True)
+    print("##NODES:")
+    for node in all_nodes:
+        print(node)
+    print("##EDGES:")
+    for edge in all_edges:
+        print(edge)
+    print("############################")
+
+
+def print_job_level_projections(a_task):
+
+    print("############################")
+    print("JOB LEVEL PROJECTIONS: ")
+    for key in a_task.job_level_projections:
+        print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
+        for entry in a_task.job_level_projections[key]:
+            print("Job ID: ", entry, "-->", a_task.job_level_projections[key][entry])
+    print("############################")
+
+
+def print_job_level_jitter_roots(a_task):
+
+    print("############################")
+    print("JOB LEVEL JITTER ROOTS: ")
+    for key in a_task.job_level_jitter_roots:
+        print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
+        for entry in a_task.job_level_jitter_roots[key]:
+            print("Root Job ID: ", entry, " incoming job(s): ", a_task.job_level_jitter_roots[key][entry])
+    print("############################")
+
+
+def print_job_level_jitter_root_paths(a_task):
+
+    print("############################")
+    print("JOB LEVEL JITTER ROOT PATHS: ")
+    print(a_task.job_level_jitter_root_paths)
+    print("############################")
+
+
+def print_nodes_to_job_ids(a_task):
+
+    print("############################")
+    print("NODES TO JOB IDS: ")
+    for key in a_task.nodes_to_job_ids:
+        print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
+        for entry in a_task.nodes_to_job_ids[key]:
+            print(entry, ":", a_task.nodes_to_job_ids[key][entry])
+    print("############################")
+
+
+def print_a_task(a_task):
+
+    print("########################################################################################################")
+    print("Period", a_task.period, " Deadline: ", a_task.deadline)
+    print_task_level_all_suspensions(a_task)
+    print_task_level_suspensions_dict(a_task)
+    print_task_level_projections(a_task)
+    print_job_level_projections(a_task)
+    print_job_level_jitter_roots(a_task)
+    print_job_level_jitter_root_paths(a_task)
+    print_nodes_to_job_ids(a_task)
+    print("########################################################################################################")
+
+
+'''OUTDATED
 def print_task_level_suspensions_dict(a_task):
 
     print("##################################################################")
-    print("Suspensions Dict: ", )
+    print("Task Level Suspensions Dict: ", )
     for key in a_task.task_level_suspensions_dict.keys():
         print("key:", key, a_task.task_level_suspensions_dict[key])
     print("##################################################################")
@@ -17,10 +106,12 @@ def print_task_level_suspensions_dict(a_task):
 def print_job_level_suspensions_dict(a_task):
 
     print("##################################################################")
-    print("Suspensions Dict: ", )
+    print("Job Level Suspensions Dict: ", )
     for key in a_task.job_level_suspensions_dict.keys():
         print("key:", key, a_task.job_level_suspensions_dict[key])
     print("##################################################################")
+'''
+
 
 def lcm(a, b):
     return abs(a * b) // math.gcd(a, b)

@@ -6,11 +6,14 @@ import utils_refactored as utils
 import subprocess
 import global_definitions
 import copy
+import sys
 
 ##Types
 CPU = 0
 SM = 1
 CE = 2
+
+
 
 class TASK:
 
@@ -30,6 +33,7 @@ class TASK:
         self.job_level_projections = {} ##OK
         self.job_level_suspensions = {} ##OK
         self.job_level_jitter_roots = {} ##OK
+        self.job_level_jitter_root_paths = {} ##This is used to compute response times along the path leading to jitter root in the new analysis
         ##
         self.nodes_to_job_ids = {} ##OK
         ##
@@ -99,6 +103,25 @@ class TASK:
         return all_suspensions
 
 
+    def singular_paths_for_new_analysis(self, a_suspensions_dict):
+
+
+        #print("!!!This is a suspensions dict BEFORE: ", a_suspensions_dict)
+        for _item in a_suspensions_dict:
+            _source_node = a_suspensions_dict[_item]["source_node"]
+            _target_node = a_suspensions_dict[_item]["target_node"]
+            #print("_item:", _item, "paths:", a_suspensions_dict[_item]['paths'])
+            #print("_item:", "singular paths BEFORE: ", self.recursive_paths_between_two_nodes(_source_node, _target_node))
+            singular_paths = self.recursive_paths_between_two_nodes(_source_node, _target_node)
+            for i, singular_path in enumerate(singular_paths):
+                singular_paths[i] = singular_path[1:-1]
+            
+            #print("_item:", "singular paths AFTER: ", singular_paths)
+            a_suspensions_dict[_item]["singular_paths"] = singular_paths
+        #print("!!!This is a suspensions dict AFTER: ", a_suspensions_dict)
+        return a_suspensions_dict
+        
+    
     def create_suspensions_dict(self):
 
         t = global_definitions.TYPES_ALPHA
@@ -125,7 +148,10 @@ class TASK:
                 suspensions_dict[new_key]['paths'] = []
                 suspensions_dict[new_key]['paths'].append(suspension)
                 enum = enum + 1
+                
 
+        if(global_definitions.NEW_ANALYSIS):
+            suspensions_dict = self.singular_paths_for_new_analysis(suspensions_dict)
         return suspensions_dict
 
 
@@ -211,9 +237,20 @@ class TASKSET:
         self.tasks = TASKS
         self.populate_with_jobs()
         self.populate_with_precs()
+        self.add_jitter_values_to_jitter_roots()
+        self.add_job_level_jitter_root_paths()
         self.write_projections_to_file(0)
+        
+        if(global_definitions.DEBUG):
+            for task_id, task in enumerate(self.tasks):
+                print("##THIS IS TASK ", task_id + 1)
+                utils.print_a_task(task)
+
+        exit(1)
         self.run_analysis()
 
+        
+    ##This add jobs for a given set of tasks and periods
     def populate_with_jobs(self):
 
         periods = []
@@ -254,9 +291,13 @@ class TASKSET:
                                  "bcct": -1,
                                  "wcct": -1,
                                  "bcrt": -1,
-                                 "wcrt": -1}
+                                 "wcrt": -1,
+                                 "n_bcrt": -1,
+                                 "n_wcrt": -1}
                         task.job_level_projections[projection][job_id] = _dict
-                        
+
+
+                ##Here, instead of incoming jobs, take the path from CPU root
                 ##For non-CPU projections, add suspension as jitter
                 if(projection != "0"):
                     if(projection not in task.job_level_jitter_roots):
@@ -280,9 +321,8 @@ class TASKSET:
                                 task.job_level_jitter_roots[projection][one_root_jobs[i]] = []
                                 for j in range(len(incoming_all)):
                                     task.job_level_jitter_roots[projection][one_root_jobs[i]].append(incoming_all[j][i])
-
-        self.add_jitter_values_to_jitter_roots()
-
+                                    
+                        
 
     def find_task_level_cpu_root(self, task_id):
 
@@ -311,8 +351,9 @@ class TASKSET:
                     root_job_entry["a_min"] = root_job_entry["a_min"] + cpu_root_amin
                     root_job_entry["a_max"] = root_job_entry["a_max"] + cpu_root_amax
                     #print("root_job_entry:, AFTER", task.job_level_projections[projection][root_job])
-                    
-            
+
+    
+                            
     def get_jobs_for_node(self, task, _type, node):
 
         #print("node:", node, "node jobs:", task.nodes_to_job_ids[_type][node])
@@ -406,7 +447,9 @@ class TASKSET:
             job_level_suspensions[_type] = sorted(job_level_suspensions[_type], key=lambda x: (x['succ_jid'], x['pred_jid'], x['pred_tid']))
             
         return job_level_suspensions
-    
+
+
+    ##This adds suspensions for a given set of tasks and periods
     def populate_with_precs(self):
 
         ##Where are non-suspension edges?        
@@ -449,8 +492,46 @@ class TASKSET:
                 task.job_level_suspensions[start_type].append(_dict)
             task.job_level_suspensions = self.transform_to_individual(task_id, task.job_level_suspensions)
             task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
+
+
+    
+    def add_job_level_jitter_root_paths(self):
+
+        for task_id, task in enumerate(self.tasks, start=1):
+            for projection in task.task_level_projections:
+                projection_dag = task.task_level_projections[projection]
+                projection_len = len(projection_dag.nodes)
+                projection_roots = [-1]
+
+
+                if(projection != "0" and global_definitions.NEW_ANALYSIS == 1):
+                    projection_roots = utils.find_roots_in_DAG(projection_dag)
+                    if(len(projection_roots) != 0):
+                        for i in range(len(projection_roots)):
+                            projection_root = projection_roots[i]
+                            cpu_root = self.find_task_level_cpu_root(task_id) 
+                            paths = task.recursive_paths_between_two_nodes(cpu_root, projection_root)
+                            for j in range(len(paths)):
+                                paths[j] = paths[j][:-1]
+                            if(projection not in task.job_level_jitter_root_paths):
+                                task.job_level_jitter_root_paths[projection] = {}
+                            projection_root_jobs = task.nodes_to_job_ids[projection][projection_root]
+                            for k in range(len(projection_root_jobs)):
+                                task.job_level_jitter_root_paths[projection][projection_root_jobs[k]] = {'jtypes': [], 'jids': []}
+                                for l in range(len(paths)): ##If there are multiple paths, we will take max,min during computation
+                                    path = paths[i]
+                                    projection_path = []
+                                    projection_path_types = []
+                                    for m in range(len(path)):
+                                        path_node = path[m]
+                                        path_node_type = self.find_type_of_node(task, path_node)
+                                        path_job = task.nodes_to_job_ids[path_node_type][path_node][k]
+                                        projection_path.append(path_job)
+                                        projection_path_types.append(path_node_type)
+                                    task.job_level_jitter_root_paths[projection][projection_root_jobs[k]]['jtypes'].append(projection_path_types)
+                                    task.job_level_jitter_root_paths[projection][projection_root_jobs[k]]['jids'].append(projection_path)
             
-                
+    
     def write_projections_to_file(self, _iter):
         
         for _type_alpha in global_definitions.TYPES_ALPHA:
@@ -486,6 +567,9 @@ class TASKSET:
                 wcct = int(fields[3])
                 bcrt = int(fields[4])
                 wcrt = int(fields[5])
+                if(global_definitions.NEW_ANALYSIS):
+                    n_bcrt = int(fields[6])
+                    n_wcrt = int(fields[7])
 
                 for iter_task_id, task in enumerate(self.tasks, start = 1):
                     if(task_id != iter_task_id):
@@ -495,11 +579,22 @@ class TASKSET:
                     task.job_level_projections[_type][job_id]['wcct'] = wcct
                     task.job_level_projections[_type][job_id]['bcrt'] = bcrt
                     task.job_level_projections[_type][job_id]['wcrt'] = wcrt
+                    if(global_definitions.NEW_ANALYSIS):
+                        task.job_level_projections[_type][job_id]['n_bcrt'] = n_bcrt
+                        task.job_level_projections[_type][job_id]['n_wcrt'] = n_wcrt
 
 
+                
+    def update_projections_new_analysis(self):
 
+        ##Jitter root case
+        x = 1
+        
+        
     def update_projections(self):
-    
+
+        #self.print_all_jitter_roots()
+        
         ##Jitter root case
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
@@ -606,6 +701,7 @@ class TASKSET:
     
     def run_analysis(self):
 
+        
         type_core_numbers = {"0": "2", "1": "2", "2": "2"}
         _iter = 0
         average_suspension_times = [[]]
@@ -615,7 +711,7 @@ class TASKSET:
                 _type = global_definitions.TYPES_ALPHA[_type_alpha]
                 jobs_file_name = _type_alpha + "_" + str(_iter) + "_jobs.csv"
                 prec_file_name = _type_alpha + "_" + str(_iter) + "_prec.csv"
-                result = subprocess.run(['./nptest_modded', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type], '-g'], capture_output=True, text=True)
+                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type], '-g'], capture_output=True, text=True)
 
                 if result.returncode == 0:
                     print(_type_alpha + " iteration " + str(_iter) + " successful")
@@ -646,11 +742,14 @@ class TASKSET:
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
+    if(len(sys.argv) > 1):
+        global_definitions.NEW_ANALYSIS = int(sys.argv[1])
+        
     #def __init__(self, DAG, period, deadline):
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 350, 350)
+    TASK3 = TASK(DAG5, 700, 350)
     #TASK3 = TASK(DAG5, 350, 350)
     TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
