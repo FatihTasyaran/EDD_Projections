@@ -104,18 +104,32 @@ class TASK:
         return all_suspensions
 
 
-    def singular_paths_for_new_analysis(self, a_suspensions_dict):
+    def find_type_of_node(self, node):
+        
+        return self.DAG.nodes(data=True)[node]["_type"]
 
+    ##That is; if in a suspension path, let's say CE1-CPU2-SM1-|CE2|-CPU3-SM3-CE3 there is another node of the same type, in this case it is CE2, we should discard that path
+    ##Because, we need to have two suspension edges in that case: 1->CE1-CPU2-SM1-CE2 2->CE2-CPU3-SM3-CE3
+    def is_suspension_type_node_in_path(self, _type, a_path): 
+        for node in a_path:
+            if(self.find_type_of_node(node) == _type):
+                return True
+
+        return False
+        
+    def singular_paths_for_new_analysis(self, a_suspensions_dict):
 
         for _item in a_suspensions_dict:
             _source_node = a_suspensions_dict[_item]["source_node"]
             _target_node = a_suspensions_dict[_item]["target_node"]
+            _suspension_type = a_suspensions_dict[_item]["type"]
             singular_paths_complete = self.recursive_paths_between_two_nodes(_source_node, _target_node)
+            singular_paths_complete = [x for x in singular_paths_complete if not self.is_suspension_type_node_in_path(_suspension_type, x[1:-1])]
             a_suspensions_dict[_item]["singular_paths_complete"] = singular_paths_complete
             singular_paths_intermediate = copy.deepcopy(singular_paths_complete)
             for i, singular_path in enumerate(singular_paths_intermediate):
                 singular_paths_intermediate[i] = singular_path[1:-1]
-            
+                
             a_suspensions_dict[_item]["singular_paths_intermediate"] = singular_paths_intermediate
         return a_suspensions_dict
         
@@ -525,7 +539,7 @@ class TASKSET:
 
             
                 #singular_paths_complete = task.task_level_suspensions_dict[key]['singular_paths_complete']
-                print("THIS:", task.task_level_suspensions_dict[key])
+                #print("THIS:", task.task_level_suspensions_dict[key])
                 singular_paths_intermediate = task.task_level_suspensions_dict[key]['singular_paths_intermediate']
                 _jobs_per_node = {}
                 for intermediates in singular_paths_intermediate:
@@ -839,7 +853,7 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 700, 350)
+    TASK3 = TASK(DAG5, 350, 350)
     #TASK3 = TASK(DAG5, 350, 350)
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 

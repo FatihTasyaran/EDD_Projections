@@ -11,7 +11,9 @@ def print_task_level_all_suspensions(a_task):
     print("############################")
     print("TASK LEVEL ALL SUSPENSIONS: ")
     for item in a_task.task_level_all_suspensions:
+        print("_______________________________________")
         print(item)
+        print("_______________________________________")
     print("############################")
 
 
@@ -20,7 +22,9 @@ def print_task_level_suspensions_dict(a_task):
     print("############################")
     print("TASK LEVEL ALL SUSPENSIONS DICT: ")
     for key in a_task.task_level_suspensions_dict:
+        print("_______________________________________")
         print(key, a_task.task_level_suspensions_dict[key])
+        print("_______________________________________")
     print("############################")
 
 
@@ -55,9 +59,12 @@ def print_job_level_suspensions(a_task):
     print("############################")
     print("JOB LEVEL SUSPENSIONS: ")
     for key in a_task.job_level_suspensions:
+        print("_______________________________________")
         print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
         for entry in a_task.job_level_suspensions[key]:
             print(entry)
+            print("_______________________________________")
+        print("_______________________________________")
     print("############################")
 
 
@@ -66,9 +73,12 @@ def print_job_level_suspension_paths(a_task):
     print("############################")
     print("JOB LEVEL SUSPENSION PATHS: ")
     for key in a_task.job_level_suspension_paths:
+        print("_______________________________________")
         print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
         for entry in a_task.job_level_suspension_paths[key]:
             print(entry)
+            print("_______________________________________")
+        print("_______________________________________")
     print("############################")
 
 
