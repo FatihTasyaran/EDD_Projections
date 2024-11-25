@@ -538,42 +538,27 @@ class TASKSET:
                     task.job_level_suspension_paths[type_suspension_source] = []
 
 
-                singular_paths_intermediate = task.task_level_suspensions_dict[key]['singular_paths_intermediate']
-                print("Singular paths intermediate:", singular_paths_intermediate)
-                _jobs_per_node = {}
-                for intermediates in singular_paths_intermediate: ##Nodes in one path
-                    for node in intermediates: ##Nodes
-                        if(node not in _jobs_per_node):
-                            _jobs_per_node[node] = []
-                        node_type = self.find_type_of_node(task, node)
-                        _jobs_per_node[node] = _jobs_per_node[node] + self.get_jobs_for_node(task, node_type, node)
-                        print("1!!_jobs_per_node: ", _jobs_per_node)
                 source_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_source_node)
                 target_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_target_node)
+                singular_paths_intermediate = task.task_level_suspensions_dict[key]['singular_paths_intermediate']
                 _paths = []
                 _paths_types = []
-                print("Suspension edge source node:", suspension_edge_source_node)
-                print("Suspension edge target node:", suspension_edge_target_node)
-                print("Source jobs:", source_jobs)
-                print("Target jobs:", target_jobs)
-                print("2!!_jobs_per_node: ", _jobs_per_node)
-                for i in range(len(source_jobs)): ##All lengths are the same
-                    for intermediates in singular_paths_intermediate:
-                        _path = []
-                        _path_types = []
-                        print("intermediates:", intermediates)
-                        for node in intermediates:
-                            print("node in intermediates:", node)
+                for intermediates in singular_paths_intermediate: ##Nodes in one path ##Loop should be after that
+                    _jobs_per_node = {}
+                    _path = []
+                    _path_types = []
+                    for node in intermediates: ##Nodes ##Append one job-level suspension every time
+                        node_type = self.find_type_of_node(task, node)
+                        _jobs_per_node[node] = self.get_jobs_for_node(task, node_type, node)
+                        for i in range(len(source_jobs)): ##All lengths are the same
                             _path.append(_jobs_per_node[node][i])
-                            _path_types.append(self.find_type_of_node(task, node))
-                        _paths.append(_path)
-                        _paths_types.append(_path_types)
-                        print("paths:", _paths)
-                        print("path types:", _paths_types)
-                    start_job = source_jobs[i]
-                    end_job = target_jobs[i]
-                    susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
-                    _dict = {'pred_tid': task_id,
+                            _path_types.append(node_type)
+                            start_job = source_jobs[i]
+                            end_job = target_jobs[i]
+                    _paths.append(_path)
+                    _paths_types.append(_path_types)
+                susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
+                _dict = {'pred_tid': task_id,
                              'pred_jid': start_job,
                              'succ_tid': task_id,
                              'succ_jid': end_job,
@@ -584,8 +569,8 @@ class TASKSET:
                              'intermediate_path': _paths,
                              'intermedite_path_types':_paths_types,
                              'edge_type': 'suspension'}
-                    task.job_level_suspension_paths[type_suspension_source].append(_dict)
-                    
+                task.job_level_suspension_paths[type_suspension_source].append(_dict)
+                        
             
     def add_job_level_jitter_root_paths(self):
 
@@ -861,7 +846,7 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 350, 350)
+    TASK3 = TASK(DAG5, 1050, 350)
     #TASK3 = TASK(DAG5, 350, 350)
     TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
