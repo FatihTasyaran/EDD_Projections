@@ -574,35 +574,6 @@ class TASKSET:
                              'edge_type': 'suspension'}
                     task.job_level_suspension_paths[type_suspension_source].append(_dict)
 
-            '''
-                for intermediates in singular_paths_intermediate: ##Nodes in one path ##Loop should be after that
-                    _jobs_per_node = {}
-                    _path = []
-                    _path_types = []
-                    for node in intermediates: ##Nodes ##Append one job-level suspension every time
-                        node_type = self.find_type_of_node(task, node)
-                        _jobs_per_node[node] = self.get_jobs_for_node(task, node_type, node)
-                        for i in range(len(source_jobs)): ##All lengths are the same
-                            _path.append(_jobs_per_node[node][i])
-                            _path_types.append(node_type)
-                            start_job = source_jobs[i]
-                            end_job = target_jobs[i]
-                    _paths.append(_path)
-                    _paths_types.append(_path_types)
-                susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
-                _dict = {'pred_tid': task_id,
-                             'pred_jid': start_job,
-                             'succ_tid': task_id,
-                             'succ_jid': end_job,
-                             'sus_min' : susp_min,
-                             'sus_max': susp_max,
-                             'sus_min_first': susp_min,
-                             'sus_max_first': susp_max,
-                             'intermediate_path': _paths,
-                             'intermedite_path_types':_paths_types,
-                             'edge_type': 'suspension'}
-                task.job_level_suspension_paths[type_suspension_source].append(_dict)
-            '''
             
     def add_job_level_jitter_root_paths(self):
 
