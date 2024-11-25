@@ -32,9 +32,10 @@ class TASK:
         ##
         self.job_level_projections = {} ##OK
         self.job_level_suspensions = {} ##OK
+        self.job_level_suspension_paths = {} ##Need to complete this one as well
         self.job_level_jitter_roots = {} ##OK
         self.job_level_jitter_root_paths = {} ##This is used to compute response times along the path leading to jitter root in the new analysis
-        ##
+        ## ##OK
         self.nodes_to_job_ids = {} ##OK
         ##
         self.last_iteration_projections = {}
@@ -106,19 +107,16 @@ class TASK:
     def singular_paths_for_new_analysis(self, a_suspensions_dict):
 
 
-        #print("!!!This is a suspensions dict BEFORE: ", a_suspensions_dict)
         for _item in a_suspensions_dict:
             _source_node = a_suspensions_dict[_item]["source_node"]
             _target_node = a_suspensions_dict[_item]["target_node"]
-            #print("_item:", _item, "paths:", a_suspensions_dict[_item]['paths'])
-            #print("_item:", "singular paths BEFORE: ", self.recursive_paths_between_two_nodes(_source_node, _target_node))
-            singular_paths = self.recursive_paths_between_two_nodes(_source_node, _target_node)
-            for i, singular_path in enumerate(singular_paths):
-                singular_paths[i] = singular_path[1:-1]
+            singular_paths_complete = self.recursive_paths_between_two_nodes(_source_node, _target_node)
+            a_suspensions_dict[_item]["singular_paths_complete"] = singular_paths_complete
+            singular_paths_intermediate = copy.deepcopy(singular_paths_complete)
+            for i, singular_path in enumerate(singular_paths_intermediate):
+                singular_paths_intermediate[i] = singular_path[1:-1]
             
-            #print("_item:", "singular paths AFTER: ", singular_paths)
-            a_suspensions_dict[_item]["singular_paths"] = singular_paths
-        #print("!!!This is a suspensions dict AFTER: ", a_suspensions_dict)
+            a_suspensions_dict[_item]["singular_paths_intermediate"] = singular_paths_intermediate
         return a_suspensions_dict
         
     
@@ -238,7 +236,9 @@ class TASKSET:
         self.populate_with_jobs()
         self.populate_with_precs()
         self.add_jitter_values_to_jitter_roots()
-        self.add_job_level_jitter_root_paths()
+        if(global_definitions.NEW_ANALYSIS):
+            self.add_job_level_suspension_paths()
+            self.add_job_level_jitter_root_paths()
         self.write_projections_to_file(0)
         
         if(global_definitions.DEBUG):
@@ -246,7 +246,6 @@ class TASKSET:
                 print("##THIS IS TASK ", task_id + 1)
                 utils.print_a_task(task)
 
-        exit(1)
         self.run_analysis()
 
         
@@ -430,17 +429,31 @@ class TASKSET:
                 target_jobs = task.nodes_to_job_ids[source_type][target]
                 
                 for i in range(len(source_jobs)):
-                    _dict = {"pred_tid": task_id,
-                             "pred_jid": source_jobs[i],
-                             "succ_tid": task_id,
-                             "succ_jid": target_jobs[i],
-                             "sus_min": 0,
-                             "sus_max": 0,
-                             "sus_min_first": 0,
-                             "sus_max_first": 0,
-                             "end_types:": None,
-                             "end_jobs": None,
-                             "edge_type": "only_precedence"}
+                    _dict = {}
+                    if(not global_definitions.NEW_ANALYSIS):
+                        _dict = {"pred_tid": task_id,
+                                 "pred_jid": source_jobs[i],
+                                 "succ_tid": task_id,
+                                 "succ_jid": target_jobs[i],
+                                 "sus_min": 0,
+                                 "sus_max": 0,
+                                 "sus_min_first": 0,
+                                 "sus_max_first": 0,
+                                 "end_types:": None,
+                                 "end_jobs": None,
+                                 "edge_type": "only_precedence"}
+                    else:
+                        _dict = {"pred_tid": task_id,
+                                 "pred_jid": source_jobs[i],
+                                 "succ_tid": task_id,
+                                 "succ_jid": target_jobs[i],
+                                 "sus_min": 0,
+                                 "sus_max": 0,
+                                 "sus_min_first": 0,
+                                 "sus_max_first": 0,
+                                 "intermediate_path": None,
+                                 "intermediate_path_types": None,
+                                 "edge_type": "only_precedence"}
                     job_level_suspensions[source_type].append(_dict)
 
         for _type in job_level_suspensions:
@@ -494,7 +507,64 @@ class TASKSET:
             task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
 
 
-    
+    def add_job_level_suspension_paths(self):
+        ##Also add only precedence edges for new analysis
+        for task_id, task in enumerate(self.tasks, start=1):
+            for key in task.task_level_suspensions_dict:
+
+                suspension_edge_source_node = task.task_level_suspensions_dict[key]['source_node']
+                suspension_edge_target_node = task.task_level_suspensions_dict[key]['target_node']
+                type_suspension_source = self.find_type_of_node(task, suspension_edge_source_node)
+                type_suspension_target = self.find_type_of_node(task, suspension_edge_target_node)
+                if(type_suspension_source != type_suspension_target):
+                    print("Error: source and target nodes of a suspension are not the same, exiting..")
+                    exit(1)
+                    
+                if(type_suspension_source not in task.job_level_suspension_paths):
+                    task.job_level_suspension_paths[type_suspension_source] = []
+
+            
+                #singular_paths_complete = task.task_level_suspensions_dict[key]['singular_paths_complete']
+                print("THIS:", task.task_level_suspensions_dict[key])
+                singular_paths_intermediate = task.task_level_suspensions_dict[key]['singular_paths_intermediate']
+                _jobs_per_node = {}
+                for intermediates in singular_paths_intermediate:
+                    for node in intermediates:
+                        if(node not in _jobs_per_node):
+                            _jobs_per_node[node] = []
+                        node_type = self.find_type_of_node(task, node)
+                        _jobs_per_node[node].append(self.get_jobs_for_node(task, node_type, node))
+                source_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_source_node)
+                target_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_target_node)
+                _paths = []
+                _paths_types = []
+                for i in range(len(source_jobs)): ##All lengths are the same
+                    for intermediates in singular_paths_intermediate:
+                        for node in intermediates:
+                            _path = []
+                            _path_types = []
+                            for j in range(len(_jobs_per_node[node])):
+                                _path.append(_jobs_per_node[node][j][i])
+                                _path_types.append(self.find_type_of_node(task, node))
+                            _paths.append(_path)
+                            _paths_types.append(_path_types)
+                    start_job = source_jobs[i]
+                    end_job = target_jobs[i]
+                    susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
+                    _dict = {'pred_tid': task_id,
+                             'pred_jid': start_job,
+                             'succ_tid': task_id,
+                             'succ_jid': end_job,
+                             'sus_min' : susp_min,
+                             'sus_max': susp_max,
+                             'sus_min_first': susp_min,
+                             'sus_max_first': susp_max,
+                             'intermediate_path': _paths,
+                             'intermedite_path_types':_paths_types,
+                             'edge_type': 'suspension'}
+                    task.job_level_suspension_paths[type_suspension_source].append(_dict)
+                    
+            
     def add_job_level_jitter_root_paths(self):
 
         for task_id, task in enumerate(self.tasks, start=1):
@@ -587,10 +657,27 @@ class TASKSET:
                 
     def update_projections_new_analysis(self):
 
-        ##Jitter root case
-        x = 1
-        
-        
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            if(_type != "0"): ##CPU projection doesn't have such case
+                for task_id, task in enumerate(self.tasks):
+                    for jitter_root in task.job_level_jitter_root_paths[_type]:
+                        _dict = task.job_level_jitter_root_paths[_type][jitter_root]
+                        new_amin_global = 2**20
+                        new_amax_global = 0
+                        for i in range(len(_dict['jids'])):
+                            new_amin_local = 0
+                            new_amax_local = 0
+                            for k in range(len(_dict['jids'])):
+                                one_job_type = _dict['jtypes'][i][k]
+                                one_job_id = _dict['jids'][i][k]
+                                new_amin_local = new_amin_local + task.job_level_projections[one_job_type][one_job_id]['n_bcrt']
+                                new_amax_local = new_amax_local + task.job_level_projections[one_job_type][one_job_id]['n_wcrt']
+                            if(new_amin_global < new_amin_local):
+                                new_amin_global = new_amin_local
+                            if(new_amax_global < new_amax_global):
+                                new_amax_global = new_amax_local
+                                
     def update_projections(self):
 
         #self.print_all_jitter_roots()
@@ -730,7 +817,10 @@ class TASKSET:
 
 
             self.read_and_update_response_times(_iter)
-            self.update_projections()
+            if(not global_definitions.NEW_ANALYSIS):
+                self.update_projections()
+            else:
+                self.update_projections_new_analysis()
             stop, average_suspension_times = self.check_exit(_iter, stop, average_suspension_times)
             average_suspension_times.append([])
             _iter = _iter + 1
@@ -751,7 +841,7 @@ if __name__ == "__main__":
     TASK2 = TASK(DAG4, 350, 350)
     TASK3 = TASK(DAG5, 700, 350)
     #TASK3 = TASK(DAG5, 350, 350)
-    TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 

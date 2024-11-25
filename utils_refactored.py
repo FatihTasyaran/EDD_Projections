@@ -50,6 +50,28 @@ def print_job_level_projections(a_task):
     print("############################")
 
 
+def print_job_level_suspensions(a_task):
+
+    print("############################")
+    print("JOB LEVEL SUSPENSIONS: ")
+    for key in a_task.job_level_suspensions:
+        print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
+        for entry in a_task.job_level_suspensions[key]:
+            print(entry)
+    print("############################")
+
+
+def print_job_level_suspension_paths(a_task):
+
+    print("############################")
+    print("JOB LEVEL SUSPENSION PATHS: ")
+    for key in a_task.job_level_suspension_paths:
+        print("Projection: ", key, "--", global_definitions.TYPES_NUMERIC[key])
+        for entry in a_task.job_level_suspension_paths[key]:
+            print(entry)
+    print("############################")
+
+
 def print_job_level_jitter_roots(a_task):
 
     print("############################")
@@ -88,6 +110,8 @@ def print_a_task(a_task):
     print_task_level_suspensions_dict(a_task)
     print_task_level_projections(a_task)
     print_job_level_projections(a_task)
+    print_job_level_suspensions(a_task)
+    print_job_level_suspension_paths(a_task)
     print_job_level_jitter_roots(a_task)
     print_job_level_jitter_root_paths(a_task)
     print_nodes_to_job_ids(a_task)
