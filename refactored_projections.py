@@ -537,31 +537,39 @@ class TASKSET:
                 if(type_suspension_source not in task.job_level_suspension_paths):
                     task.job_level_suspension_paths[type_suspension_source] = []
 
-            
-                #singular_paths_complete = task.task_level_suspensions_dict[key]['singular_paths_complete']
-                #print("THIS:", task.task_level_suspensions_dict[key])
+
                 singular_paths_intermediate = task.task_level_suspensions_dict[key]['singular_paths_intermediate']
+                print("Singular paths intermediate:", singular_paths_intermediate)
                 _jobs_per_node = {}
-                for intermediates in singular_paths_intermediate:
-                    for node in intermediates:
+                for intermediates in singular_paths_intermediate: ##Nodes in one path
+                    for node in intermediates: ##Nodes
                         if(node not in _jobs_per_node):
                             _jobs_per_node[node] = []
                         node_type = self.find_type_of_node(task, node)
-                        _jobs_per_node[node].append(self.get_jobs_for_node(task, node_type, node))
+                        _jobs_per_node[node] = _jobs_per_node[node] + self.get_jobs_for_node(task, node_type, node)
+                        print("1!!_jobs_per_node: ", _jobs_per_node)
                 source_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_source_node)
                 target_jobs = self.get_jobs_for_node(task, type_suspension_source, suspension_edge_target_node)
                 _paths = []
                 _paths_types = []
+                print("Suspension edge source node:", suspension_edge_source_node)
+                print("Suspension edge target node:", suspension_edge_target_node)
+                print("Source jobs:", source_jobs)
+                print("Target jobs:", target_jobs)
+                print("2!!_jobs_per_node: ", _jobs_per_node)
                 for i in range(len(source_jobs)): ##All lengths are the same
                     for intermediates in singular_paths_intermediate:
+                        _path = []
+                        _path_types = []
+                        print("intermediates:", intermediates)
                         for node in intermediates:
-                            _path = []
-                            _path_types = []
-                            for j in range(len(_jobs_per_node[node])):
-                                _path.append(_jobs_per_node[node][j][i])
-                                _path_types.append(self.find_type_of_node(task, node))
-                            _paths.append(_path)
-                            _paths_types.append(_path_types)
+                            print("node in intermediates:", node)
+                            _path.append(_jobs_per_node[node][i])
+                            _path_types.append(self.find_type_of_node(task, node))
+                        _paths.append(_path)
+                        _paths_types.append(_path_types)
+                        print("paths:", _paths)
+                        print("path types:", _paths_types)
                     start_job = source_jobs[i]
                     end_job = target_jobs[i]
                     susp_min, susp_max = utils.return_path_with_maximum_suspension_first_iter(task.DAG, task.task_level_suspensions_dict[key])
