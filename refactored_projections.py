@@ -428,7 +428,7 @@ class TASKSET:
 
     def add_non_suspension_edges(self, task_id, task, job_level_suspensions, MODE): ##MODE IS 0 IF CALLED FROM NAIVE ANALYSIS SUSPENSIONS FUNCTION, 1 IF CALLED FROM NEW ANALYSIS SUSPENSIONS FUNCTION
         ##Note that if a path is augmented as suspension, it's response must be bigger than zero
-        print("Here with mode:", MODE)
+        
         edges = task.DAG.edges()
         
         for edge in edges:
@@ -618,9 +618,15 @@ class TASKSET:
         
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            writer_jobs = open(_type_alpha + "_" + str(_iter) +"_jobs.csv", "w+")
+            
+            if(global_definitions.NEW_ANALYSIS):
+                affix = "NEW"
+            else:
+                affix = "NAIVE"
+                    
+            writer_jobs = open(_type_alpha + "_" + str(_iter) + "_" + affix + "_jobs.csv", "w+")
             writer_jobs.write("Task ID, Job ID, Arrival min, Arrival max, Cost min, Cost max, Deadline, Priority\n")
-            writer_prec = open(_type_alpha + "_" + str(_iter) +"_prec.csv", "w+")
+            writer_prec = open(_type_alpha + "_" + str(_iter) + "_" + affix + "_prec.csv", "w+")
             writer_prec.write("Predecessor TID, Predecessor JID, Successor TID, Successor JID, Sus_Min, Sus_Max\n")
             for task in self.tasks:
                 for key in task.job_level_projections[_type]:
@@ -641,7 +647,11 @@ class TASKSET:
 
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            rta_file = _type_alpha + "_" + str(_iter)+ "_jobs.rta.csv"
+            if(global_definitions.NEW_ANALYSIS):
+                affix = "NEW"
+            else:
+                affix = "NAIVE"
+            rta_file = _type_alpha + "_" + str(_iter) + "_" + affix + "_jobs.rta.csv"
 
             reader = open(rta_file, "r")
             lines = reader.readlines()
@@ -878,7 +888,7 @@ class TASKSET:
     def run_analysis(self):
 
         
-        type_core_numbers = {"0": "2", "1": "2", "2": "2"}
+        type_core_numbers = {"0": "5", "1": "5", "2": "5"}
         _iter = 0
         _new_cont = 0
         average_suspension_times = [[]]
@@ -886,9 +896,17 @@ class TASKSET:
         while(not stop):
             for _type_alpha in global_definitions.TYPES_ALPHA:
                 _type = global_definitions.TYPES_ALPHA[_type_alpha]
-                jobs_file_name = _type_alpha + "_" + str(_iter) + "_jobs.csv"
-                prec_file_name = _type_alpha + "_" + str(_iter) + "_prec.csv"
-                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type], '-g'], capture_output=True, text=True)
+                affix = ""
+                
+                if(global_definitions.NEW_ANALYSIS):
+                    affix = "NEW"
+                else:
+                    affix = "NAIVE"
+                    
+                jobs_file_name = _type_alpha + "_" + str(_iter) + "_" + affix + "_jobs.csv"
+                prec_file_name = _type_alpha + "_" + str(_iter) + "_" + affix + "_prec.csv"
+                #result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type], '-g'], capture_output=True, text=True)
+                result = subprocess.run(['./nptest', jobs_file_name, '-p', prec_file_name, '-r', '-m', type_core_numbers[_type]], capture_output=True, text=True)
 
                 if result.returncode == 0:
                     print(_type_alpha + " iteration " + str(_iter) + " successful")
@@ -919,7 +937,8 @@ class TASKSET:
 
             
             stop, average_suspension_times = self.check_exit_helper(_iter, stop, average_suspension_times)
-            if(stop and global_definitions.NEW_ANALYSIS and _new_cont < 5):
+            nogo = True
+            if(stop and global_definitions.NEW_ANALYSIS and _new_cont < 1 and nogo):
                 stop = False
                 _new_cont = _new_cont + 1
             average_suspension_times.append([])
@@ -938,10 +957,22 @@ if __name__ == "__main__":
     #def __init__(self, DAG, period, deadline):
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
+    TASK3 = TASK(DAG5, 70, 70)
+    TASK4 = TASK(DAG5, 70, 70)
+    TASK5 = TASK(DAG5, 70, 70)
+    TASK6 = TASK(DAG5, 70, 70)
+    TASK7 = TASK(DAG5, 70, 70)
+    TASK8 = TASK(DAG5, 70, 70)
+    TASK9 = TASK(DAG5, 70, 70)
+    TASK10 = TASK(DAG5, 70, 70)
+    TASK11 = TASK(DAG5, 70, 70)
+    TASK12 = TASK(DAG5, 70, 70)
+    TASK13 = TASK(DAG5, 70, 70)
+    TASK14 = TASK(DAG5, 70, 70)
+    TASK15 = TASK(DAG5, 70, 70)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 700, 350)
     #TASK3 = TASK(DAG5, 350, 350)
-    TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASKSET_ZERO = TASKSET([TASK2, TASK4, TASK5]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
