@@ -426,9 +426,9 @@ class TASKSET:
 
         return new
 
-    def add_non_suspension_edges(self, task_id, task, job_level_suspensions):
+    def add_non_suspension_edges(self, task_id, task, job_level_suspensions, MODE): ##MODE IS 0 IF CALLED FROM NAIVE ANALYSIS SUSPENSIONS FUNCTION, 1 IF CALLED FROM NEW ANALYSIS SUSPENSIONS FUNCTION
         ##Note that if a path is augmented as suspension, it's response must be bigger than zero
-        
+        print("Here with mode:", MODE)
         edges = task.DAG.edges()
         
         for edge in edges:
@@ -444,7 +444,8 @@ class TASKSET:
                 
                 for i in range(len(source_jobs)):
                     _dict = {}
-                    if(not global_definitions.NEW_ANALYSIS):
+                    if(not MODE):
+                        print("NAIVE")
                         _dict = {"pred_tid": task_id,
                                  "pred_jid": source_jobs[i],
                                  "succ_tid": task_id,
@@ -457,6 +458,7 @@ class TASKSET:
                                  "end_jobs": None,
                                  "edge_type": "only_precedence"}
                     else:
+                        print("NEW")
                         _dict = {"pred_tid": task_id,
                                  "pred_jid": source_jobs[i],
                                  "succ_tid": task_id,
@@ -518,7 +520,7 @@ class TASKSET:
 
                 task.job_level_suspensions[start_type].append(_dict)
             task.job_level_suspensions = self.transform_to_individual(task_id, task.job_level_suspensions)
-            task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions)
+            task.job_level_suspensions = self.add_non_suspension_edges(task_id, task, task.job_level_suspensions, 0)
 
 
     def add_job_level_suspension_paths(self):
@@ -570,10 +572,10 @@ class TASKSET:
                              'sus_min_first': susp_min,
                              'sus_max_first': susp_max,
                              'intermediate_path': _paths,
-                             'intermedite_path_types':_types,
+                             'intermediate_path_types':_types,
                              'edge_type': 'suspension'}
                     task.job_level_suspension_paths[type_suspension_source].append(_dict)
-
+            task.job_level_suspension_paths = self.add_non_suspension_edges(task_id, task, task.job_level_suspension_paths, 1)
             
     def add_job_level_jitter_root_paths(self):
 
@@ -610,7 +612,7 @@ class TASKSET:
                                         projection_path_types.append(path_node_type)
                                     task.job_level_jitter_root_paths[projection][projection_root_jobs[k]]['jtypes'].append(projection_path_types)
                                     task.job_level_jitter_root_paths[projection][projection_root_jobs[k]]['jids'].append(projection_path)
-            
+        
     
     def write_projections_to_file(self, _iter):
         
@@ -624,10 +626,16 @@ class TASKSET:
                 for key in task.job_level_projections[_type]:
                     job = task.job_level_projections[_type][key]
                     writer_jobs.write(f"{job['Task_id']}, {job['Job_id']}, {job['a_min']}, {job['a_max']}, {job['c_min']}, {job['c_max']}, {job['deadline']}, {job['priority']}\n")
-                for s in task.job_level_suspensions[_type]:
-                    writer_prec.write(f"{s['pred_tid']}, {s['pred_jid']}, {s['succ_tid']}, {s['succ_jid']}, {s['sus_min']}, {s['sus_max']}\n")
+                if(not global_definitions.NEW_ANALYSIS):
+                    for s in task.job_level_suspensions[_type]:
+                        writer_prec.write(f"{s['pred_tid']}, {s['pred_jid']}, {s['succ_tid']}, {s['succ_jid']}, {s['sus_min']}, {s['sus_max']}\n")
+                else:
+                    for s in task.job_level_suspension_paths[_type]:
+                        writer_prec.write(f"{s['pred_tid']}, {s['pred_jid']}, {s['succ_tid']}, {s['succ_jid']}, {s['sus_min']}, {s['sus_max']}\n")
             writer_jobs.close()
             writer_prec.close()
+
+        
 
     def read_and_update_response_times(self, _iter):
 
@@ -686,8 +694,40 @@ class TASKSET:
                             if(new_amin_global < new_amin_local):
                                 new_amin_global = new_amin_local
                             if(new_amax_global < new_amax_global):
-                                new_amax_global = new_amax_local
-                                
+                                new_amax_global = new_amax_local ##Do we have ?: +initial a_min
+                    ##?new_amin_global: find_cpu_root + amin, new_amax_global: find_cpu_root + amax?
+
+        ##Other suspensions
+        for _type_alpha in global_definitions.TYPES_ALPHA:
+            _type = global_definitions.TYPES_ALPHA[_type_alpha]
+            for task_id, task in enumerate(self.tasks):
+                for suspension in task.job_level_suspension_paths[_type]:
+                    if(suspension['edge_type'] != 'only_precedence'):
+                        new_sus_min = suspension['sus_min']
+                        new_sus_max = suspension['sus_max']
+                        intermediate_path = suspension['intermediate_path']
+                        intermediate_path_types = suspension['intermediate_path_types']
+                        for i in range(len(intermediate_path)):
+                            path_sus_min = 0
+                            path_sus_max = 0
+                            _path = intermediate_path[i]
+                            _types = intermediate_path_types[i]
+                            for j in range(len(_path)):
+                                job = _path[j]
+                                job_type = _types[j]
+                                path_sus_min = path_sus_min + task.job_level_projections[job_type][job]['n_bcrt']
+                                path_sus_max = path_sus_max + task.job_level_projections[job_type][job]['n_wcrt']
+                            if(path_sus_min < new_sus_min):
+                                new_sus_min = path_sus_min
+                            if(path_sus_max > new_sus_max):
+                                new_sus_max = path_sus_max
+
+
+                        suspension['sus_min'] = new_sus_min
+                        suspension['sus_max'] = new_sus_max
+
+                        
+                            
     def update_projections(self):
 
         #self.print_all_jitter_roots()
@@ -695,7 +735,7 @@ class TASKSET:
         ##Jitter root case
         for _type_alpha in global_definitions.TYPES_ALPHA:
             _type = global_definitions.TYPES_ALPHA[_type_alpha]
-            if(_type != "0"): ##CPU projection doesn't have such case
+            if(_type != "0"): ##CPU projection doesn't have such case 
                 for task_id, task in enumerate(self.tasks):
                     for jitter_root in task.job_level_jitter_roots[_type]:
                         related_jobs = task.job_level_jitter_roots[_type][jitter_root]
@@ -777,6 +817,45 @@ class TASKSET:
 
         return stop, average_suspension_times
 
+
+    def check_exit_new_analysis(self, _iter, stop, average_suspension_times):
+        
+        if(iter == 0):
+            return stop
+
+        stop = True
+        for task in self.tasks:
+            for _type in task.job_level_suspension_paths:
+                _len = len(task.job_level_suspension_paths[_type])
+                for i in range(_len):
+                    old_min = task.last_iteration_suspensions[_type][i]['sus_min']
+                    old_max = task.last_iteration_suspensions[_type][i]['sus_max']
+
+                    new_min = task.job_level_suspension_paths[_type][i]['sus_min']
+                    new_max = task.job_level_suspension_paths[_type][i]['sus_max']
+                    #/print("new_min:", new_min, "old_min:", old_min, "new_max:", new_max, "old_max:", old_max)
+                    if(new_min < old_min):
+                        stop = False
+                    if(new_max > old_max):
+                        stop = False
+
+                    average_suspension_times[_iter].append(new_max - new_min)
+
+        if(stop):
+            print("Stop: Non-growing boundaries")
+
+        return stop, average_suspension_times
+
+    def check_exit_helper(self, _iter, stop, average_suspension_times):
+
+
+        if(not global_definitions.NEW_ANALYSIS):
+            stop, average_suspension_times = self.check_exit(_iter, stop, average_suspension_times)
+        else:
+            stop, average_suspension_times = self.check_exit_new_analysis(_iter, stop, average_suspension_times)
+
+        return stop, average_suspension_times
+    
     def report_ast(self, ast):
 
         _len = len(ast[0])
@@ -801,6 +880,7 @@ class TASKSET:
         
         type_core_numbers = {"0": "2", "1": "2", "2": "2"}
         _iter = 0
+        _new_cont = 0
         average_suspension_times = [[]]
         stop = False
         while(not stop):
@@ -816,22 +896,32 @@ class TASKSET:
                     print(_type_alpha + " iteration " + str(_iter) + " failed with error:", result.stderr)
                     exit(1)
 
+
+                    
                 stop = self.check_result(result, stop, average_suspension_times)
                 if(stop):
                     self.report_ast(average_suspension_times)
                     exit(1)
 
             for task in self.tasks:
-                task.last_iteration_projections = copy.deepcopy(task.job_level_projections)
-                task.last_iteration_suspensions = copy.deepcopy(task.job_level_suspensions)
-
+                if(not global_definitions.NEW_ANALYSIS):
+                    task.last_iteration_projections = copy.deepcopy(task.job_level_projections)
+                    task.last_iteration_suspensions = copy.deepcopy(task.job_level_suspensions)
+                else:
+                    task.last_iteration_projections = copy.deepcopy(task.job_level_projections)
+                    task.last_iteration_suspensions = copy.deepcopy(task.job_level_suspension_paths)
 
             self.read_and_update_response_times(_iter)
             if(not global_definitions.NEW_ANALYSIS):
                 self.update_projections()
             else:
                 self.update_projections_new_analysis()
-            stop, average_suspension_times = self.check_exit(_iter, stop, average_suspension_times)
+
+            
+            stop, average_suspension_times = self.check_exit_helper(_iter, stop, average_suspension_times)
+            if(stop and global_definitions.NEW_ANALYSIS and _new_cont < 5):
+                stop = False
+                _new_cont = _new_cont + 1
             average_suspension_times.append([])
             _iter = _iter + 1
             self.write_projections_to_file(_iter)
@@ -849,9 +939,9 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK2 = TASK(DAG4, 350, 350)
-    TASK3 = TASK(DAG5, 1050, 350)
+    TASK3 = TASK(DAG5, 700, 350)
     #TASK3 = TASK(DAG5, 350, 350)
-    TASKSET_ZERO = TASKSET([TASK1, TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASKSET_ZERO = TASKSET([TASK2, TASK3]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
