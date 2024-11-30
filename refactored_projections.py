@@ -7,6 +7,7 @@ import subprocess
 import global_definitions
 import copy
 import sys
+import task_finder
 
 ##Types
 CPU = 0
@@ -323,6 +324,7 @@ class TASKSET:
                             edges = list(task.DAG.in_edges(one_root))
                             incoming_all = []
                             for edge in edges:
+                                print("this_edge: ", edge)
                                 incoming = edge[0]
                                 incoming_jobs = task.nodes_to_job_ids["0"][incoming]
                                 incoming_all.append(incoming_jobs)
@@ -946,14 +948,29 @@ class TASKSET:
             self.write_projections_to_file(_iter)
         self.report_ast(average_suspension_times)
         
-                                    
+
+def re_assign_dag_properties(DAG, deadline, period, priority):
     
+    nodes = dict(DAG.nodes())
+    edges = dict(DAG.edges())
+
+    for node in nodes:
+        #print("node: ", nodes[node])
+        nodes[node]['_d'] = deadline
+        nodes[node]['_p'] = priority
+        nodes[node]['_q'] = 1 ##Single element for now
+        nodes[node]['_amin'] = 0
+        nodes[node]['_amax'] = 0
+
+    return DAG
+
 ##Here we assume for now: sink and source are always CPU nodes. And after the first iteration first step, we are using response times.    
 if __name__ == "__main__":
 
     if(len(sys.argv) > 1):
         global_definitions.NEW_ANALYSIS = int(sys.argv[1])
-        
+
+    '''
     #def __init__(self, DAG, period, deadline):
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
@@ -973,8 +990,29 @@ if __name__ == "__main__":
     TASK2 = TASK(DAG4, 350, 350)
     #TASK3 = TASK(DAG5, 350, 350)
     TASKSET_ZERO = TASKSET([TASK2, TASK4]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    '''
+    a_DAG1, task_time_min, task_time_max = task_finder.ret_dag_task()
+    a_DAG1_deadline = 3 * task_time_max
+    a_DAG1_period = 3 * task_time_max
+    a_DAG1_priority = 1
+    a_DAG1 = re_assign_dag_properties(a_DAG1, a_DAG1_deadline, a_DAG1_period, a_DAG1_priority)
+
+    nodes = dict(a_DAG1.nodes())
+    print(nodes["CPU_1"])
+    
+    a_DAG2, task_time_min, task_time_max = task_finder.ret_dag_task()
+    a_DAG2_deadline = 3 * task_time_max
+    a_DAG2_period = 3 * task_time_max
+    a_DAG2_priority = 1
+    a_DAG2 = re_assign_dag_properties(a_DAG2, a_DAG2_deadline, a_DAG2_period, a_DAG2_priority)
 
     
+    
+    TASK1 = TASK(a_DAG1, a_DAG1_deadline, a_DAG1_period)
+    print("TASK1 created")
+    TASK2 = TASK(a_DAG1, a_DAG1_deadline, a_DAG1_period)
+    print("TASK2 created")
+    TASKSET_ZERO = TASKSET([TASK1, TASK2]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     ##Usage of some functions
 

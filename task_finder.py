@@ -15,6 +15,7 @@ last_sync_loc = -1
 adding_order = [[]]
 times_cpu = {}
 times_gpu = {}
+DAG = -1
 
 def api_start_loc(_dict_api, start):
 
@@ -124,13 +125,13 @@ def find_period_starts(_dict_api, _dict_gpu, first_line):
     
     for key in _dict_api:
         if(_dict_api[key]['Start (ns)'] == api_start):
-            print("First kernel launch corrID:", key)
+            #print("First kernel launch corrID:", key)
             api_first_match = key
             break
 
     for key in _dict_gpu:
         if(_dict_gpu[key]['Start (ns)'] == gpu_start):
-            print("First gpu exec corrID:", key)
+            #print("First gpu exec corrID:", key)
             break
 
 
@@ -165,9 +166,9 @@ def find_period(_dict_api, first_match, _dict_gpu):
             last_sync_loc = i
         
 
-    print("First_sync_loc:", first_sync_loc, "First_sync:", first_sync)
-    print("Second_sync_loc:", second_sync_loc, "Second_sync:", second_sync)
-    print("Last_sync_loc:", last_sync_loc)
+    #print("First_sync_loc:", first_sync_loc, "First_sync:", first_sync)
+    #print("Second_sync_loc:", second_sync_loc, "Second_sync:", second_sync)
+    #print("Last_sync_loc:", last_sync_loc)
 
     return first_sync, first_sync_loc, second_sync, second_sync_loc ##No need to return anymore but,..
 
@@ -192,10 +193,10 @@ def find_periods_and_aggregate_data(_dict_api, first_match, _dict_gpu):
 
     times_cpu["CPU_0"] = [1] ##or 0 idk it's in ns so, pretty effectless
     
-    print("adding_order:", adding_order)
+    #print("adding_order:", adding_order)
 
     no_nodes_in_period = (second_sync_loc) - (first_sync_loc)
-    print("no_nodes_in_period: ", no_nodes_in_period, "len_order", len(adding_order))
+    #print("no_nodes_in_period: ", no_nodes_in_period, "len_order", len(adding_order))
     
     start_loc = first_sync_loc + (no_nodes_in_period * 2 )  ##Starts from second_period
     ##Can give a table of min, max, in report
@@ -205,8 +206,6 @@ def find_periods_and_aggregate_data(_dict_api, first_match, _dict_gpu):
         _cpu_node = _dict_api[api_index[i]]
         _corr_id = _cpu_node["CorrID"]
         cpu_name = adding_order[added_nodes_loc][0] ##We have a CPU node anyway
-        if(cpu_name == "CPU_1"):
-            print(_cpu_node["Name"])
         if(cpu_name in times_cpu):
             times_cpu[cpu_name].append(_cpu_node["Duration (ns)"])
         else:
@@ -239,9 +238,11 @@ def find_periods_and_aggregate_data(_dict_api, first_match, _dict_gpu):
         wait_time = first_start - (before_start + before_duration)
         task_time = first_start - first_cpu_node_before_start 
         times_cpu[sink_name].append(wait_time)
-        times_cpu["Complete_Task"] = task_time
-    print("synch_before: ", synch_before)
-    print("Ratio:", task_time / wait_time)
+        times_cpu["Complete_Task"].append(task_time)
+    times_cpu["Complete_Task_min"] = min(times_cpu["Complete_Task"])
+    times_cpu["Complete_Task_max"] = max(times_cpu["Complete_Task"])
+    #print("synch_before: ", synch_before)
+    #print("Ratio:", task_time / wait_time)
 
     
 def ret_name(_type, counter):
@@ -351,26 +352,25 @@ def generate_dag_new(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sy
         
 
 def ret_aggregated_dag(DAG):
-    print("SA")
+    
     new_DAG = nx.DiGraph()
 
     nodes = dict(DAG.nodes())
     edges = dict(DAG.edges())
 
-        
-    print("SA")
-    print("nodes:", nodes)
     for node in nodes:
         this_node = nodes[node]
         if(node.find("CPU") != -1):
-            print("node:", node, "time:", times_cpu[node] )
             c_min = min(times_cpu[node])
             c_max = max(times_cpu[node])
-            new_DAG.add_node(node, _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
+            new_DAG.add_node(node, _type = "0", _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
         if(node.find("SM") != -1 or node.find("CE") != -1):
             c_min = min(times_gpu[node])
             c_max = max(times_gpu[node])
-            new_DAG.add_node(node, _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
+            if(node.find("SM") != -1):
+                new_DAG.add_node(node, _type = "1", _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
+            if(node.find("CE") != -1):
+                new_DAG.add_node(node, _type = "2", _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
 
     for edge in edges:
         new_DAG.add_edge(edge[0], edge[1])
@@ -392,7 +392,6 @@ def write_manual_dot(DAG):
             my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
             my_xlabel = "" ##Takes too much space
             my_node = " [shape=ellipse,color=black," + my_xlabel + "];\n"
-            print("my_node", my_node)
             writer.write(node + my_node)
         if(node.find("SM") != -1):
             this_node = nodes[node]
@@ -413,19 +412,19 @@ def write_manual_dot(DAG):
             writer.write(node + my_node)
 
     for edge in edges:
-        print("edge:", edge, edge[0])
         writer.write(edge[0] + " -> " + edge[1] + "\n")
             
-
     writer.write("}" + "\n")
 
 
 
     writer.close()
-            
-if __name__ == "__main__":
 
 
+def main():
+
+    global DAG
+    
     file1 = "api_40k.csv"
     lists1 = csv_to_lists(file1)
     file2 = "gpu_trace_40k.csv"
@@ -453,8 +452,20 @@ if __name__ == "__main__":
     '''
     DAG = ret_aggregated_dag(DAG)
     write_manual_dot(DAG)
-    return DAG
     #print("API index:", api_index)
+    
+def ret_dag_task():
+
+    global DAG
+    global times_cpu
+    
+    main()
+    return DAG, times_cpu["Complete_Task_min"], times_cpu["Complete_Task_max"]
+    
+if __name__ == "__main__":
+
+    main()
+    
     
     
     
