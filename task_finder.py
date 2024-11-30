@@ -225,7 +225,6 @@ def generate_dag_new(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sy
         ##Scenario 1 is always true, add CPU node and edge from previous CPU if not first node
         CPU_name = ret_name("CPU", _cpu_counter)
         DAG.add_node(CPU_name, _type="CPU", e_name=_cpu_node["Name"].replace(":", "+++")) ##Adding CPU
-        print("1 Adding CPU named: ", CPU_name)
         if(_cpu_counter_prev != -1):
             cpu_name_prev = ret_name("CPU", _cpu_counter_prev)
             DAG.add_edge(cpu_name_prev, CPU_name)
@@ -262,7 +261,6 @@ def generate_dag_new(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sy
                  
     sink_name = ret_name("CPU", _cpu_counter)           
     DAG.add_node(sink_name, _type="CPU", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name="Sink") ##Adding CPU
-    print("2 Adding CPU named: ", sink_name)
     DAG.add_edge("CPU_0", "CPU_1") ##Sink to first actual node
     DAG.add_edge(ret_name("CPU", _cpu_counter - 1), sink_name) ##last node to sink
     return DAG
@@ -292,10 +290,10 @@ if __name__ == "__main__":
     edges = DAG.edges(data=True)
     #print("nodes:", nodes)
     #print("edges:", edges)
-    for node in nodes:
-        print(node)
-    for edge in edges:
-        print(edge)
+    #for node in nodes:
+        #print(node)
+    #for edge in edges:
+        #print(edge)
     #write_dot(DAG, "DAG.dot")
 
     
