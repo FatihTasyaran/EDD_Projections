@@ -86,12 +86,12 @@ for type_name in types:
             # Plot NAIVE data
             for job_id in naive_data['job id'].unique():
                 job_data = naive_data[naive_data['job id'] == job_id].sort_values('iteration')
-                plt.plot(job_data['iteration'], job_data[value_name], marker='o', linestyle='--', label=f'NAIVE - Job {job_id}')
+                plt.plot(job_data['iteration'], job_data[value_name], marker='P', linestyle='-', label=f'NAIVE - Job {job_id}')
 
             # Plot NEW data
             for job_id in new_data['job id'].unique():
                 job_data = new_data[new_data['job id'] == job_id].sort_values('iteration')
-                plt.plot(job_data['iteration'], job_data[value_name], marker='o', linestyle='-', label=f'NEW - Job {job_id}')
+                plt.plot(job_data['iteration'], job_data[value_name], marker='x', linestyle='--', label=f'NEW - Job {job_id}')
 
             # Chart customization
             plt.title(f'{type_name} Task {task_id} {value_name.upper()} Comparison')

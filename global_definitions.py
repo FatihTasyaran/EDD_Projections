@@ -1,6 +1,6 @@
 NEW_ANALYSIS = 0
 
-DEBUG = 1
+DEBUG = 0
 
 TYPES = ["0", "1", "2"]
 

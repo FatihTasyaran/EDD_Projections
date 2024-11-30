@@ -1,0 +1,256 @@
+import csv
+import networkx as nx
+from networkx.drawing.nx_pydot import write_dot
+
+api_index = {}
+api_index_counter = 0
+gpu_index = {}
+gpu_index_counter = 0
+
+
+def api_start_loc(_dict_api, start):
+
+    for loc, key in enumerate(api_index):
+        if(api_index[key] == start):
+            return loc
+
+    return -1
+
+
+def csv_to_lists(csv_file):
+    # Initialize an empty list to store dictionaries
+    data_list = []
+
+    # Open the CSV file and read its contents
+    with open(csv_file, mode='r') as file:
+        csv_reader = csv.DictReader(file)
+        for row in csv_reader:
+            # Each row is already a dictionary with column headers as keys
+            data_list.append(dict(row))
+
+            # Print the resulting list of dictionaries
+    return data_list
+
+
+def print_dict_head(_dict):
+
+    i = 0
+    for key in _dict:
+        if(i < 20):
+            print(key, _dict[key])
+            i = i + 1
+        
+def list_to_dict_api(lists, _type):
+
+    global api_index
+    global api_index_counter
+    global gpu_index
+    global gpu_index_counter
+    
+    _dict = {}
+    for item in lists:
+        corr_id = item["CorrID"]
+        corr_id_int = int(corr_id)
+        _dict[corr_id_int] = {}
+        if(_type == "API"):
+            api_index[api_index_counter] = corr_id_int
+            api_index_counter = api_index_counter + 1
+        if(_type == "GPU"):
+            gpu_index[gpu_index_counter] = corr_id_int
+            gpu_index_counter = gpu_index_counter + 1
+        for key in item:
+            if(key != "CorrID"):
+                if(item[key].isdigit()):
+                    _dict[corr_id_int][key] = int(item[key])
+                else:
+                    _dict[corr_id_int][key] = item[key]
+            else:
+                _dict[corr_id_int]["CorrID"] = int(item[key]) ##Fixing profiler's different naming here
+                    
+    return _dict
+
+
+def list_to_dict_gpu(lists, _type):
+
+    global api_index
+    global api_index_counter
+    global gpu_index
+    global gpu_index_counter
+    
+    _dict = {}
+    for item in lists:
+        corr_id = item["CorrId"]
+        corr_id_int = int(corr_id)
+        _dict[corr_id_int] = {}
+        if(_type == "API"):
+            api_index[api_index_counter] = corr_id_int
+            api_index_counter = api_index_counter + 1
+        if(_type == "GPU"):
+            gpu_index[gpu_index_counter] = corr_id_int
+            gpu_index_counter = gpu_index_counter + 1
+        for key in item:
+            if(key != "CorrId"):
+                if(item[key].isdigit()):
+                    _dict[corr_id_int][key] = int(item[key])
+                else:
+                    _dict[corr_id_int][key] = item[key]
+            else:
+                _dict[corr_id_int]["CorrID"] = int(item[key]) ##Fixing profiler's different naming here
+                    
+                    
+    return _dict
+
+def find_period_starts(_dict_api, _dict_gpu, first_line):
+
+    for key in first_line:
+        if(first_line[key].isdigit()):
+            first_line[key] = int(first_line[key])
+
+    #print("first_line:", first_line)
+    
+    api_start = first_line['API Start (ns)']
+    gpu_start = first_line['Kernel Start (ns)']
+
+    api_first_match = -1
+    gpu_first_match = -1
+    
+    for key in _dict_api:
+        if(_dict_api[key]['Start (ns)'] == api_start):
+            print("First kernel launch corrID:", key)
+            api_first_match = key
+            break
+
+    for key in _dict_gpu:
+        if(_dict_gpu[key]['Start (ns)'] == gpu_start):
+            print("First gpu exec corrID:", key)
+            break
+
+
+
+    return api_first_match
+
+
+def find_period(_dict_api, first_match, _dict_gpu):
+
+
+    global api_index
+
+    first_sync = -1
+    first_sync_loc = -1
+    second_sync = -1
+    second_sync_loc = -1
+    
+    start_loc = api_start_loc(_dict_api, first_match)
+    #print("i:", start_loc)
+    #print("i:", len(api_index))
+    for i in range(len(api_index)):
+        if(i > start_loc and _dict_api[api_index[i]]["Name"] == "cudaStreamSynchronize" and first_sync == -1):
+            first_sync = api_index[i]
+            first_sync_loc = i
+            continue
+        if(i > start_loc and _dict_api[api_index[i]]["Name"] == "cudaStreamSynchronize" and second_sync == -1):
+            second_sync = api_index[i]
+            second_sync_loc = i
+        if(first_sync != -1 and second_sync != -1):
+            break
+    
+        #print(_dict_api[api_index[i]])
+
+
+    print("First_sync_loc:", first_sync_loc, "First_sync:", first_sync)
+    print("Second_sync_loc:", second_sync_loc, "Second_sync:", second_sync)
+
+    '''
+    for i in range(first_sync_loc + 1, second_sync_loc):
+        print("##API: ", _dict_api[api_index[i]])
+        try:
+            print("##GPU:", _dict_gpu[api_index[i]])
+        except:
+            print("API?")
+    '''
+            
+    return first_sync, first_sync_loc, second_sync, second_sync_loc
+    
+
+def generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc):
+
+    prev = -1
+    cpu_count = 1
+    gpu_count = 1
+    ce_count = 1
+    cpu_prev = -1
+    gpu_prev = -1
+    ce_prev = -1
+    prev_type = ""
+    DAG = nx.DiGraph()
+    for i in range(first_sync_loc + 1, second_sync_loc):
+        CPU_name = "CPU_" + str(cpu_count)
+        exec_name = _dict_api[api_index[i]]["Name"]
+        DAG.add_node(CPU_name, _type="CPU", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=exec_name.replace(":", "__")) ##Adding CPU
+        if(cpu_prev == -1):
+            cpu_prev = cpu_count
+        else:
+            cpu_prev_name = "CPU_" + str(cpu_prev)
+            DAG.add_edge(cpu_prev_name, CPU_name, susp_min=0, susp_max=0)
+
+        cpu_prev = cpu_count
+        cpu_count = cpu_count + 1
+
+        if(api_index[i] in _dict_gpu):
+            _dict = _dict_gpu[api_index[i]]
+            if(_dict["GrdX"] != ''):
+                GPU_name = "GPU_" + str(gpu_count)
+                if(gpu_prev == -1):
+                    gpu_prev = gpu_count
+                else:
+                    gpu_prev_name = "SM_" + str(cpu_prev)
+                    DAG.add_edge(gpu_prev_name, GPU_name, susp_min=0, susp_max=0)
+                gpu_prev = gpu_count
+                gpu_count = gpu_count + 1
+                DAG.add_node(GPU_name, _type="SM", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=_dict["Name"].replace(":", "__")) ##Adding GPU
+            else:
+                CE_name = "CE_" + str(ce_count)
+                if(ce_prev == -1):
+                    ce_prev = ce_count
+                else:
+                    ce_prev_name = "CE_" + str(ce_prev)
+                    DAG.add_edge(ce_prev_name, CE_name, susp_min=0, susp_max=0)
+                ce_prev = ce_count
+                ce_count = ce_count + 1
+                DAG.add_node(CE_name, _type="CE", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=_dict["Name"].replace(":", "__")) ##Adding CE
+            
+            
+    return DAG
+
+    
+if __name__ == "__main__":
+
+
+    file1 = "api_40k.csv"
+    lists1 = csv_to_lists(file1)
+    file2 = "gpu_trace_40k.csv"
+    lists2 = csv_to_lists(file2)
+    #print(lists2[:10])
+    file3 = "gpu_kern_exec_trace_40k.csv"
+    lists3 = csv_to_lists(file3)
+    first_line = lists3[0]
+    _dict_api = list_to_dict_api(lists1, "API")
+    #print_dict_head(_dict_api)
+    _dict_gpu = list_to_dict_gpu(lists2, "GPU")
+    #print_dict_head(_dict_gpu)
+    first_match = find_period_starts(_dict_api, _dict_gpu, first_line)
+    first_sync, first_sync_loc, second_sync, second_sync_loc = find_period(_dict_api, first_match, _dict_gpu)
+    #print(api_index)
+    DAG = generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc)
+    nodes = DAG.nodes(data=True)
+    edges = DAG.nodes(data=True)
+    print("nodes:", nodes)
+    print("edges:", edges)
+    write_dot(DAG, "DAG.dot")
+
+    
+    
+    
+
+
+    

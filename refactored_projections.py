@@ -888,7 +888,7 @@ class TASKSET:
     def run_analysis(self):
 
         
-        type_core_numbers = {"0": "5", "1": "5", "2": "5"}
+        type_core_numbers = {"0": "1", "1": "1", "2": "1"}
         _iter = 0
         _new_cont = 0
         average_suspension_times = [[]]
@@ -938,7 +938,7 @@ class TASKSET:
             
             stop, average_suspension_times = self.check_exit_helper(_iter, stop, average_suspension_times)
             nogo = True
-            if(stop and global_definitions.NEW_ANALYSIS and _new_cont < 1 and nogo):
+            if(stop and global_definitions.NEW_ANALYSIS and _new_cont < 5 and nogo):
                 stop = False
                 _new_cont = _new_cont + 1
             average_suspension_times.append([])
@@ -958,7 +958,7 @@ if __name__ == "__main__":
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
     TASK1 = TASK(DAG1, 350, 350)
     TASK3 = TASK(DAG5, 70, 70)
-    TASK4 = TASK(DAG5, 70, 70)
+    TASK4 = TASK(DAG5, 350, 350)
     TASK5 = TASK(DAG5, 70, 70)
     TASK6 = TASK(DAG5, 70, 70)
     TASK7 = TASK(DAG5, 70, 70)
@@ -972,7 +972,7 @@ if __name__ == "__main__":
     TASK15 = TASK(DAG5, 70, 70)
     TASK2 = TASK(DAG4, 350, 350)
     #TASK3 = TASK(DAG5, 350, 350)
-    TASKSET_ZERO = TASKSET([TASK2, TASK4, TASK5]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
+    TASKSET_ZERO = TASKSET([TASK2, TASK4]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
 
     
 
