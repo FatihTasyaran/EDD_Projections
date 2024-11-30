@@ -170,8 +170,106 @@ def find_period(_dict_api, first_match, _dict_gpu):
     '''
             
     return first_sync, first_sync_loc, second_sync, second_sync_loc
-    
 
+
+def ret_name(_type, counter):
+
+    name = ""
+
+    name = name + _type
+    name = name + "_"
+    name = name + str(counter)
+
+    
+    return name
+
+
+def generate_dag_new(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc):
+
+    print("No nodes:", second_sync_loc - first_sync_loc + 1)
+
+    ##Also need to go from, last synchronize to next copy, this is, other cpu work
+    
+    DAG = nx.DiGraph()
+
+    _cpu_counter = 1
+    _cpu_counter_prev = -1
+    _gpu_node_prev = -1
+    _gpu_compute_counter = 1
+    _gpu_compute_counter_prev = -1
+    _gpu_ce_counter = 1
+    _gpu_ce_counter_prev = -1
+    _gpu_name_prev = -1 ##This is a string, with contrast to others
+    _corr_id_to_name = {} ##This maps a cpu node with corr_id
+    
+    for i in range(first_sync_loc + 1, second_sync_loc + 1):
+        _api_loc = api_index[i]
+        _cpu_node =  _dict_api[_api_loc]
+        _cpu_node_type = -1 ## 1 normal, 2 synchronize
+        _corr_id = _cpu_node["CorrID"]
+        _gpu_node = -1
+
+        if(_cpu_node["Name"] == "cudaStreamSynchronize"):
+            _cpu_node_type = 2
+        else:
+            _cpu_node_type = 1
+
+        if(_corr_id in _dict_gpu):
+            _gpu_node = _dict_gpu[_corr_id]
+            if(_gpu_node["GrdX"] != ''):
+                _gpu_node_type = 1
+            else:
+                _gpu_node_type = 2
+        else:
+            _gpu_node = -1
+
+            
+        ##Scenario 1 is always true, add CPU node and edge from previous CPU if not first node
+        CPU_name = ret_name("CPU", _cpu_counter)
+        DAG.add_node(CPU_name, _type="CPU", e_name=_cpu_node["Name"].replace(":", "___")) ##Adding CPU
+        if(_cpu_counter_prev != -1):
+            cpu_name_prev = ret_name("CPU", _cpu_counter_prev)
+            DAG.add_edge(cpu_name_prev, CPU_name)
+        _corr_id_to_name[_corr_id] = CPU_name
+        ##Scenario 3, add edge from latest gpu node
+        if(_cpu_node_type == 2):
+            DAG.add_edge(_gpu_name_prev, CPU_name)
+        _cpu_counter_prev = _cpu_counter
+        _cpu_counter = _cpu_counter + 1
+
+        if(_gpu_node != -1):
+            if(_gpu_node["GrdX"] != ''): ##GPU node is compute(SM) type
+                _gpu_node_type = 1
+                GPU_name = ret_name("SM", _gpu_compute_counter)
+                DAG.add_node(GPU_name, _type="SM", e_name=_gpu_node["Name"].replace(":", "___")) ##Adding CPU
+                if(_gpu_compute_counter_prev != -1 or _gpu_ce_counter_prev != -1):
+                    DAG.add_edge(_gpu_name_prev, GPU_name)
+                _gpu_compute_counter_prev = _gpu_compute_counter
+                _gpu_compute_counter = _gpu_compute_counter + 1
+                related_cpu_node = _corr_id_to_name[_corr_id]
+                DAG.add_edge(related_cpu_node, GPU_name) ##Every GPU type node is dispatched by CPU
+                if(GPU_name == "SM_357"):
+                    print("1:", _gpu_name_prev, GPU_name)
+                _gpu_name_prev = GPU_name
+            else: ##GPU node is memory(CE) type
+                _gpu_node_type = 2
+                CE_name= ret_name("CE", _gpu_ce_counter)
+                DAG.add_node(CE_name, _type="CE", e_name=_gpu_node["Name"].replace(":", "___")) ##Adding CPU
+                if(_gpu_compute_counter_prev != -1 or _gpu_ce_counter_prev != -1):
+                    DAG.add_edge(_gpu_name_prev, CE_name)
+                _gpu_ce_counter_prev = _gpu_ce_counter
+                _gpu_ce_counter = _gpu_ce_counter + 1
+                related_cpu_node = _corr_id_to_name[_corr_id]
+                DAG.add_edge(related_cpu_node, CE_name) ##Every GPU type node is dispatched by CPU
+                if(CE_name == "CE_2"):
+                    print("2:", _gpu_name_prev, CE_name)
+                _gpu_name_prev = CE_name
+                 
+                    
+                        
+    return DAG
+        
+##Don't use it like this, freezes 16GB ram
 def generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc):
 
     prev = -1
@@ -183,7 +281,7 @@ def generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, 
     ce_prev = -1
     prev_type = ""
     DAG = nx.DiGraph()
-    for i in range(first_sync_loc + 1, second_sync_loc):
+    for i in range(first_sync_loc + 1, second_sync_loc + 1):
         CPU_name = "CPU_" + str(cpu_count)
         exec_name = _dict_api[api_index[i]]["Name"]
         DAG.add_node(CPU_name, _type="CPU", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=exec_name.replace(":", "__")) ##Adding CPU
@@ -199,12 +297,13 @@ def generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, 
         if(api_index[i] in _dict_gpu):
             _dict = _dict_gpu[api_index[i]]
             if(_dict["GrdX"] != ''):
-                GPU_name = "GPU_" + str(gpu_count)
+                GPU_name = "SM_" + str(gpu_count)
                 if(gpu_prev == -1):
                     gpu_prev = gpu_count
                 else:
                     gpu_prev_name = "SM_" + str(cpu_prev)
                     DAG.add_edge(gpu_prev_name, GPU_name, susp_min=0, susp_max=0)
+                    DAG.add_edge(CPU_name, GPU_name, susp_min=0, susp_max=0)
                 gpu_prev = gpu_count
                 gpu_count = gpu_count + 1
                 DAG.add_node(GPU_name, _type="SM", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=_dict["Name"].replace(":", "__")) ##Adding GPU
@@ -215,6 +314,7 @@ def generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, 
                 else:
                     ce_prev_name = "CE_" + str(ce_prev)
                     DAG.add_edge(ce_prev_name, CE_name, susp_min=0, susp_max=0)
+                    DAG.add_edge(CPU_name, CE_name, susp_min=0, susp_max=0)
                 ce_prev = ce_count
                 ce_count = ce_count + 1
                 DAG.add_node(CE_name, _type="CE", _cmin=-1, _cmax=-1, amin=-1, amax=-1, _d=-1, p=-1, _q=-1, e_name=_dict["Name"].replace(":", "__")) ##Adding CE
@@ -241,11 +341,11 @@ if __name__ == "__main__":
     first_match = find_period_starts(_dict_api, _dict_gpu, first_line)
     first_sync, first_sync_loc, second_sync, second_sync_loc = find_period(_dict_api, first_match, _dict_gpu)
     #print(api_index)
-    DAG = generate_dag(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc)
+    DAG = generate_dag_new(_dict_api, _dict_gpu, first_sync, first_sync_loc, second_sync, second_sync_loc)
     nodes = DAG.nodes(data=True)
     edges = DAG.nodes(data=True)
-    print("nodes:", nodes)
-    print("edges:", edges)
+    #print("nodes:", nodes)
+    #print("edges:", edges)
     write_dot(DAG, "DAG.dot")
 
     
