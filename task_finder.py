@@ -376,6 +376,52 @@ def ret_aggregated_dag(DAG):
         new_DAG.add_edge(edge[0], edge[1])
 
     return new_DAG
+
+def write_manual_dot(DAG):
+
+    writer = open("DAG.dot", "w+")
+    writer.write("digraph G{" + "\n")
+    nodes = dict(DAG.nodes())
+    edges = dict(DAG.edges())
+    for node in nodes:
+        if(node.find("CPU") != -1):
+            this_node = nodes[node]
+            my_xlabel = 'xlabel="'
+            my_xlabel = my_xlabel + this_node["e_name"] + ', '
+            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
+            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            my_xlabel = "" ##Takes too much space
+            my_node = " [shape=ellipse,color=black," + my_xlabel + "];\n"
+            print("my_node", my_node)
+            writer.write(node + my_node)
+        if(node.find("SM") != -1):
+            this_node = nodes[node]
+            my_xlabel = 'xlabel="'
+            my_xlabel = my_xlabel + this_node["e_name"] + ', '
+            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
+            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            my_xlabel = "" ##Takes too much space
+            my_node = " [shape=box,color=green," + my_xlabel + "];\n"
+            writer.write(node + my_node)
+        if(node.find("CE") != -1):
+            my_xlabel = 'xlabel="'
+            my_xlabel = my_xlabel + this_node["e_name"] + ", "
+            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ", "
+            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            my_xlabel = "" ##Takes too much space
+            my_node = " [shape=diamond,color=red," + my_xlabel + "];\n"
+            writer.write(node + my_node)
+
+    for edge in edges:
+        print("edge:", edge, edge[0])
+        writer.write(edge[0] + " -> " + edge[1] + "\n")
+            
+
+    writer.write("}" + "\n")
+
+
+
+    writer.close()
             
 if __name__ == "__main__":
 
@@ -406,8 +452,8 @@ if __name__ == "__main__":
         print(edge)
     '''
     DAG = ret_aggregated_dag(DAG)
-    write_dot(DAG, "DAG.dot")
-    
+    write_manual_dot(DAG)
+    return DAG
     #print("API index:", api_index)
     
     
