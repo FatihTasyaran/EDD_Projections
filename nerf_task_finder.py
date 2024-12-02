@@ -91,29 +91,29 @@ def write_manual_dot(DAG):
     for node in nodes:
         if(node.find("CPU") != -1):
             this_node = nodes[node]
-            my_xlabel = 'xlabel="'
-            my_xlabel = my_xlabel + this_node["e_name"] + ', '
-            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
-            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
-            my_xlabel = "" ##Takes too much space
-            my_node = " [shape=ellipse,color=black," + my_xlabel + "];\n"
+            #my_xlabel = 'xlabel="'
+            #my_xlabel = my_xlabel + this_node["e_name"] + ', '
+            #my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
+            #my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            #my_xlabel = "" ##Takes too much space
+            my_node = " [shape=ellipse,color=black];" + "\n" 
             writer.write(node + my_node)
         if(node.find("SM") != -1):
             this_node = nodes[node]
-            my_xlabel = 'xlabel="'
-            my_xlabel = my_xlabel + this_node["e_name"] + ', '
-            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
-            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
-            my_xlabel = "" ##Takes too much space
-            my_node = " [shape=box,color=green," + my_xlabel + "];\n"
+            #my_xlabel = 'xlabel="'
+            #my_xlabel = my_xlabel + this_node["e_name"] + ', '
+            #my_xlabel = my_xlabel + str(this_node["_cmin"]) + ', '
+            #my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            #my_xlabel = "" ##Takes too much space
+            my_node = " [shape=box,color=green];" + "\n"
             writer.write(node + my_node)
         if(node.find("CE") != -1):
-            my_xlabel = 'xlabel="'
-            my_xlabel = my_xlabel + this_node["e_name"] + ", "
-            my_xlabel = my_xlabel + str(this_node["_cmin"]) + ", "
-            my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
-            my_xlabel = "" ##Takes too much space
-            my_node = " [shape=diamond,color=red," + my_xlabel + "];\n"
+            #my_xlabel = 'xlabel="'
+            #my_xlabel = my_xlabel + this_node["e_name"] + ", "
+            #my_xlabel = my_xlabel + str(this_node["_cmin"]) + ", "
+            #my_xlabel = my_xlabel + str(this_node["_cmax"]) + '"'
+            #my_xlabel = "" ##Takes too much space
+            my_node = " [shape=diamond,color=red];" + "\n"
             writer.write(node + my_node)
 
     for edge in edges:
@@ -126,25 +126,6 @@ def write_manual_dot(DAG):
     writer.close()
 
 
-def list_to_dict_api(a_list):
-
-    api_dict = {} ##API entries are unique for sure
-    
-    for item in a_list:
-        api_dict[int(a_list["CorrID"])] = item
-
-    return api_dict
-
-def list_to_dict_gpu(a_list):
-
-    gpu_dict = {} ##GPU entries share corr id if they are part of a graph
-    
-    for item in a_list:
-        corr_id_int = int(item["CorrId"])
-        if(corr_id_int in ap):
-            api_dict[int(a_list["CorrID"])] = item
-
-    return gpu_dict
 
 def find_cpu_loc(api_list, corr_id):
 
@@ -221,17 +202,7 @@ def list_to_dict_period(gpu_list, api_list):
                 else:
                     cpu_loc -= 1
     
-    '''
-    for item in gpu_list:
-        if(int(item["CorrId"]) >= period_max_corrid_start and int(item["CorrId"]) <= period_max_corrid_end_cpu):
-            print("BBBitem:", item)
-            
-            
-    for item in api_list:
-        if(int(item["CorrID"]) >= period_max_corrid_start and int(item["CorrID"]) <= period_max_corrid_end_cpu):
-            print("AAAitem:", item)
-    '''
-
+    
     print("Longest period:", period_max_nodes)
     print("Longest period start:", period_max_start)
     print("Longest period end:", period_max_end)
@@ -255,67 +226,7 @@ def list_to_dict_period(gpu_list, api_list):
 
     return period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu
 
-##Will do: memsets counts as compute, multiple launch, memcpy connects next cpu node, read values from file, done!oev
-
-
-def list_to_dict_real(a_list, a_list_2):
     
-    before = 0
-
-    period_max_nodes = -1
-    period_max_start = -1
-    period_max_end = -1
-    period_max_corrid_start = -1
-    period_max_corrid_end = -1
-    period_max_nodes_second = -1
-    counter = 0
-    for idx, item in enumerate(a_list):
-        #print("item:", item["Name"])
-        if(item["Name"].find("ngp::generate_training_samples_nerf") != -1):
-            difference = idx - before
-            if(difference > period_max_nodes and counter > 2):
-                period_max_start = before
-                period_max_end = idx
-                period_max_nodes = difference
-                period_max_corrid_start = int(a_list[before]["CorrId"])
-                period_max_corrid_end = int(item["CorrId"])
-            if(difference > period_max_nodes and counter <= 2):
-                counter = counter + 1
-            before = idx
-
-
-    for item in a_list:
-        if(int(item["CorrId"]) >= period_max_corrid_start and int(item["CorrId"]) <= period_max_corrid_end):
-            print("BBBitem:", item)
-            
-            
-    for item in a_list_2:
-        if(int(item["CorrID"]) >= period_max_corrid_start and int(item["CorrID"]) <= period_max_corrid_end):
-            print("AAAitem:", item)
-
-
-    print("Longest period:", period_max_nodes)
-    print("Longest period start:", period_max_start)
-    print("Longest period end:", period_max_end)
-    print("Longest period CorrId Start:", period_max_corrid_start)
-    print("Longest period CorrId End:", period_max_corrid_end)
-
-    
-    
-def list_to_dict(a_list, TYPE):
-
-    before = 0
-    for idx, item in enumerate(a_list):
-        #print("item:", item["Name"])
-        if(item["Name"].find("ngp::generate_training_samples_nerf") != -1):
-            print("difference: ", idx - before)
-            print("#######")
-            print("THIS:", item)
-            print("BEFORE:", a_list[before])
-            print("Time difference: ", int(item["Start (ns)"]) - int(a_list[before]["Start (ns)"]))
-            print("FPS: " , 1 / ((int(item["Start (ns)"]) - int(a_list[before]["Start (ns)"])) / 1000000000))
-            before = idx
-            print("#######")
 
 
 def reverse_dict(api_list, gpu_list):
@@ -350,24 +261,27 @@ def get_gpu_name_scenario(gpu_kernel_name):
     gpu_type = ""
     scenario = ""
 
-    if(gpu_kernel_name.find("Memcpy") != -1 and gpu_kernel_name.find("Async") == -1):
+    if(gpu_kernel_name.find("memcpy") != -1 and gpu_kernel_name.find("Async") == -1):
         gpu_type = "CE"
         scenario = "SyncCopy"
-    if(gpu_kernel_name.find("Memcpy") != -1 and gpu_kernel_name.find("Async") != -1):
+    elif(gpu_kernel_name.find("memcpy") != -1 and gpu_kernel_name.find("Async") != -1):
         gpu_type = "CE"
         scenario = "ASyncCopy"
     else:
         gpu_type = "SM"
         scenario = "kernel" ##or memset, which is executed by SM
 
+    print("GPU Kernel Name:", gpu_kernel_name, "Returning Type: ", gpu_type, gpu_kernel_name.find("memcpy"), gpu_kernel_name.find("Async"))
     return gpu_type, scenario
 
+
+##Async name is on the cpu side, and add sink node, then done
 def dicts_to_dag(period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu, api_dict, gpu_dict):
     
     DAG = nx.DiGraph()
 
     
-    cpu_type_name_counter = 0 ##Because we will have a source node which is CPU0
+    cpu_type_name_counter = 1 ##Because we will have a source node which is CPU0
     gpu_sm_type_name_counter = 1
     gpu_ce_type_name_counter = 1
     cpu_type_prev_name = "CPU_0" ##Source node
@@ -390,50 +304,54 @@ def dicts_to_dag(period_start_gpu, period_end_gpu, period_start_cpu, period_end_
 
         if(idx in gpu_dict):
             no_calls = len(gpu_dict[idx])
-            gpu_node = api_dict[idx][0] ##First kernel of graph launch
+            gpu_node = gpu_dict[idx][0] ##First kernel of graph launch
             gpu_kernel_name = gpu_node["Name"]
             gpu_type, scenario = get_gpu_name_scenario(gpu_kernel_name)
             gpu_name = ""
             if(gpu_type == "CE"):
-                gpu_name = get_name(gpu_ce_type_counter, "CE")
+                gpu_name = get_name(gpu_ce_type_name_counter, "CE")
                 DAG.add_node(cpu_name, _type = "2", e_name = gpu_node["Name"])
                 if(gpu_type_prev_name != ""):
                     DAG.add_edge(gpu_type_prev_name, gpu_name)
-                gpu_ce_type_counter += 1
+                DAG.add_edge(cpu_name, gpu_name)
+                gpu_ce_type_name_counter += 1
                 gpu_type_prev_name = gpu_name
                 if(scenario == "SyncCopy"):
                     is_waiting = True
                     waiting_for = gpu_name
             else:
-                gpu_name = get_name(gpu_sm_type_counter, "SM")
+                gpu_name = get_name(gpu_sm_type_name_counter, "SM")
                 DAG.add_node(cpu_name, _type = "1", e_name = gpu_node["Name"])
                 if(gpu_type_prev_name != ""):
                     DAG.add_edge(gpu_type_prev_name, gpu_name)
-                gpu_sm_type_counter += 1
+                DAG.add_edge(cpu_name, gpu_name)
+                gpu_sm_type_name_counter += 1
                 gpu_type_prev_name = gpu_name
 
         
             for i in range(1, len(gpu_dict[idx])): ##Cuda graph calls
-                gpu_node = api_dict[idx][i] ##First kernel of graph launch, we added the first one already
+                gpu_node = gpu_dict[idx][i] ##First kernel of graph launch, we added the first one already
                 gpu_kernel_name = gpu_node["Name"]
                 gpu_type, scenario = get_gpu_name_scenario(gpu_kernel_name)
                 gpu_name = ""
                 if(gpu_type == "CE"):
-                    gpu_name = get_name(gpu_ce_type_counter, "CE")
+                    gpu_name = get_name(gpu_ce_type_name_counter, "CE")
                     DAG.add_node(cpu_name, _type = "2", e_name = gpu_node["Name"])
                     if(gpu_type_prev_name != ""):
                         DAG.add_edge(gpu_type_prev_name, gpu_name)
-                    gpu_ce_type_counter += 1
+                    DAG.add_edge(cpu_name, gpu_name)
+                    gpu_ce_type_name_counter += 1
                     gpu_type_prev_name = gpu_name
                     if(scenario == "SyncCopy"):
                         is_waiting = True
                         waiting_for = gpu_name
                 else:
-                    gpu_name = get_name(gpu_sm_type_counter, "SM")
+                    gpu_name = get_name(gpu_sm_type_name_counter, "SM")
                     DAG.add_node(cpu_name, _type = "1", e_name = gpu_node["Name"])
                     if(gpu_type_prev_name != ""):
                         DAG.add_edge(gpu_type_prev_name, gpu_name)
-                    gpu_sm_type_counter += 1
+                    DAG.add_edge(cpu_name, gpu_name)
+                    gpu_sm_type_name_counter += 1
                     gpu_type_prev_name = gpu_name
 
 
@@ -459,7 +377,7 @@ def main():
     
     period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu = list_to_dict_period(gpu_list, api_list)
     api_dict, gpu_dict = reverse_dict(api_list, gpu_list)
-    dict_api, dict_gpu, dict_calls = list_to_dicts_calls(period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu, api_list, gpu_list)
+    #dict_api, dict_gpu, dict_calls = list_to_dicts_calls(period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu, api_list, gpu_list)
     DAG = dicts_to_dag(period_start_gpu, period_end_gpu, period_start_cpu, period_end_cpu, api_dict, gpu_dict)
     write_manual_dot(DAG)
 
