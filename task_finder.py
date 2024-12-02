@@ -377,6 +377,83 @@ def ret_aggregated_dag(DAG):
 
     return new_DAG
 
+'''
+def ret_chibi_task(DAG):
+    
+
+    nodes = dict(DAG.nodes())
+
+    depths = nx.shortest_path_length(DAG, "CPU_0")
+    depths_reverse = {}
+
+    for node in depths:
+        this_depth = depths[node]
+        if(this_depth in depths_reverse):
+            depths_reverse[this_depth].append(node)
+        else:
+            depths_reverse[this_depth] = []
+            depths_reverse[this_depth].append(node)
+
+    outgoing_incoming_edges = {"out": {}, "in": {}}
+    edges = list(DAG.edges())
+
+    for edge in edges:
+        out_from = edge[0]
+        coming_in = edge[1]
+
+        if(out_from in outgoing_incoming_edges["out"]):
+            outgoing_incoming_edges["out"][out_from].append(coming_in)
+        else:
+            outgoing_incoming_edges["out"][out_from] = []
+            outgoing_incoming_edges["out"][out_from].append(coming_in)
+
+        if(coming_in in outgoing_incoming_edges["in"]):
+            outgoing_incoming_edges["in"][coming_in].append(out_from)
+        else:
+            outgoing_incoming_edges["in"][coming_in] = []
+            outgoing_incoming_edges["in"][coming_in].append(out_from)
+
+
+    print(outgoing_incoming_edges)
+    exit(1)
+            
+    print("depths:", depths)
+    print("depths_reverse:", depths_reverse)
+
+    chibi_task = nx.DiGraph()
+    running_cpu_cmin = 0
+    running_cpu_cmax = 0
+    running_sm_cmin = 0
+    running_sm_cmax = 0
+    no_layers = len(depths_reverse)
+    
+    last_cpu_edge = ""
+    last_sm_edge = ""
+    last_ce_edge = ""
+    
+    for depth in depths_reverse:
+        nodes = depth_reverse[depth]
+        
+        
+        if(depth == 0 or depth == 1):
+            node = depths_reverse[depth][0] ##Assuming we will only one CPU node in depths 1 and 2
+            chibi_task.add_node(node, _type = "0", _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
+            if(node != "CPU_0"):
+                chibi_task.add_edge(outgoing_incoming_edges["in"][node][0], node)
+
+        
+        
+        if(depth == no_layers - 1 or depth == no_layers -2):
+            node = depths_reverse[depth][0] ##Assuming we will only one CPU node in depths last and before
+            chibi_task.add_node(node, _type = "0", _cmin = c_min, _cmax = c_max, _amin = -1, _amax = -1, _d = -1, _p = -1, _q = -1, e_name = this_node["e_name"])
+
+            if(depth == no_layers - 2):
+                for incoming in outgoing_incoming_edges[node]
+
+'''
+
+    
+    
 def write_manual_dot(DAG):
 
     writer = open("DAG.dot", "w+")
@@ -421,6 +498,8 @@ def write_manual_dot(DAG):
     writer.close()
 
 
+
+
 def main():
 
     global DAG
@@ -452,6 +531,7 @@ def main():
     '''
     DAG = ret_aggregated_dag(DAG)
     write_manual_dot(DAG)
+    #chibi_DAG = ret_chibi_task(DAG)
     #print("API index:", api_index)
     
 def ret_dag_task():
