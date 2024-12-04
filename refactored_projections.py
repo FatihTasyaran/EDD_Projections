@@ -2,9 +2,10 @@ import networkx as nx
 import math
 import get_four_basic_tasks
 import test_tasks_0
+import test_tasks_limited
 import utils_refactored as utils
 import subprocess
-import global_definitions
+import global_definitions_limited as global_definitions ##Change this line if need to go with more types
 import copy
 import sys
 import task_finder
@@ -320,13 +321,17 @@ class TASKSET:
                     if(len(projection_roots) != 0):
                         for i in range(len(projection_roots)):
                             one_root = projection_roots[i]
+                            print("This root:", one_root)
                             one_root_jobs = task.nodes_to_job_ids[projection][one_root]
                             edges = list(task.DAG.in_edges(one_root))
                             incoming_all = []
                             for edge in edges:
                                 print("this_edge: ", edge)
                                 incoming = edge[0]
-                                incoming_jobs = task.nodes_to_job_ids["0"][incoming]
+                                try:
+                                    incoming_jobs = task.nodes_to_job_ids["0"][incoming]
+                                except:
+                                    incoming_jobs = "CPU_0" ##This is a workaround fow now because naive method will not gonna work anyway
                                 incoming_all.append(incoming_jobs)
                             if(len(one_root_jobs) != len(incoming_jobs)):
                                 print("Error: Unequal number of jobs during jitter root mapping, exiting..")
@@ -447,7 +452,6 @@ class TASKSET:
                 for i in range(len(source_jobs)):
                     _dict = {}
                     if(not MODE):
-                        print("NAIVE")
                         _dict = {"pred_tid": task_id,
                                  "pred_jid": source_jobs[i],
                                  "succ_tid": task_id,
@@ -460,7 +464,6 @@ class TASKSET:
                                  "end_jobs": None,
                                  "edge_type": "only_precedence"}
                     else:
-                        print("NEW")
                         _dict = {"pred_tid": task_id,
                                  "pred_jid": source_jobs[i],
                                  "succ_tid": task_id,
@@ -890,7 +893,7 @@ class TASKSET:
     def run_analysis(self):
 
         
-        type_core_numbers = {"0": "1", "1": "1", "2": "1"}
+        type_core_numbers = {"0": "2", "1": "2", "2": "2"}
         _iter = 0
         _new_cont = 0
         average_suspension_times = [[]]
@@ -970,6 +973,7 @@ if __name__ == "__main__":
     if(len(sys.argv) > 1):
         global_definitions.NEW_ANALYSIS = int(sys.argv[1])
 
+    ##Inıtial
     '''
     #def __init__(self, DAG, period, deadline):
     DAG1, DAG2, DAG3, DAG4, DAG5, DAG6 = test_tasks_0.return_tasks()
@@ -991,9 +995,12 @@ if __name__ == "__main__":
     #TASK3 = TASK(DAG5, 350, 350)
     TASKSET_ZERO = TASKSET([TASK2, TASK4]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
     '''
+
+    ##Empirically generated tasks
+    '''
     a_DAG1, task_time_min, task_time_max = task_finder.ret_dag_task()
-    a_DAG1_deadline = 3 * task_time_max
-    a_DAG1_period = 3 * task_time_max
+    a_DAG1_deadline = 100 * task_time_max
+    a_DAG1_period = 100 * task_time_max
     a_DAG1_priority = 1
     a_DAG1 = re_assign_dag_properties(a_DAG1, a_DAG1_deadline, a_DAG1_period, a_DAG1_priority)
 
@@ -1001,8 +1008,8 @@ if __name__ == "__main__":
     print(nodes["CPU_1"])
     
     a_DAG2, task_time_min, task_time_max = task_finder.ret_dag_task()
-    a_DAG2_deadline = 3 * task_time_max
-    a_DAG2_period = 3 * task_time_max
+    a_DAG2_deadline = 100 * task_time_max
+    a_DAG2_period = 100 * task_time_max
     a_DAG2_priority = 1
     a_DAG2 = re_assign_dag_properties(a_DAG2, a_DAG2_deadline, a_DAG2_period, a_DAG2_priority)
 
@@ -1013,12 +1020,17 @@ if __name__ == "__main__":
     TASK2 = TASK(a_DAG1, a_DAG1_deadline, a_DAG1_period)
     print("TASK2 created")
     TASKSET_ZERO = TASKSET([TASK1, TASK2]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
-
+    '''
     ##Usage of some functions
 
     #utils.print_task_level_suspensions_dict(TASK1)
     #utils.visualize_bfs_w_depth(DAG1)
     #utils.visualize_bfs_w_depth(DAG4)
-    
 
-    
+    ##Limited tasks
+    DAG1, DAG2 = test_tasks_limited.return_tasks()
+
+    TASK1 = TASK(DAG1, 100, 100)
+    TASK2 = TASK(DAG1, 100, 100)
+
+    TASKSET_ZERO = TASKSET([TASK1]) ##Populates data structures within TASKs w.r.to resulted hyperperiod
